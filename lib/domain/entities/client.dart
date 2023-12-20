@@ -3,7 +3,7 @@ import 'package:fullserva/domain/entities/appointment.dart';
 class Client {
   String id;
   String name;
-  int phone;
+  String phone;
   String email;
   List<Appointment> appointmentHistory;
   String? address;
@@ -22,7 +22,9 @@ class Client {
         name = map["name"],
         phone = map["phone"],
         email = map["email"],
-        appointmentHistory = map["appointmentHistory"],
+        appointmentHistory = (map["appointmentHistory"] as List)
+            .map((appointmentMap) => Appointment.fromMap(appointmentMap))
+            .toList(),
         address = map["address"];
 
   Map<String, dynamic> toMap() {

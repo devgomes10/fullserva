@@ -1,30 +1,31 @@
-import 'package:fullserva/domain/entities/professional.dart';
+import 'package:fullserva/domain/entities/employee.dart';
+import '../enums/service_mode.dart';
 
-class Job {
+class Service {
   String id;
   String name;
-  Professional professional;
+  Employee employee;
   String description;
-  String jobMode;
+  ServiceMode serviceMode;
   String estimatedDuration;
   double price;
 
-  Job({
+  Service({
     required this.id,
     required this.name,
-    required this.professional,
+    required this.employee,
     required this.description,
-    required this.jobMode,
+    required this.serviceMode,
     required this.estimatedDuration,
     required this.price,
   });
 
-  Job.fromMap(Map<String, dynamic> map)
+  Service.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
-        professional = map["professional"],
+        employee = Employee.fromMap(map["employee"]),
         description = map["description"],
-        jobMode = map["jobMode"],
+        serviceMode = map["serviceMode"],
         estimatedDuration = map["estimatedDuration"],
         price = map["price"];
 
@@ -32,9 +33,9 @@ class Job {
     return {
       "id": id,
       "name": name,
-      "professional": professional,
+      "employee": employee,
       "description": description,
-      "jobMode": jobMode,
+      "serviceMode": serviceMode,
       "estimatedDuration": estimatedDuration,
       "price": price,
     };

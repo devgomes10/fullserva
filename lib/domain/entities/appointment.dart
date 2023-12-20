@@ -1,12 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fullserva/domain/entities/client.dart';
-import 'package:fullserva/domain/entities/job.dart';
-import 'package:fullserva/domain/entities/professional.dart';
+import 'package:fullserva/domain/entities/service.dart';
+import 'package:fullserva/domain/entities/employee.dart';
 
 class Appointment {
   String id;
   Client client;
-  Professional professional;
-  Job job;
+  Employee employee;
+  Service service;
   DateTime dateTime;
   bool paid;
   bool complete;
@@ -14,8 +15,8 @@ class Appointment {
   Appointment({
     required this.id,
     required this.client,
-    required this.professional,
-    required this.job,
+    required this.employee,
+    required this.service,
     required this.dateTime,
     required this.paid,
     required this.complete,
@@ -23,19 +24,19 @@ class Appointment {
 
   Appointment.fromMap(Map<String, dynamic> map)
       : id = map["id"],
-        client = map["client"],
-        professional = map["professional"],
-        job = map["job"],
-        dateTime = map["dateTime"],
+        client = Client.fromMap(map["client"]),
+        employee = Employee.fromMap(map["employee"]),
+        service = Service.fromMap(map["service"]),
+        dateTime = (map["dateTime"] as Timestamp).toDate(),
         paid = map["paid"],
         complete = map["complete"];
 
   Map<String, dynamic> toMap() {
     return {
       "id": id,
-      "client": client,
-      "professional": professional,
-      "job": job,
+      "client": client.toMap(),
+      "employee": employee.toMap(),
+      "service": service.toMap(),
       "dateTime": dateTime,
       "paid": paid,
       "complete": complete,

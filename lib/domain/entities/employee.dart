@@ -1,29 +1,29 @@
 import 'package:fullserva/domain/entities/appointment.dart';
-import 'package:fullserva/domain/entities/job.dart';
+import 'package:fullserva/domain/entities/service.dart';
 
-class Professional {
+class Employee {
   String id;
   String name;
   String email;
   String expertise;
-  List<Job> jobList;
+  List<Service> serviceList;
   List<Appointment> appointmentHistory;
 
-  Professional({
+  Employee({
     required this.id,
     required this.name,
     required this.email,
     required this.expertise,
     required this.appointmentHistory,
-    required this.jobList,
+    required this.serviceList,
   });
 
-  Professional.fromMap(Map<String, dynamic> map)
+  Employee.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
         email = map["email"],
         expertise = map["expertise"],
-        jobList = map["jobList"],
+        serviceList = map["serviceList"],
         appointmentHistory = map["appointmentHistory"];
 
   Map<String, dynamic> toMap() {
@@ -32,7 +32,7 @@ class Professional {
       "name": name,
       "email": email,
       "expertise": expertise,
-      "jobList": jobList,
+      "serviceList": serviceList,
       "appointmentHistory": appointmentHistory,
     };
   }
