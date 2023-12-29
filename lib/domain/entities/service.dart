@@ -17,6 +17,7 @@ class Service {
     required this.price,
   });
 
+  // Converting a map to an instance
   Service.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
@@ -25,6 +26,7 @@ class Service {
         estimatedDuration = map["estimatedDuration"],
         price = map["price"];
 
+  // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,

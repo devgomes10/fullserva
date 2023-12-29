@@ -8,6 +8,7 @@ class ClientController {
   FirebaseFirestore firestore;
 
   ClientController(this.firestore) {
+    // Creating a unique identifier
     uidClient = FirebaseAuth.instance.currentUser!.uid;
     clientCollection = firestore.collection("client_$uidClient");
   }

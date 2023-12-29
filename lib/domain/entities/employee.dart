@@ -16,6 +16,7 @@ class Employee {
     required this.isVacation,
   });
 
+  // Converting a map to an instance
   Employee.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
@@ -23,6 +24,7 @@ class Employee {
         appointmentHistory = map["appointmentHistory"],
         isVacation = map["isVacation"];
 
+  // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,

@@ -13,6 +13,7 @@ class Client {
     required this.appointmentHistory,
   });
 
+  // Converting a map to an instance
   Client.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
@@ -21,6 +22,7 @@ class Client {
             .map((appointmentMap) => Appointment.fromMap(appointmentMap))
             .toList();
 
+  // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,

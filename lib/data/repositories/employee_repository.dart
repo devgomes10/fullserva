@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/entities/employee.dart';
 
-class EmployeeController {
+class EmployeeRepository {
   late String uidEmployee;
   late CollectionReference employeeCollection;
   FirebaseFirestore firestore;
 
-  EmployeeController(this.firestore) {
+  EmployeeRepository(this.firestore) {
+    // Creating a unique identifier
     uidEmployee = FirebaseAuth.instance.currentUser!.uid;
     employeeCollection = firestore.collection("employee_$uidEmployee");
   }

@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/entities/appointment.dart';
 
-class AppointmentController {
+class AppointmentRepository {
   late String uidAppointment;
   late CollectionReference appointmentCollection;
   FirebaseFirestore firestore;
 
-  AppointmentController(this.firestore) {
+  AppointmentRepository(this.firestore) {
+    // Creating a unique identifier
     uidAppointment = FirebaseAuth.instance.currentUser!.uid;
     appointmentCollection = firestore.collection("appointment_$uidAppointment");
   }

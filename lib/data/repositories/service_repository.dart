@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/entities/service.dart';
 
-class ServiceController {
+class ServiceRepository {
   late String uidService;
   late CollectionReference serviceCollection;
   FirebaseFirestore firestore;
 
-  ServiceController(this.firestore) {
+  ServiceRepository(this.firestore) {
+    // Creating a unique identifier
     uidService = FirebaseAuth.instance.currentUser!.uid;
     serviceCollection = firestore.collection("service_$uidService");
   }
@@ -41,13 +42,13 @@ class ServiceController {
     );
   }
 
-  Future<void> updateService(Service updateService) async {
+  Future<void> updateService(Service service) async {
     try {
-      final doc = await serviceCollection.doc(updateService.id).get();
+      final doc = await serviceCollection.doc(service.id).get();
       if (doc.exists) {
         await serviceCollection
-            .doc(updateService.id)
-            .update(updateService.toMap());
+            .doc(service.id)
+            .update(service.toMap());
       } else {
         // tratar em caso de erro
       }
@@ -57,9 +58,9 @@ class ServiceController {
     }
   }
 
-  Future<void> removeService(String serviceId) async {
+  Future<void> removeService(String service) async {
     try {
-      await serviceCollection.doc(serviceId).delete();
+      await serviceCollection.doc(service).delete();
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro

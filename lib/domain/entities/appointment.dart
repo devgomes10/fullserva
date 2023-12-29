@@ -15,6 +15,7 @@ class Appointment {
     required this.dateTime,
   });
 
+  // Converting a map to an instance
   Appointment.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         clientId = map["client"],
@@ -22,6 +23,7 @@ class Appointment {
         serviceId = map["service"],
         dateTime = (map["dateTime"] as Timestamp).toDate();
 
+  // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,
