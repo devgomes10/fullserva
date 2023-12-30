@@ -3,8 +3,7 @@ import 'package:fullserva/domain/entities/employee.dart';
 class Service {
   String id;
   String name;
-  Employee employee;
-  String description;
+  List<Employee> employee;
   String estimatedDuration;
   double price;
 
@@ -12,7 +11,6 @@ class Service {
     required this.id,
     required this.name,
     required this.employee,
-    required this.description,
     required this.estimatedDuration,
     required this.price,
   });
@@ -21,8 +19,9 @@ class Service {
   Service.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
-        employee = Employee.fromMap(map["employee"]),
-        description = map["description"],
+        employee = (map["employee"] as List)
+            .map((employeeMap) => Employee.fromMap(employeeMap))
+            .toList(),
         estimatedDuration = map["estimatedDuration"],
         price = map["price"];
 
@@ -32,7 +31,6 @@ class Service {
       "id": id,
       "name": name,
       "employee": employee,
-      "description": description,
       "estimatedDuration": estimatedDuration,
       "price": price,
     };

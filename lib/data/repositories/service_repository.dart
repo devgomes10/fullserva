@@ -6,11 +6,11 @@ import '../../domain/entities/service.dart';
 class ServiceRepository {
   late String uidService;
   late CollectionReference serviceCollection;
-  FirebaseFirestore firestore;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  ServiceRepository(this.firestore) {
+  ServiceRepository() {
     // Creating a unique identifier
-    uidService = FirebaseAuth.instance.currentUser!.uid;
+    uidService = FirebaseAuth.instance.currentUser?.uid ?? 'defaultUID';
     serviceCollection = firestore.collection("service_$uidService");
   }
 
@@ -32,7 +32,6 @@ class ServiceRepository {
               id: doc.id,
               name: doc["name"],
               employee: doc["employee"],
-              description: doc["description"],
               estimatedDuration: doc["estimatedDuration"],
               price: doc["price"],
             );
