@@ -3,28 +3,26 @@ import 'package:fullserva/domain/entities/employee.dart';
 import 'package:fullserva/domain/usecases/employee_usecase.dart';
 
 class EmployeeController implements EmployeeUseCase {
-  final EmployeeRepository _employeeRepository;
-
-  EmployeeController(this._employeeRepository);
+  final EmployeeRepository employeeRepository = EmployeeRepository();
 
   @override
   Future<void> addEmployee(Employee employee) {
-    return _employeeRepository.addEmployee(employee);
+    return employeeRepository.addEmployee(employee);
   }
 
   @override
   Stream<List<Employee>> getEmployee() {
-    return _employeeRepository.getEmployee();
+    return employeeRepository.getEmployee();
   }
 
   @override
   Future<void> removeEmployee(String employee) {
-    return _employeeRepository.removeEmployee(employee);
+    return employeeRepository.removeEmployee(employee);
   }
 
   @override
   Future<void> updateEmployee(Employee employee) {
-    return _employeeRepository.updateEmployee(employee);
+    return employeeRepository.updateEmployee(employee);
   }
 
 }

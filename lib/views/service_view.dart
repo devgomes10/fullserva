@@ -13,36 +13,48 @@ class ServiceView extends StatefulWidget {
 
 class _ServiceViewState extends State<ServiceView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
-  final ServiceController _serviceController = ServiceController();
+  final ServiceController serviceController = ServiceController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Serviços"),
-        centerTitle: true,
-      ),
-      body: StreamBuilder<List<Service>>(
-        stream: _serviceController.getService(),
-        builder: (BuildContext context, AsyncSnapshot<List<Service>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Serviços"),
+          centerTitle: true,
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ServiceFormView(),
+              ),
+            );
+          },
+          child: const Icon(Icons.add),
+        ),
+        body: StreamBuilder<List<Service>>(
+          stream: serviceController.getService(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Service>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return const Center(
+                // Adicionar uma imagem
+                child: Text('Erro ao carregar os dados'),
+              );
+            }
+            final services = snapshot.data;
+            if (services == null || services.isEmpty) {
               // Adicionar uma imagem
-              child: Text('Erro ao carregar os dados'),
-            );
-          }
-          final services = snapshot.data;
-          if (services == null || services.isEmpty) {
-            // Adicionar uma imagem
-            return const Center(
-              child: Text('Nenhum dado disponível'),
-            );
-          }
-          return SafeArea(
-            child: ListView.separated(
+              return const Center(
+                child: Text('Nenhum dado disponível'),
+              );
+            }
+            return ListView.separated(
               itemBuilder: (BuildContext context, int i) {
                 return ListTile(
                   onTap: () {},
@@ -65,14 +77,10 @@ class _ServiceViewState extends State<ServiceView> {
               },
               separatorBuilder: (_, __) => const Divider(),
               itemCount: services.length,
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceFormView(),),);
-      },
-      child: const Icon(Icons.add),),
     );
   }
 }

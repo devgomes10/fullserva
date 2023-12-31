@@ -6,11 +6,11 @@ import '../../domain/entities/employee.dart';
 class EmployeeRepository {
   late String uidEmployee;
   late CollectionReference employeeCollection;
-  FirebaseFirestore firestore;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  EmployeeRepository(this.firestore) {
+  EmployeeRepository() {
     // Creating a unique identifier
-    uidEmployee = FirebaseAuth.instance.currentUser!.uid;
+    uidEmployee = FirebaseAuth.instance.currentUser?.uid ?? 'defaultUID';
     employeeCollection = firestore.collection("employee_$uidEmployee");
   }
 
@@ -31,8 +31,8 @@ class EmployeeRepository {
             return Employee(
               id: doc.id,
               name: doc["name"],
-              appointmentHistory: doc["appointmentHistory"],
-              serviceList: doc["serviceList"],
+              phone: doc["phone"],
+              role: doc["role"],
               isVacation: doc["isVacation"],
             );
           },

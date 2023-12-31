@@ -1,18 +1,15 @@
-import 'package:fullserva/domain/entities/appointment.dart';
-import 'package:fullserva/domain/entities/service.dart';
-
 class Employee {
   String id;
   String name;
-  List<Service> serviceList;
-  List<Appointment> appointmentHistory;
+  String phone;
+  String role;
   bool isVacation;
 
   Employee({
     required this.id,
     required this.name,
-    required this.appointmentHistory,
-    required this.serviceList,
+    required this.phone,
+    required this.role,
     required this.isVacation,
   });
 
@@ -20,8 +17,8 @@ class Employee {
   Employee.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
-        serviceList = map["serviceList"],
-        appointmentHistory = map["appointmentHistory"],
+        phone = map["phone"],
+        role = map["role"],
         isVacation = map["isVacation"];
 
   // Convert an instance to a map
@@ -29,8 +26,8 @@ class Employee {
     return {
       "id": id,
       "name": name,
-      "serviceList": serviceList,
-      "appointmentHistory": appointmentHistory,
+      "phone": phone,
+      "role": role,
       "isVacation": isVacation,
     };
   }
