@@ -12,14 +12,14 @@ class MenuNavigator extends StatefulWidget {
 }
 
 class _MenuNavigatorState extends State<MenuNavigator> {
-  int currentPageIndex = 0; // Inicialize com um índice válido
+  int currentPageIndex = 0;
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: NavigationBar(
-        destinations: [
+        destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_repair_service),
             label: "Serviços",
@@ -45,7 +45,7 @@ class _MenuNavigatorState extends State<MenuNavigator> {
           });
         },
       ),
-      body: [
+      body: const [
         ServiceView(),
         EmployeeView(),
         DashboardView(),

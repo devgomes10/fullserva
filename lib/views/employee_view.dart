@@ -40,9 +40,9 @@ class _EmployeeViewState extends State<EmployeeView> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return const Center(
+              return Center(
                 // Adicionar uma imagem
-                child: Text('Erro ao carregar os dados'),
+                child: Text('Erro ao carregar os dados: ${snapshot.error}'),
               );
             }
             final employees = snapshot.data;
