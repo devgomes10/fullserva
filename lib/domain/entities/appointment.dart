@@ -1,36 +1,38 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Appointment {
   String id;
-  String clientId;
-  String employeeId;
+  String clientName;
+  String clientPhone;
   String serviceId;
   DateTime dateTime;
+  String internalObservations;
 
   Appointment({
     required this.id,
-    required this.clientId,
-    required this.employeeId,
+    required this.clientName,
+    required this.clientPhone,
     required this.serviceId,
     required this.dateTime,
+    required this.internalObservations,
   });
 
   // Converting a map to an instance
   Appointment.fromMap(Map<String, dynamic> map)
       : id = map["id"],
-        clientId = map["client"],
-        employeeId = map["employee"],
+        clientName = map["clientName"],
+        clientPhone = map["clientPhone"],
         serviceId = map["service"],
-        dateTime = (map["dateTime"] as Timestamp).toDate();
+        dateTime = map["dateTime"],
+        internalObservations = map["internalObservations"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,
-      "clientId": clientId,
-      "employeeId": employeeId,
+      "clientName": clientName,
+      "clientPhone": clientPhone,
       "serviceId": serviceId,
       "dateTime": dateTime,
+      "internalObservations": internalObservations,
     };
   }
 }

@@ -3,9 +3,7 @@ import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/usecases/appointment_usecase.dart';
 
 class AppointmentController implements AppointmentUseCase {
-  final AppointmentRepository _appointmentRepository;
-
-  AppointmentController(this._appointmentRepository);
+  final AppointmentRepository _appointmentRepository = AppointmentRepository();
 
   @override
   Future<void> addAppointment(Appointment appointment) {

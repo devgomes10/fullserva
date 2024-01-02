@@ -1,22 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
+// import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/appointment.dart';
 
 class AppointmentRepository {
-  late String uidAppointment;
+  // late String uidAppointment;
   late CollectionReference appointmentCollection;
-  FirebaseFirestore firestore;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  AppointmentRepository(this.firestore) {
-    // Creating a unique identifier
-    uidAppointment = FirebaseAuth.instance.currentUser!.uid;
-    appointmentCollection = firestore.collection("appointment_$uidAppointment");
+  AppointmentRepository() {
+    // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
+    appointmentCollection = firestore.collection("appointment");
   }
 
   Future<void> addAppointment(Appointment appointment) async {
     try {
-      await appointmentCollection.doc(appointment.id).set(appointment.toMap());
+            await appointmentCollection.add(appointment.toMap());
+      // await appointmentCollection.doc(appointment.id).set(appointment.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -26,14 +25,14 @@ class AppointmentRepository {
   Stream<List<Appointment>> getAppointments() {
     return appointmentCollection.snapshots().map(
       (snapshot) {
-        return snapshot.docs.map(
-          (doc) {
-            return Appointment(
+        return snapshot.docs.map((doc) {
+          return Appointment(
               id: doc.id,
-              clientId: doc['clientId'],
-              employeeId: doc['employeeId'],
+              clientName: doc['clientName'],
+              clientPhone: doc['clientPhone'],
               serviceId: doc['serviceId'],
               dateTime: (doc['datetime'] as Timestamp).toDate(),
+              internalObservations: doc['internalObservations'],
             );
           },
         ).toList();
@@ -43,14 +42,21 @@ class AppointmentRepository {
 
   Future<void> updateAppointment(Appointment appointment) async {
     try {
-      final doc = await appointmentCollection.doc(appointment.id).get();
-      if (doc.exists) {
-        await appointmentCollection
-            .doc(appointment.id)
-            .update(appointment.toMap());
-      } else {
-        // tratar em caso de erro
-      }
+      await appointmentCollection.get().then(
+            (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.update(appointment.toMap());
+          }
+        },
+      );
+      // final doc = await appointmentCollection.doc(appointment.id).get();
+      // if (doc.exists) {
+      //   await appointmentCollection
+      //       .doc(appointment.id)
+      //       .update(appointment.toMap());
+      // } else {
+      //   // tratar em caso de erro
+      // }
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -59,7 +65,15 @@ class AppointmentRepository {
 
   Future<void> removeAppointment(String appointment) async {
     try {
-      await appointmentCollection.doc(appointment).delete();
+      await appointmentCollection
+          .where("name", isEqualTo: appointment)
+          .get()
+          .then((snapshot) {
+        for (DocumentSnapshot doc in snapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+      // await appointmentCollection.doc(appointment).delete();
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro

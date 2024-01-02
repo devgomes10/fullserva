@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fullserva/views/appointment_view.dart';
 import 'package:fullserva/views/dashboard_view.dart';
-import 'package:fullserva/views/employee_view.dart';
 import 'package:fullserva/views/service_view.dart';
 import 'package:fullserva/views/settings_view.dart';
 
@@ -21,12 +21,12 @@ class _MenuNavigatorState extends State<MenuNavigator> {
       bottomNavigationBar: NavigationBar(
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_repair_service),
-            label: "Serviços",
+            icon: Icon(Icons.calendar_month_outlined),
+            label: "Agendamentos",
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            label: "Funcionários",
+            icon: Icon(Icons.build_outlined),
+            label: "Serviços",
           ),
           NavigationDestination(
             icon: Icon(Icons.bubble_chart_outlined),
@@ -46,8 +46,8 @@ class _MenuNavigatorState extends State<MenuNavigator> {
         },
       ),
       body: const [
+        AppointmentView(),
         ServiceView(),
-        EmployeeView(),
         DashboardView(),
         SettingsView(),
       ] [currentPageIndex],

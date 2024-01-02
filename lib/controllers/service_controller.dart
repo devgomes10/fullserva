@@ -16,7 +16,7 @@ class ServiceController implements ServiceUseCase {
   }
 
   @override
-  Future<void> removeService(String service) {
+  Future<void> removeService(Service service) {
     return _serviceRepository.removeService(service);
   }
 
