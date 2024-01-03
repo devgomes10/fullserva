@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
+import 'package:fullserva/views/appointment_form_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../domain/entities/appointment.dart';
@@ -14,34 +15,26 @@ class AppointmentView extends StatefulWidget {
 class _AppointmentViewState extends State<AppointmentView> {
   DateTime today = DateTime.now();
   final AppointmentController _controller = AppointmentController();
-  late List<Appointment> _appointmentsForDay;
-
-  @override
-  void initState() {
-    super.initState();
-    _appointmentsForDay = []; // Inicialize a lista aqui
-    _getAppointmentsForDay(today);
-  }
-
-  void _getAppointmentsForDay(DateTime day) {
-    _controller.getAppointments().listen((appointments) {
-      // Filtra os compromissos para o dia selecionado
-      setState(() {
-        _appointmentsForDay = appointments
-            .where((appointment) =>
-        appointment.dateTime.year == day.year &&
-            appointment.dateTime.month == day.month &&
-            appointment.dateTime.day == day.day)
-            .toList();
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Agendamentos"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AppointmentFormView()),
+          );
+
+          if (result == true) {
+            // Sem a necessidade de chamar _getAppointmentsForDay, pois o StreamBuilder
+            // irá atualizar automaticamente com as alterações no stream.
+          }
+        },
+        child: Icon(Icons.add),
       ),
       body: Column(
         children: [
@@ -63,22 +56,41 @@ class _AppointmentViewState extends State<AppointmentView> {
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 today = focusedDay;
-                _getAppointmentsForDay(focusedDay);
+                // Remova a chamada para o método _getAppointmentsForDay
               });
             },
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _appointmentsForDay.length,
-              itemBuilder: (context, index) {
-                final appointment = _appointmentsForDay[index];
-                return ListTile(
-                  title: Text(appointment.clientName),
-                  subtitle: Text(
-                    "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
-                  ),
-                  // Adicione mais detalhes conforme necessário
-                );
+            child: StreamBuilder<List<Appointment>>(
+              stream: _controller.getAppointments(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  // Filtra os compromissos para o dia selecionado
+                  final appointmentsForDay = snapshot.data!
+                      .where((appointment) =>
+                  appointment.dateTime.year == today.year &&
+                      appointment.dateTime.month == today.month &&
+                      appointment.dateTime.day == today.day)
+                      .toList();
+
+                  return ListView.builder(
+                    itemCount: appointmentsForDay.length,
+                    itemBuilder: (context, index) {
+                      final appointment = appointmentsForDay[index];
+                      return ListTile(
+                        title: Text(appointment.clientName),
+                        subtitle: Text(
+                          "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
+                        ),
+                        // Adicione mais detalhes conforme necessário
+                      );
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Erro: ${snapshot.error}");
+                } else {
+                  return CircularProgressIndicator();
+                }
               },
             ),
           ),

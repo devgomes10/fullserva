@@ -1,21 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/appointment.dart';
 
 class AppointmentRepository {
-  // late String uidAppointment;
   late CollectionReference appointmentCollection;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   AppointmentRepository() {
-    // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
     appointmentCollection = firestore.collection("appointment");
   }
 
   Future<void> addAppointment(Appointment appointment) async {
     try {
-            await appointmentCollection.add(appointment.toMap());
-      // await appointmentCollection.doc(appointment.id).set(appointment.toMap());
+      await appointmentCollection.add(appointment.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -24,14 +20,15 @@ class AppointmentRepository {
 
   Stream<List<Appointment>> getAppointments() {
     return appointmentCollection.snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map((doc) {
-          return Appointment(
+          (snapshot) {
+        return snapshot.docs.map(
+              (doc) {
+            return Appointment(
               id: doc.id,
               clientName: doc['clientName'],
               clientPhone: doc['clientPhone'],
               serviceId: doc['serviceId'],
-              dateTime: (doc['datetime'] as Timestamp).toDate(),
+              dateTime: (doc['dateTime'] as Timestamp).toDate(),
               internalObservations: doc['internalObservations'],
             );
           },
@@ -43,20 +40,12 @@ class AppointmentRepository {
   Future<void> updateAppointment(Appointment appointment) async {
     try {
       await appointmentCollection.get().then(
-            (snapshot) {
+        (snapshot) {
           for (DocumentSnapshot doc in snapshot.docs) {
             doc.reference.update(appointment.toMap());
           }
         },
       );
-      // final doc = await appointmentCollection.doc(appointment.id).get();
-      // if (doc.exists) {
-      //   await appointmentCollection
-      //       .doc(appointment.id)
-      //       .update(appointment.toMap());
-      // } else {
-      //   // tratar em caso de erro
-      // }
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -73,7 +62,6 @@ class AppointmentRepository {
           doc.reference.delete();
         }
       });
-      // await appointmentCollection.doc(appointment).delete();
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
