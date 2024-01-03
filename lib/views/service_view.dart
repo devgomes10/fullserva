@@ -15,6 +15,7 @@ class _ServiceViewState extends State<ServiceView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
   final ServiceController serviceController = ServiceController();
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
