@@ -14,7 +14,6 @@ class _DashboardViewState extends State<DashboardView> {
       child: Scaffold(
         appBar: AppBar(
           title: Text("Painel"),
-          centerTitle: true,
         ),
       ),
     );

@@ -22,7 +22,6 @@ class _ServiceViewState extends State<ServiceView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Serviços"),
-          centerTitle: true,
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
