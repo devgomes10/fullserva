@@ -13,8 +13,9 @@ class SetOpeningHours extends StatefulWidget {
 class _SetOpeningHoursState extends State<SetOpeningHours> {
   bool isOpen = false;
   double startTime = 8.0;
-  double endTime = 18.0;
-  List<TimeRange> intervals = [];
+  double endTime = 18;
+  double startTimeInterval = 12;
+  double endTimeInterval = 13;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +37,10 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
                     setState(() {
                       isOpen = value;
                       if (!value) {
-                        // Se o dia estiver fechado, redefine o horário de funcionamento e limpa os intervalos
                         startTime = 0.0;
                         endTime = 0.0;
-                        intervals.clear();
+                        startTimeInterval = 0;
+                        endTimeInterval = 0;
                       }
                     });
                   },
@@ -52,7 +53,7 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
               values: RangeValues(startTime, endTime),
               min: 0.0,
               max: 24.0,
-              divisions: 288, // 24 horas * 60 minutos / 5 minutos
+              divisions: 288,
               onChanged: (RangeValues values) {
                 setState(() {
                   startTime = values.start;
@@ -65,37 +66,15 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
               ),
             ),
             SizedBox(height: 16.0),
-            Text('Intervalos:'),
-            intervals.isEmpty
-                ? Text('Nenhum intervalo definido')
-                : Text(
-              'Intervalo: ${_formatTime(intervals.first.start)} - ${_formatTime(intervals.first.end)}',
-            ),
+            Text('Intervalo: ${_formatTime(startTimeInterval)} - ${_formatTime(endTimeInterval)}'),
             SizedBox(height: 8.0),
-            Column(
-              children: intervals.map((interval) {
-                return Row(
-                  children: [
-                    Text('${_formatTime(interval.start)} - ${_formatTime(interval.end)}'),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        setState(() {
-                          intervals.remove(interval);
-                        });
-                      },
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: () {
                     _showIntervalPicker();
                   },
-                  child: Text('Adicionar Intervalo'),
+                  child: Text('Definir Intervalo'),
                 ),
               ],
             ),
@@ -120,18 +99,28 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
 
     if (result != null) {
       setState(() {
-        intervals.add(result);
+        startTimeInterval = result.start;
+        endTimeInterval = result.end;
       });
     }
   }
 
-    void _confirmChanges() {
-      // Atualiza o WorkingDay com as alterações
-      widget.workingDay.updateWorkingHours(isOpen, _formatTime(startTime), _formatTime(endTime));
+  void _confirmChanges() {
+    widget.workingDay.updateWorkingHours(
+      isOpen,
+      _formatTime(startTime),
+      _formatTime(endTime),
+      _formatTime(startTimeInterval),
+      _formatTime(endTimeInterval),
+    );
 
-      // Volta para a tela anterior com os dados atualizados
+    // Aguarde um curto período antes de fechar a tela
+    Future.delayed(Duration(milliseconds: 100), () {
       Navigator.pop(context);
-    }
+    });
+  }
+
+
 
   String _formatTime(double time) {
     int hours = time.floor();
@@ -152,7 +141,7 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Adicionar Intervalo'),
+      title: Text('Definir Intervalo'),
       content: Column(
         children: [
           Text('Escolha o horário do intervalo:'),
@@ -160,7 +149,7 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
             values: RangeValues(startInterval, endInterval),
             min: 0.0,
             max: 24.0,
-            divisions: 288, // 24 horas * 60 minutos / 5 minutos
+            divisions: 288,
             onChanged: (RangeValues values) {
               setState(() {
                 startInterval = values.start;
@@ -185,7 +174,7 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
           onPressed: () {
             Navigator.pop(context, TimeRange(startInterval, endInterval));
           },
-          child: Text('Adicionar'),
+          child: Text('Definir'),
         ),
       ],
     );
