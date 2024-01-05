@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
-import 'opening_hours.dart';
+import 'package:provider/provider.dart';
+
+import 'components/working_day.dart';
+import 'components/working_days.dart';
 
 class SetOpeningHours extends StatefulWidget {
-  final WorkingDay workingDay;
+  final int index;
 
-  const SetOpeningHours({Key? key, required this.workingDay}) : super(key: key);
+  const SetOpeningHours({Key? key, required this.index}) : super(key: key);
 
   @override
   State<SetOpeningHours> createState() => _SetOpeningHoursState();
 }
 
 class _SetOpeningHoursState extends State<SetOpeningHours> {
-  bool isOpen = false;
-  double startTime = 8.0;
-  double endTime = 18;
-  double startTimeInterval = 12;
-  double endTimeInterval = 13;
+  // Estados do formulário
+  bool working = false;
+  DateTime startTime = DateTime.now();
+  DateTime endTime = DateTime.now();
+  DateTime startTimeInterval = DateTime.now();
+  DateTime endTimeInterval = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
+    WorkingDays listWorkingDays =
+    Provider.of<WorkingDays>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Configurar Dia de Trabalho'),
@@ -32,16 +38,10 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
               children: [
                 Text('Aberto:'),
                 Switch(
-                  value: isOpen,
+                  value: working,
                   onChanged: (value) {
                     setState(() {
-                      isOpen = value;
-                      if (!value) {
-                        startTime = 0.0;
-                        endTime = 0.0;
-                        startTimeInterval = 0;
-                        endTimeInterval = 0;
-                      }
+                      working = value;
                     });
                   },
                 ),
@@ -50,14 +50,17 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
             SizedBox(height: 16.0),
             Text('Horário de Funcionamento:'),
             RangeSlider(
-              values: RangeValues(startTime, endTime),
+              values: RangeValues(
+                _convertTimeToDouble(startTime),
+                _convertTimeToDouble(endTime),
+              ),
               min: 0.0,
-              max: 24.0,
+              max: 24.0 * 60.0,
               divisions: 288,
               onChanged: (RangeValues values) {
                 setState(() {
-                  startTime = values.start;
-                  endTime = values.end;
+                  startTime = _convertDoubleToTime(values.start);
+                  endTime = _convertDoubleToTime(values.end);
                 });
               },
               labels: RangeLabels(
@@ -66,13 +69,23 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
               ),
             ),
             SizedBox(height: 16.0),
-            Text('Intervalo: ${_formatTime(startTimeInterval)} - ${_formatTime(endTimeInterval)}'),
+            // Text('Intervalo: ${_formatTimeFromDouble(startTimeInterval)} - ${_formatTimeFromDouble(endTimeInterval)}'),
             SizedBox(height: 8.0),
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    _showIntervalPicker();
+                  onPressed: () async {
+                    TimeRange? result = await showDialog(
+                      context: context,
+                      builder: (context) => IntervalPickerDialog(),
+                    );
+
+                    if (result != null) {
+                      setState(() {
+                        startTimeInterval = result.start;
+                        endTimeInterval = result.end;
+                      });
+                    }
                   },
                   child: Text('Definir Intervalo'),
                 ),
@@ -81,7 +94,22 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                _confirmChanges();
+                // Adicione a lógica para atualizar a lista de dias de trabalho
+                WorkingDay updatedDay = WorkingDay(
+                  day: listWorkingDays.workingDays[widget.index].day,
+                  working: working,
+                  startTime: startTime,
+                  endTime: endTime,
+                  startTimeInterval: startTimeInterval,
+                  endTimeInterval: endTimeInterval,
+                );
+
+                // Atualiza a lista de dias de trabalho usando a função definida em WorkingDays
+                Provider.of<WorkingDays>(context, listen: false)
+                    .updateWorkingDay(widget.index, updatedDay);
+
+                // Fecha a tela de configuração de horários
+                Navigator.pop(context);
               },
               child: Text('Confirmar'),
             ),
@@ -91,43 +119,29 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
     );
   }
 
-  _showIntervalPicker() async {
-    TimeRange? result = await showDialog(
-      context: context,
-      builder: (context) => IntervalPickerDialog(),
-    );
-
-    if (result != null) {
-      setState(() {
-        startTimeInterval = result.start;
-        endTimeInterval = result.end;
-      });
-    }
+  String _formatTime(DateTime time) {
+    return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  void _confirmChanges() {
-    widget.workingDay.updateWorkingHours(
-      isOpen,
-      _formatTime(startTime),
-      _formatTime(endTime),
-      _formatTime(startTimeInterval),
-      _formatTime(endTimeInterval),
-    );
-
-    // Aguarde um curto período antes de fechar a tela
-    Future.delayed(Duration(milliseconds: 100), () {
-      Navigator.pop(context);
-    });
-  }
-
-
-
-  String _formatTime(double time) {
+  String _formatTimeFromDouble(double time) {
     int hours = time.floor();
     int minutes = ((time - hours) * 60).round();
     return '$hours:${minutes.toString().padLeft(2, '0')}';
   }
+
+  double _convertTimeToDouble(DateTime time) {
+    return time.hour * 60.0 + time.minute;
+  }
+
+  DateTime _convertDoubleToTime(double time) {
+    int hours = time ~/ 60;
+    int minutes = (time % 60).toInt();
+    return DateTime.utc(0, 1, 1, hours, minutes);
+  }
 }
+
+
+
 
 class IntervalPickerDialog extends StatefulWidget {
   @override
@@ -135,8 +149,22 @@ class IntervalPickerDialog extends StatefulWidget {
 }
 
 class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
-  double startInterval = 12.0;
-  double endInterval = 13.0;
+  DateTime startInterval = DateTime.now();
+  DateTime endInterval = DateTime.now();
+
+  double _convertTimeToDouble(DateTime time) {
+    return time.hour * 60.0 + time.minute;
+  }
+
+  DateTime _convertDoubleToTime(double time) {
+    int hours = time ~/ 60;
+    int minutes = (time % 60).toInt();
+    return DateTime.utc(0, 1, 1, hours, minutes);
+  }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,14 +174,17 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
         children: [
           Text('Escolha o horário do intervalo:'),
           RangeSlider(
-            values: RangeValues(startInterval, endInterval),
+            values: RangeValues(
+              _convertTimeToDouble(startInterval),
+              _convertTimeToDouble(endInterval),
+            ),
             min: 0.0,
-            max: 24.0,
+            max: 24.0 * 60.0,
             divisions: 288,
             onChanged: (RangeValues values) {
               setState(() {
-                startInterval = values.start;
-                endInterval = values.end;
+                startInterval = _convertDoubleToTime(values.start);
+                endInterval = _convertDoubleToTime(values.end);
               });
             },
             labels: RangeLabels(
@@ -179,17 +210,11 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
       ],
     );
   }
-
-  String _formatTime(double time) {
-    int hours = time.floor();
-    int minutes = ((time - hours) * 60).round();
-    return '$hours:${minutes.toString().padLeft(2, '0')}';
-  }
 }
 
 class TimeRange {
-  final double start;
-  final double end;
+  final DateTime start;
+  final DateTime end;
 
   TimeRange(this.start, this.end);
 }
