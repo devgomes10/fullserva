@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fullserva/views/account_view.dart';
 import 'package:fullserva/views/opening_hours.dart';
 
 class SettingsView extends StatefulWidget {
@@ -14,7 +15,7 @@ class _SettingsViewState extends State<SettingsView> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("Configurações"),
+            title: const Text("Configurações"),
           ),
           body: Column(
             children: [
@@ -30,12 +31,19 @@ class _SettingsViewState extends State<SettingsView> {
                 child: const Text("Horários de atendimento"),
               ),
               ElevatedButton(
-                onPressed: () {},
-                child: Text("Conta"),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AccountView(),
+                    ),
+                  );
+                },
+                child: const Text("Conta"),
               ),
               ElevatedButton(
                 onPressed: () {},
-                child: Text("Premium"),
+                child: const Text("Premium"),
               ),
             ],
           )),
