@@ -27,7 +27,7 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
     Provider.of<WorkingDays>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configurar Dia de Trabalho'),
+        title: const Text('Configurar Dia de Trabalho'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,7 +36,7 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
           children: [
             Row(
               children: [
-                Text('Aberto:'),
+                const Text('Aberto:'),
                 Switch(
                   value: working,
                   onChanged: (value) {
@@ -47,8 +47,8 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
-            Text('Horário de Funcionamento:'),
+            const SizedBox(height: 16.0),
+            const Text('Horário de Funcionamento:'),
             RangeSlider(
               values: RangeValues(
                 _convertTimeToDouble(startTime),
@@ -68,16 +68,16 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
                 _formatTime(endTime),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             // Text('Intervalo: ${_formatTimeFromDouble(startTimeInterval)} - ${_formatTimeFromDouble(endTimeInterval)}'),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: () async {
                     TimeRange? result = await showDialog(
                       context: context,
-                      builder: (context) => IntervalPickerDialog(),
+                      builder: (context) => const IntervalPickerDialog(),
                     );
 
                     if (result != null) {
@@ -87,11 +87,11 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
                       });
                     }
                   },
-                  child: Text('Definir Intervalo'),
+                  child: const Text('Definir Intervalo'),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 // Adicione a lógica para atualizar a lista de dias de trabalho
@@ -111,7 +111,7 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
                 // Fecha a tela de configuração de horários
                 Navigator.pop(context);
               },
-              child: Text('Confirmar'),
+              child: const Text('Confirmar'),
             ),
           ],
         ),
@@ -121,12 +121,6 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
 
   String _formatTime(DateTime time) {
     return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
-  }
-
-  String _formatTimeFromDouble(double time) {
-    int hours = time.floor();
-    int minutes = ((time - hours) * 60).round();
-    return '$hours:${minutes.toString().padLeft(2, '0')}';
   }
 
   double _convertTimeToDouble(DateTime time) {
@@ -144,6 +138,8 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
 
 
 class IntervalPickerDialog extends StatefulWidget {
+  const IntervalPickerDialog({super.key});
+
   @override
   _IntervalPickerDialogState createState() => _IntervalPickerDialogState();
 }
@@ -169,10 +165,10 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Definir Intervalo'),
+      title: const Text('Definir Intervalo'),
       content: Column(
         children: [
-          Text('Escolha o horário do intervalo:'),
+          const Text('Escolha o horário do intervalo:'),
           RangeSlider(
             values: RangeValues(
               _convertTimeToDouble(startInterval),
@@ -199,13 +195,13 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context, TimeRange(startInterval, endInterval));
           },
-          child: Text('Definir'),
+          child: const Text('Definir'),
         ),
       ],
     );

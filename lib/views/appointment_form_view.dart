@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
+import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:uuid/uuid.dart';
+import '../domain/entities/service.dart';
 
 class AppointmentFormView extends StatefulWidget {
+  const AppointmentFormView({super.key});
+
   @override
   _AppointmentFormViewState createState() => _AppointmentFormViewState();
 }
@@ -18,7 +21,9 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   late TextEditingController _clientNameController;
   late TextEditingController _clientPhoneController;
   late TextEditingController _internalObservationsController;
-  AppointmentController _controller = AppointmentController();
+  final AppointmentController _controller = AppointmentController();
+  final ServiceController serviceController = ServiceController();
+  late List<Service> services = [];
 
   @override
   void initState() {
@@ -30,6 +35,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     _clientNameController = TextEditingController();
     _clientPhoneController = TextEditingController();
     _internalObservationsController = TextEditingController();
+    _serviceController = TextEditingController();
+    loadServices();
   }
 
   @override
@@ -58,55 +65,23 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     }
   }
 
-  Future<void> _selectTimeHour(BuildContext context) async {
-    final int picked = await showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext builder) {
-        return SizedBox(
-          height: 200.0,
-          child: CupertinoPicker(
-            itemExtent: 32.0,
-            onSelectedItemChanged: (int index) {
-              _timeHourController.text = index.toString().padLeft(2, '0');
-            },
-            children: List.generate(24, (int index) {
-              return Center(
-                child: Text(index.toString().padLeft(2, '0')),
-              );
-            }),
-          ),
-        );
-      },
-    );
+  Future<void> loadServices() async {
+    serviceController.getService().listen((List<Service> event) {
+      setState(() {
+        services = event;
+      });
+    });
   }
 
-  Future<void> _selectTimeMinute(BuildContext context) async {
-    final int picked = await showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext builder) {
-        return SizedBox(
-          height: 200.0,
-          child: CupertinoPicker(
-            itemExtent: 32.0,
-            onSelectedItemChanged: (int index) {
-              _timeMinuteController.text = (index * 5).toString().padLeft(2, '0');
-            },
-            children: List.generate(12, (int index) {
-              return Center(
-                child: Text((index * 5).toString().padLeft(2, '0')),
-              );
-            }),
-          ),
-        );
-      },
-    );
-  }
+  Future<void> _selectTimeHour(BuildContext context) async {}
+
+  Future<void> _selectTimeMinute(BuildContext context) async {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Novo Agendamento"),
+        title: const Text("Novo Agendamento"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -116,17 +91,18 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
             children: [
               TextFormField(
                 controller: _clientNameController,
-                decoration: InputDecoration(labelText: 'Nome do Cliente'),
+                decoration: const InputDecoration(labelText: 'Nome do Cliente'),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return 'Por favor, digite o nome do cliente';
+                    return 'Digite o nome do cliente';
                   }
                   return null;
                 },
               ),
               TextFormField(
                 controller: _clientPhoneController,
-                decoration: InputDecoration(labelText: 'Telefone do Cliente'),
+                decoration:
+                    const InputDecoration(labelText: 'Telefone do Cliente'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Por favor, digite o telefone do cliente';
@@ -134,26 +110,34 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _serviceController,
-                decoration: InputDecoration(labelText: 'Serviço'),
-                onTap: () async {
-                  // Implemente a lógica para abrir uma caixa de seleção de serviços
-                  // e definir o valor escolhido no _serviceController
-                },
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor, escolha um serviço';
-                  }
-                  return null;
-                },
+              SizedBox(
+                width: 280,
+                child: DropdownButtonFormField<Service>(
+                  hint: const Text("Escolha um serviço"),
+                  icon: const Icon(Icons.build_outlined),
+                  value: services.isEmpty ? null : services.first,
+                  items: services
+                      .map(
+                        (service) => DropdownMenuItem<Service>(
+                          value: service,
+                          child: Text(service.name),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    // Manipule o serviço selecionado
+                    setState(() {
+                      _serviceController.text = value?.name ?? '';
+                    });
+                  },
+                ),
               ),
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _dateController,
-                    decoration: InputDecoration(labelText: 'Data'),
+                    decoration: const InputDecoration(labelText: 'Data'),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Por favor, escolha uma data';
@@ -171,7 +155,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       child: AbsorbPointer(
                         child: TextFormField(
                           controller: _timeHourController,
-                          decoration: InputDecoration(labelText: 'Hora'),
+                          decoration: const InputDecoration(labelText: 'Hora'),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'Por favor, escolha uma hora';
@@ -188,7 +172,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       child: AbsorbPointer(
                         child: TextFormField(
                           controller: _timeMinuteController,
-                          decoration: InputDecoration(labelText: 'Minutos'),
+                          decoration:
+                              const InputDecoration(labelText: 'Minutos'),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'Por favor, escolha os minutos';
@@ -203,13 +188,13 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
               ),
               TextFormField(
                 controller: _internalObservationsController,
-                decoration: InputDecoration(labelText: 'Observações Internas (Opcional)'),
+                decoration: const InputDecoration(
+                    labelText: 'Observações Internas (Opcional)'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    // Crie uma instância de Appointment com os dados do formulário
                     Appointment appointment = Appointment(
                       id: const Uuid().v4(),
                       clientName: _clientNameController.text,
@@ -222,17 +207,16 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         int.parse(_timeHourController.text),
                         int.parse(_timeMinuteController.text),
                       ),
-                      internalObservations: _internalObservationsController.text,
+                      internalObservations:
+                          _internalObservationsController.text,
                     );
 
-                    // Chame a função para adicionar o compromisso
                     await _controller.addAppointment(appointment);
 
-                    // Volte para a tela anterior ou faça outra ação desejada
-                    Navigator.pop(context, true); // Passa true para indicar que o formulário foi concluído com sucesso
+                    Navigator.pop(context, true);
                   }
                 },
-                child: Text('Salvar'),
+                child: const Text('Salvar'),
               ),
             ],
           ),
