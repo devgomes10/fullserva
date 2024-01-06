@@ -14,87 +14,103 @@ class AppointmentView extends StatefulWidget {
 
 class _AppointmentViewState extends State<AppointmentView> {
   DateTime today = DateTime.now();
-  final AppointmentController _controller = AppointmentController();
+  final AppointmentController appointmentController = AppointmentController();
+  final Map<String, String> serviceNames = {}; // Mapeia IDs de serviço para nomes
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Agendamentos"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AppointmentFormView()),
-          );
-
-          if (result == true) {
-            // Sem a necessidade de chamar _getAppointmentsForDay, pois o StreamBuilder
-            // irá atualizar automaticamente com as alterações no stream.
-          }
-        },
-        child: Icon(Icons.add),
-      ),
-      body: Column(
-        children: [
-          TableCalendar(
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-            ),
-            daysOfWeekVisible: true,
-            daysOfWeekStyle: const DaysOfWeekStyle(
-              weekdayStyle: TextStyle(
-                color: Colors.black,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Agendamentos"),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AppointmentFormView(),
               ),
+            );
+          },
+          child: const Icon(Icons.add),
+        ),
+        body: Column(
+          children: [
+            TableCalendar(
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+              ),
+              selectedDayPredicate: (day) => isSameDay(today, day),
+              daysOfWeekVisible: true,
+              rowHeight: 35,
+              focusedDay: today,
+              firstDay: DateTime.utc(2000, 01, 01),
+              lastDay: DateTime.utc(2030, 01, 01),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  today = focusedDay;
+                });
+              },
             ),
-            rowHeight: 35,
-            focusedDay: today,
-            firstDay: DateTime.utc(2000, 01, 01),
-            lastDay: DateTime.utc(2030, 01, 01),
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                today = focusedDay;
-                // Remova a chamada para o método _getAppointmentsForDay
-              });
-            },
-          ),
-          Expanded(
-            child: StreamBuilder<List<Appointment>>(
-              stream: _controller.getAppointments(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  // Filtra os compromissos para o dia selecionado
-                  final appointmentsForDay = snapshot.data!
-                      .where((appointment) =>
-                  appointment.dateTime.year == today.year &&
-                      appointment.dateTime.month == today.month &&
-                      appointment.dateTime.day == today.day)
-                      .toList();
+            Expanded(
+              child: StreamBuilder<List<Appointment>>(
+                stream: appointmentController.getAppointments(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text('Erro ao carregar os dados'),
+                    );
+                  }
+                  final appointments = snapshot.data;
+                  if (appointments == null || appointments.isEmpty) {
+                    return const Center(
+                      child: Text("Nenhum dado disponível"),
+                    );
+                  }
 
-                  return ListView.builder(
+                  // Mapeia os IDs de serviço para os nomes correspondentes
+                  for (var appointment in appointments) {
+                    serviceNames[appointment.serviceId] =
+                    appointment.serviceId; // Substitua pelo nome real se estiver disponível.
+                  }
+
+                  final appointmentsForDay = appointments
+                      .where(
+                        (appointment) =>
+                    appointment.dateTime.year == today.year &&
+                        appointment.dateTime.month == today.month &&
+                        appointment.dateTime.day == today.day,
+                  )
+                      .toList();
+                  return ListView.separated(
+                    separatorBuilder: (_, __) => const Divider(),
                     itemCount: appointmentsForDay.length,
                     itemBuilder: (context, index) {
                       final appointment = appointmentsForDay[index];
                       return ListTile(
-                        title: Text(appointment.clientName),
-                        subtitle: Text(
+                        leading: Text(
                           "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                         ),
-                        // Adicione mais detalhes conforme necessário
+                        title: Text(
+                          serviceNames[appointment.serviceId] ??
+                              'Serviço não encontrado',
+                        ),
+                        subtitle: Text(appointment.clientName),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () {},
                       );
                     },
                   );
-                } else if (snapshot.hasError) {
-                  return Text("Erro: ${snapshot.error}");
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

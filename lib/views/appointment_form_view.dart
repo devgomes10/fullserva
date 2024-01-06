@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
 import '../domain/entities/service.dart';
 
@@ -16,8 +19,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _serviceController;
   late TextEditingController _dateController;
-  late TextEditingController _timeHourController;
-  late TextEditingController _timeMinuteController;
+  TimeOfDay selectedTime = TimeOfDay.now();
   late TextEditingController _clientNameController;
   late TextEditingController _clientPhoneController;
   late TextEditingController _internalObservationsController;
@@ -30,8 +32,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     super.initState();
     _serviceController = TextEditingController();
     _dateController = TextEditingController();
-    _timeHourController = TextEditingController();
-    _timeMinuteController = TextEditingController();
     _clientNameController = TextEditingController();
     _clientPhoneController = TextEditingController();
     _internalObservationsController = TextEditingController();
@@ -43,8 +43,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   void dispose() {
     _serviceController.dispose();
     _dateController.dispose();
-    _timeHourController.dispose();
-    _timeMinuteController.dispose();
     _clientNameController.dispose();
     _clientPhoneController.dispose();
     _internalObservationsController.dispose();
@@ -73,10 +71,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     });
   }
 
-  Future<void> _selectTimeHour(BuildContext context) async {}
-
-  Future<void> _selectTimeMinute(BuildContext context) async {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +84,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           child: ListView(
             children: [
               TextFormField(
+                keyboardType: TextInputType.text,
                 controller: _clientNameController,
                 decoration: const InputDecoration(labelText: 'Nome do Cliente'),
                 validator: (value) {
@@ -100,6 +95,13 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 },
               ),
               TextFormField(
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  MaskTextInputFormatter(
+                    mask: '(##) #####-####',
+                    filter: {"#": RegExp(r'[0-9]')},
+                  )
+                ],
                 controller: _clientPhoneController,
                 decoration:
                     const InputDecoration(labelText: 'Telefone do Cliente'),
@@ -125,7 +127,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       )
                       .toList(),
                   onChanged: (value) {
-                    // Manipule o serviço selecionado
                     setState(() {
                       _serviceController.text = value?.name ?? '';
                     });
@@ -148,42 +149,23 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 ),
               ),
               Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _selectTimeHour(context),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _timeHourController,
-                          decoration: const InputDecoration(labelText: 'Hora'),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Por favor, escolha uma hora';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () async {
+                      final TimeOfDay? timeOfDay = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime,
+                        initialEntryMode: TimePickerEntryMode.dial,
+                      );
+                      if (timeOfDay != null) {
+                        setState(() {
+                          selectedTime = timeOfDay;
+                        });
+                      }
+                    },
+                    child: const Text("selecione o Horário"),
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _selectTimeMinute(context),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _timeMinuteController,
-                          decoration:
-                              const InputDecoration(labelText: 'Minutos'),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Por favor, escolha os minutos';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
+                  Text("${selectedTime.hour} : ${selectedTime.minute}"),
                 ],
               ),
               TextFormField(
@@ -195,18 +177,20 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    DateTime dateTime = DateTime(
+                      int.parse(_dateController.text.split('-')[0]), // Ano
+                      int.parse(_dateController.text.split('-')[1]), // Mês
+                      int.parse(_dateController.text.split('-')[2]), // Dia
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    );
+
                     Appointment appointment = Appointment(
                       id: const Uuid().v4(),
                       clientName: _clientNameController.text,
                       clientPhone: _clientPhoneController.text,
                       serviceId: _serviceController.text,
-                      dateTime: DateTime(
-                        int.parse(_dateController.text.split('-')[0]),
-                        int.parse(_dateController.text.split('-')[1]),
-                        int.parse(_dateController.text.split('-')[2]),
-                        int.parse(_timeHourController.text),
-                        int.parse(_timeMinuteController.text),
-                      ),
+                      dateTime: dateTime,
                       internalObservations:
                           _internalObservationsController.text,
                     );
