@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
@@ -18,20 +16,20 @@ class AppointmentFormView extends StatefulWidget {
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _serviceController;
-  late TextEditingController _dateController;
   TimeOfDay selectedTime = TimeOfDay.now();
+  DateTime selectedDate = DateTime.now();
   late TextEditingController _clientNameController;
   late TextEditingController _clientPhoneController;
   late TextEditingController _internalObservationsController;
   final AppointmentController _controller = AppointmentController();
   final ServiceController serviceController = ServiceController();
   late List<Service> services = [];
+  Service? _selectedService;
 
   @override
   void initState() {
     super.initState();
     _serviceController = TextEditingController();
-    _dateController = TextEditingController();
     _clientNameController = TextEditingController();
     _clientPhoneController = TextEditingController();
     _internalObservationsController = TextEditingController();
@@ -42,25 +40,10 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   @override
   void dispose() {
     _serviceController.dispose();
-    _dateController.dispose();
     _clientNameController.dispose();
     _clientPhoneController.dispose();
     _internalObservationsController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2030),
-    );
-    if (picked != null && picked != DateTime.now()) {
-      setState(() {
-        _dateController.text = picked.toLocal().toString().split(' ')[0];
-      });
-    }
   }
 
   Future<void> loadServices() async {
@@ -88,8 +71,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 controller: _clientNameController,
                 decoration: const InputDecoration(labelText: 'Nome do Cliente'),
                 validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Digite o nome do cliente';
+                  if (value == null || value.isEmpty) {
+                    return 'Obrigatório';
                   }
                   return null;
                 },
@@ -106,8 +89,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 decoration:
                     const InputDecoration(labelText: 'Telefone do Cliente'),
                 validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor, digite o telefone do cliente';
+                  if (value == null || value.isEmpty) {
+                    return 'Obrigatório';
                   }
                   return null;
                 },
@@ -117,7 +100,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 child: DropdownButtonFormField<Service>(
                   hint: const Text("Escolha um serviço"),
                   icon: const Icon(Icons.build_outlined),
-                  value: services.isEmpty ? null : services.first,
+                  value: _selectedService,
                   items: services
                       .map(
                         (service) => DropdownMenuItem<Service>(
@@ -128,44 +111,62 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       .toList(),
                   onChanged: (value) {
                     setState(() {
+                      _selectedService = value;
                       _serviceController.text = value?.name ?? '';
                     });
                   },
-                ),
-              ),
-              GestureDetector(
-                onTap: () => _selectDate(context),
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    controller: _dateController,
-                    decoration: const InputDecoration(labelText: 'Data'),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Por favor, escolha uma data';
-                      }
-                      return null;
-                    },
-                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Obrigatório';
+                    }
+                    return null;
+                  },
                 ),
               ),
               Row(
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () async {
-                      final TimeOfDay? timeOfDay = await showTimePicker(
-                        context: context,
-                        initialTime: selectedTime,
-                        initialEntryMode: TimePickerEntryMode.dial,
-                      );
-                      if (timeOfDay != null) {
-                        setState(() {
-                          selectedTime = timeOfDay;
-                        });
-                      }
-                    },
-                    child: const Text("selecione o Horário"),
+                children: [
+                  Column(
+                    children: [
+                      const Text("Data"),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final DateTime? dateTime = await showDatePicker(
+                            context: context,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(3000),
+                          );
+                          if (dateTime != null) {
+                            setState(() {
+                              selectedDate = dateTime;
+                            });
+                          }
+                        },
+                        child: Text(
+                            "${selectedDate.day} / ${selectedDate.month} / ${selectedDate.year}"),
+                      ),
+                    ],
                   ),
-                  Text("${selectedTime.hour} : ${selectedTime.minute}"),
+                  Column(
+                    children: [
+                      const Text("Hora"),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final TimeOfDay? timeOfDay = await showTimePicker(
+                            context: context,
+                            initialTime: selectedTime,
+                            initialEntryMode: TimePickerEntryMode.dial,
+                          );
+                          if (timeOfDay != null) {
+                            setState(() {
+                              selectedTime = timeOfDay;
+                            });
+                          }
+                        },
+                        child: Text(
+                            "${selectedTime.hour} : ${selectedTime.minute}"),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               TextFormField(
@@ -178,9 +179,9 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     DateTime dateTime = DateTime(
-                      int.parse(_dateController.text.split('-')[0]), // Ano
-                      int.parse(_dateController.text.split('-')[1]), // Mês
-                      int.parse(_dateController.text.split('-')[2]), // Dia
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
                       selectedTime.hour,
                       selectedTime.minute,
                     );

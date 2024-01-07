@@ -15,7 +15,18 @@ class _ServiceViewState extends State<ServiceView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
   final ServiceController serviceController = ServiceController();
 
+  String _formatDuration(int duration) {
+    int hours = duration ~/ 60;
+    int minutes = duration % 60;
 
+    if (hours > 0 && minutes > 0) {
+      return '$hours h $minutes min';
+    } else if (hours > 0) {
+      return '$hours h';
+    } else {
+      return '$minutes min';
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -63,9 +74,9 @@ class _ServiceViewState extends State<ServiceView> {
                   ),
                   subtitle: Row(
                     children: [
-                      Text(
                         // Aqui vai ficar a duração do serviço
-                        services[i].estimatedDuration,
+                      Text(
+                        _formatDuration(services[i].duration),
                       ),
                       Text(
                           // Aqui vai ficar o preço do serviço

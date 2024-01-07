@@ -1,13 +1,13 @@
 class Service {
   String id;
   String name;
-  String estimatedDuration;
+  int duration;
   double price;
 
   Service({
     required this.id,
     required this.name,
-    required this.estimatedDuration,
+    required this.duration,
     required this.price,
   });
 
@@ -15,7 +15,7 @@ class Service {
   Service.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
-        estimatedDuration = map["estimatedDuration"],
+        duration = map["duration"],
         price = map["price"];
 
   // Convert an instance to a map
@@ -23,7 +23,7 @@ class Service {
     return {
       "id": id,
       "name": name,
-      "estimatedDuration": estimatedDuration,
+      "duration": duration,
       "price": price,
     };
   }
