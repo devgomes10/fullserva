@@ -24,4 +24,8 @@ class AppointmentController implements AppointmentUseCase {
   Future<void> updateAppointment(Appointment appointment) {
     return _appointmentRepository.updateAppointment(appointment);
   }
+
+  Future<List<double>> getAppointmentsCountPerMonth() {
+    return _appointmentRepository.getAppointmentsCountPerMonth();
+  }
 }

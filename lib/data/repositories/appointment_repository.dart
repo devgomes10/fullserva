@@ -67,4 +67,34 @@ class AppointmentRepository {
       // tratar em caso de erro
     }
   }
+
+  Future<List<double>> getAppointmentsCountPerMonth() async {
+    try {
+      QuerySnapshot snapshot = await appointmentCollection.get();
+
+      Map<String, int> appointmentsCountMap = {};
+
+      snapshot.docs.forEach((doc) {
+        DateTime dateTime = (doc['dateTime'] as Timestamp).toDate();
+        String monthYearKey =
+            '${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
+
+        if (appointmentsCountMap.containsKey(monthYearKey)) {
+          appointmentsCountMap[monthYearKey] = appointmentsCountMap[monthYearKey]! + 1;
+        } else {
+          appointmentsCountMap[monthYearKey] = 1;
+        }
+      });
+
+      List<double> appointmentsCountList = appointmentsCountMap.values
+          .map((count) => count.toDouble())
+          .toList();
+
+      return appointmentsCountList;
+    } catch (error) {
+      print("Erro: $error");
+      // tratar em caso de erro
+      return [];
+    }
+  }
 }
