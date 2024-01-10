@@ -12,8 +12,7 @@ class OpeningHours extends StatefulWidget {
 }
 
 class _OpeningHoursState extends State<OpeningHours> {
-  final DateFormat _timeFormat =
-      DateFormat('HH:mm'); // Utilize o formato 'HH:mm' para exibir a hora
+  final DateFormat _timeFormat = DateFormat('HH:mm');
 
   @override
   Widget build(BuildContext context) {

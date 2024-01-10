@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/views/appointment_form_view.dart';
@@ -15,7 +16,25 @@ class AppointmentView extends StatefulWidget {
 class _AppointmentViewState extends State<AppointmentView> {
   DateTime today = DateTime.now();
   final AppointmentController appointmentController = AppointmentController();
-  final Map<String, String> serviceNames = {}; // Mapeia IDs de serviço para nomes
+
+  Future<String?> getServiceName(String serviceId) async {
+    try {
+      final DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+          .collection("services")
+          .doc(serviceId)
+          .get();
+
+      if (serviceSnapshot.exists) {
+        final serviceName = serviceSnapshot["name"];
+        return serviceName;
+      } else {
+        return null; // Serviço não encontrado
+      }
+    } catch (error) {
+      print("Erro ao buscar nome do serviço: $error");
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +68,11 @@ class _AppointmentViewState extends State<AppointmentView> {
               firstDay: DateTime.utc(2000, 01, 01),
               lastDay: DateTime.utc(2030, 01, 01),
               onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  today = focusedDay;
-                });
+                setState(
+                  () {
+                    today = focusedDay;
+                  },
+                );
               },
             ),
             Expanded(
@@ -73,20 +94,14 @@ class _AppointmentViewState extends State<AppointmentView> {
                     );
                   }
 
-                  // Mapeia os IDs de serviço para os nomes correspondentes
-                  for (var appointment in appointments) {
-                    serviceNames[appointment.serviceId] =
-                    appointment.serviceId; // Substitua pelo nome real se estiver disponível.
-                  }
-
                   final appointmentsForDay = appointments
                       .where(
                         (appointment) =>
-                    appointment.dateTime.year == today.year &&
-                        appointment.dateTime.month == today.month &&
-                        appointment.dateTime.day == today.day,
-                  )
-                      .toList();
+                            appointment.dateTime.year == today.year &&
+                            appointment.dateTime.month == today.month &&
+                            appointment.dateTime.day == today.day,
+                      ).toList();
+
                   return ListView.separated(
                     separatorBuilder: (_, __) => const Divider(),
                     itemCount: appointmentsForDay.length,
@@ -96,9 +111,19 @@ class _AppointmentViewState extends State<AppointmentView> {
                         leading: Text(
                           "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                         ),
-                        title: Text(
-                          serviceNames[appointment.serviceId] ??
-                              'Serviço não encontrado',
+                        title: FutureBuilder<String?>(
+                          future: getServiceName(appointment.serviceId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Text("Carregando...");
+                            } else if (snapshot.hasError ||
+                                snapshot.data == null) {
+                              return const Text("Serviço não encontrado");
+                            } else {
+                              return Text(snapshot.data!);
+                            }
+                          },
                         ),
                         subtitle: Text(appointment.clientName),
                         trailing: const Icon(Icons.arrow_forward_ios),

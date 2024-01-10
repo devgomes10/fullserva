@@ -1,12 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/service.dart';
 
 class ServiceRepository {
+  late String uidService;
+  late CollectionReference serviceCollection;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  ServiceRepository() {
+    // uidService = FirebaseAuth.instance.currentUser!.uid;
+    serviceCollection =
+        FirebaseFirestore.instance.collection("service");
+  }
 
   Future<void> addService(Service service) async {
     try {
-      await firestore.collection("services").doc(service.id).set(service.toMap());
+      await serviceCollection.add(service.toMap());
     } catch (error) {
       print("Erro: $error");
       // Tratar em caso de erro
@@ -14,8 +23,8 @@ class ServiceRepository {
   }
 
   Stream<List<Service>> getService() {
-    return firestore.collection("services").snapshots().map(
-          (snapshot) {
+    return serviceCollection.snapshots().map(
+      (snapshot) {
         return snapshot.docs.map((doc) {
           return Service(
             id: doc["id"],
@@ -30,16 +39,20 @@ class ServiceRepository {
 
   Future<void> updateService(Service service) async {
     try {
-      await firestore.collection("services").doc(service.id).update(service.toMap());
+      await serviceCollection.get().then((snapshot) {
+        for (DocumentSnapshot doc in snapshot.docs) {
+          doc.reference.delete();
+        }
+      });
     } catch (error) {
       print("Erro: $error");
       // Tratar em caso de erro
     }
   }
 
-  Future<void> removeService(Service service) async {
+  Future<void> removeService(String service) async {
     try {
-      await firestore.collection("services").doc(service.id).delete();
+      await serviceCollection.doc(service).delete();
     } catch (error) {
       print("Erro: $error");
       // Tratar em caso de erro

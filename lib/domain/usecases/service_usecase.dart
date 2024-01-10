@@ -7,5 +7,5 @@ abstract class ServiceUseCase {
 
   Future<void> updateService(Service service);
 
-  Future<void> removeService(Service service);
+  Future<void> removeService(String service);
 }

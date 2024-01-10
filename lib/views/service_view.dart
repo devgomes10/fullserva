@@ -27,6 +27,7 @@ class _ServiceViewState extends State<ServiceView> {
       return '$minutes min';
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -74,7 +75,7 @@ class _ServiceViewState extends State<ServiceView> {
                   ),
                   subtitle: Row(
                     children: [
-                        // Aqui vai ficar a duração do serviço
+                      // Aqui vai ficar a duração do serviço
                       Text(
                         _formatDuration(services[i].duration),
                       ),

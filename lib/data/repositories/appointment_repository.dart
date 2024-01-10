@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/appointment.dart';
 
 class AppointmentRepository {
+  late String uidAppointment;
   late CollectionReference appointmentCollection;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   AppointmentRepository() {
+    // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
     appointmentCollection = firestore.collection("appointment");
   }
 
@@ -54,47 +57,10 @@ class AppointmentRepository {
 
   Future<void> removeAppointment(String appointment) async {
     try {
-      await appointmentCollection
-          .where("name", isEqualTo: appointment)
-          .get()
-          .then((snapshot) {
-        for (DocumentSnapshot doc in snapshot.docs) {
-          doc.reference.delete();
-        }
-      });
+      await appointmentCollection.doc(appointment).delete();
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
-    }
-  }
-
-  Future<List<double>> getAppointmentsCountPerMonth() async {
-    try {
-      QuerySnapshot snapshot = await appointmentCollection.get();
-
-      Map<String, int> appointmentsCountMap = {};
-
-      snapshot.docs.forEach((doc) {
-        DateTime dateTime = (doc['dateTime'] as Timestamp).toDate();
-        String monthYearKey =
-            '${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
-
-        if (appointmentsCountMap.containsKey(monthYearKey)) {
-          appointmentsCountMap[monthYearKey] = appointmentsCountMap[monthYearKey]! + 1;
-        } else {
-          appointmentsCountMap[monthYearKey] = 1;
-        }
-      });
-
-      List<double> appointmentsCountList = appointmentsCountMap.values
-          .map((count) => count.toDouble())
-          .toList();
-
-      return appointmentsCountList;
-    } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
-      return [];
     }
   }
 }

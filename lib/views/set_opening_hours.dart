@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'components/working_day.dart';
 import 'components/working_days.dart';
 
@@ -14,7 +13,6 @@ class SetOpeningHours extends StatefulWidget {
 }
 
 class _SetOpeningHoursState extends State<SetOpeningHours> {
-  // Estados do formulário
   bool working = false;
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
@@ -24,7 +22,7 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
   @override
   Widget build(BuildContext context) {
     WorkingDays listWorkingDays =
-    Provider.of<WorkingDays>(context, listen: true);
+        Provider.of<WorkingDays>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurar Dia de Trabalho'),
@@ -133,9 +131,6 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
     return DateTime.utc(0, 1, 1, hours, minutes);
   }
 }
-
-
-
 
 class IntervalPickerDialog extends StatefulWidget {
   const IntervalPickerDialog({super.key});

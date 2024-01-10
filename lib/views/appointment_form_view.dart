@@ -15,7 +15,6 @@ class AppointmentFormView extends StatefulWidget {
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _serviceController;
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime selectedDate = DateTime.now();
   late TextEditingController _clientNameController;
@@ -24,22 +23,18 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final AppointmentController _controller = AppointmentController();
   final ServiceController serviceController = ServiceController();
   late List<Service> services = [];
-  Service? _selectedService;
-
+  late Service? selectedService = services.isNotEmpty ? services.first : null;
   @override
   void initState() {
     super.initState();
-    _serviceController = TextEditingController();
     _clientNameController = TextEditingController();
     _clientPhoneController = TextEditingController();
     _internalObservationsController = TextEditingController();
-    _serviceController = TextEditingController();
     loadServices();
   }
 
   @override
   void dispose() {
-    _serviceController.dispose();
     _clientNameController.dispose();
     _clientPhoneController.dispose();
     _internalObservationsController.dispose();
@@ -100,19 +95,18 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                 child: DropdownButtonFormField<Service>(
                   hint: const Text("Escolha um serviço"),
                   icon: const Icon(Icons.build_outlined),
-                  value: _selectedService,
+                  value: selectedService,
                   items: services
                       .map(
                         (service) => DropdownMenuItem<Service>(
-                          value: service,
-                          child: Text(service.name),
-                        ),
-                      )
+                      value: service,
+                      child: Text(service.name),
+                    ),
+                  )
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedService = value;
-                      _serviceController.text = value?.name ?? '';
+                      selectedService = value!;
                     });
                   },
                   validator: (value) {
@@ -186,23 +180,28 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       selectedTime.minute,
                     );
 
-                    Appointment appointment = Appointment(
-                      id: const Uuid().v4(),
-                      clientName: _clientNameController.text,
-                      clientPhone: _clientPhoneController.text,
-                      serviceId: _serviceController.text,
-                      dateTime: dateTime,
-                      internalObservations:
-                          _internalObservationsController.text,
-                    );
+                    if (selectedService != null) {
+                      Appointment appointment = Appointment(
+                        id: const Uuid().v4(),
+                        clientName: _clientNameController.text,
+                        clientPhone: _clientPhoneController.text,
+                        serviceId: selectedService!.id,
+                        dateTime: dateTime,
+                        internalObservations: _internalObservationsController.text,
+                      );
 
-                    await _controller.addAppointment(appointment);
+                      await _controller.addAppointment(appointment);
 
-                    Navigator.pop(context, true);
+                      Navigator.pop(context, true);
+                    } else {
+                      // Lógica para lidar com o caso em que selectedService é nulo
+                      // Pode ser exibida uma mensagem de erro ou outra ação apropriada
+                    }
                   }
                 },
                 child: const Text('Salvar'),
               ),
+
             ],
           ),
         ),
