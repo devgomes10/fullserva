@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'components/working_day.dart';
+import '../domain/entities/working_day.dart';
 import 'components/working_days.dart';
 
 class SetOpeningHours extends StatefulWidget {
@@ -93,18 +93,18 @@ class _SetOpeningHoursState extends State<SetOpeningHours> {
             ElevatedButton(
               onPressed: () {
                 // Adicione a lógica para atualizar a lista de dias de trabalho
-                WorkingDay updatedDay = WorkingDay(
-                  day: listWorkingDays.workingDays[widget.index].day,
-                  working: working,
-                  startTime: startTime,
-                  endTime: endTime,
-                  startTimeInterval: startTimeInterval,
-                  endTimeInterval: endTimeInterval,
-                );
+                // WorkingDay updatedDay = WorkingDay(
+                //   day: listWorkingDays.workingDays[widget.index].day,
+                //   working: working,
+                //   startTime: startTime,
+                //   endTime: endTime,
+                //   startTimeInterval: startTimeInterval,
+                //   endTimeInterval: endTimeInterval,
+                // );
 
                 // Atualiza a lista de dias de trabalho usando a função definida em WorkingDays
-                Provider.of<WorkingDays>(context, listen: false)
-                    .updateWorkingDay(widget.index, updatedDay);
+                // Provider.of<WorkingDays>(context, listen: false)
+                //     .updateWorkingDay(widget.index, updatedDay);
 
                 // Fecha a tela de configuração de horários
                 Navigator.pop(context);

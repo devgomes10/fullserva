@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/components/working_day.dart';
+import 'package:fullserva/domain/entities/working_day.dart';
 
 class WorkingDays extends ChangeNotifier {
   List<WorkingDay> workingDays = [];

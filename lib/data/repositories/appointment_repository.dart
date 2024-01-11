@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/appointment.dart';
 
 class AppointmentRepository {
-  late String uidAppointment;
+  // late String uidAppointment;
   late CollectionReference appointmentCollection;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 

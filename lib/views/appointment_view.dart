@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/views/appointment_form_view.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 import '../domain/entities/appointment.dart';
 
 class AppointmentView extends StatefulWidget {
@@ -100,7 +99,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                             appointment.dateTime.year == today.year &&
                             appointment.dateTime.month == today.month &&
                             appointment.dateTime.day == today.day,
-                      ).toList();
+                      )
+                      .toList();
 
                   return ListView.separated(
                     separatorBuilder: (_, __) => const Divider(),
