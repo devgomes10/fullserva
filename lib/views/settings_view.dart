@@ -24,7 +24,7 @@ class _SettingsViewState extends State<SettingsView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const OpeningHours(),
+                      builder: (context) => CalendarTimesScreen(),
                     ),
                   );
                 },

@@ -4,7 +4,7 @@ class Appointment {
   String clientPhone;
   String serviceId;
   DateTime dateTime;
-  String internalObservations;
+  String? internalObservations;
 
   Appointment({
     required this.id,
@@ -12,7 +12,7 @@ class Appointment {
     required this.clientPhone,
     required this.serviceId,
     required this.dateTime,
-    required this.internalObservations,
+    this.internalObservations,
   });
 
   // Converting a map to an instance
@@ -20,7 +20,7 @@ class Appointment {
       : id = map["id"],
         clientName = map["clientName"],
         clientPhone = map["clientPhone"],
-        serviceId = map["service"],
+        serviceId = map["serviceId"],
         dateTime = map["dateTime"],
         internalObservations = map["internalObservations"];
 

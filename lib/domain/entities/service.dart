@@ -1,7 +1,7 @@
 class Service {
   String id;
   String name;
-  int duration;
+  Duration duration;
   double price;
 
   Service({

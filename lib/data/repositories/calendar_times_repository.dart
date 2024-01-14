@@ -1,22 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fullserva/domain/entities/working_day.dart';
+import 'package:fullserva/domain/entities/calendar_times.dart';
 
-class WorkingDayRepository {
+class CalendarTimesRepository {
   // late String uidWorkingDay;
-  late CollectionReference workingDayCollection;
+  late CollectionReference calendarTimesCollection;
   FirebaseFirestore firebase = FirebaseFirestore.instance;
 
-  WorkingDayRepository() {
+  CalendarTimesRepository() {
     // uidWorkingDay = FirebaseAuth.instance.currentUser!.uid;
-    workingDayCollection = firebase.collection("working_day");
+    calendarTimesCollection = firebase.collection("calendar_times");
   }
 
-  Future<void> updateWorkingDay(WorkingDay workingDay) async {
+  Future<void> updateCalendarTimes(CalendarTimes calendarTimes) async {
     try {
-      await workingDayCollection.get().then((snapshot) {
+      await calendarTimesCollection.get().then((snapshot) {
         for (DocumentSnapshot doc in snapshot.docs) {
-          doc.reference.update(workingDay.toMap());
+          doc.reference.update(calendarTimes.toMap());
         }
       });
     } catch (error) {
@@ -25,19 +25,18 @@ class WorkingDayRepository {
     }
   }
 
-  Stream<List<WorkingDay>> getWorkingDays() {
-    return workingDayCollection.snapshots().map(
+  Stream<List<CalendarTimes>> getCalendarTimes() {
+    return calendarTimesCollection.snapshots().map(
       (snapshot) {
         return snapshot.docs.map(
           (doc) {
-            return WorkingDay(
+            return CalendarTimes(
               id: doc["id"],
-              day: doc["day"],
               working: doc["working"],
               startTime: doc["startTime"],
               endTime: doc["endTime"],
-              startTimeInterval: doc["startTimeInterval"],
-              endTimeInterval: doc["endTimeInterval"],
+              appointmentInterval: doc["appointmentInterval"],
+              breakTimes: doc["breakTimes"],
             );
           },
         ).toList();

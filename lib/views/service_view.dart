@@ -77,7 +77,7 @@ class _ServiceViewState extends State<ServiceView> {
                     children: [
                       // Aqui vai ficar a duração do serviço
                       Text(
-                        _formatDuration(services[i].duration),
+                        services[i].duration.toString(),
                       ),
                       Text(
                           // Aqui vai ficar o preço do serviço

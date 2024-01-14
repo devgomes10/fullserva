@@ -124,7 +124,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                       final service = Service(
                         id: const Uuid().v4(),
                         name: _nameController.text,
-                        duration: selectedDuration.inMinutes,
+                        duration: selectedDuration,
                         price: double.parse(_priceController.text),
                       );
                       serviceController.addService(service);
