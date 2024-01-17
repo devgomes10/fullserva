@@ -1,12 +1,10 @@
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import '../domain/entities/calendar_times.dart';
-// import 'components/working_days.dart';
 //
 // class SetOpeningHours extends StatefulWidget {
-//   final int index;
 //
-//   const SetOpeningHours({Key? key, required this.index}) : super(key: key);
+//   const SetOpeningHours({Key? key}) : super(key: key);
 //
 //   @override
 //   State<SetOpeningHours> createState() => _SetOpeningHoursState();
@@ -21,8 +19,6 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     WorkingDays listWorkingDays =
-//         Provider.of<WorkingDays>(context, listen: true);
 //     return Scaffold(
 //       appBar: AppBar(
 //         title: const Text('Configurar Dia de Trabalho'),
@@ -67,7 +63,7 @@
 //               ),
 //             ),
 //             const SizedBox(height: 16.0),
-//             // Text('Intervalo: ${_formatTimeFromDouble(startTimeInterval)} - ${_formatTimeFromDouble(endTimeInterval)}'),
+//             Text('Intervalo: $startTimeInterval - $endTimeInterval'),
 //             const SizedBox(height: 8.0),
 //             Row(
 //               children: [
@@ -92,15 +88,14 @@
 //             const SizedBox(height: 16.0),
 //             ElevatedButton(
 //               onPressed: () {
-//                 // Adicione a lógica para atualizar a lista de dias de trabalho
-//                 // WorkingDay updatedDay = WorkingDay(
-//                 //   day: listWorkingDays.workingDays[widget.index].day,
-//                 //   working: working,
-//                 //   startTime: startTime,
-//                 //   endTime: endTime,
-//                 //   startTimeInterval: startTimeInterval,
-//                 //   endTimeInterval: endTimeInterval,
-//                 // );
+//                 WorkingDay updatedDay = WorkingDay(
+//                   day: listWorkingDays.workingDays[widget.index].day,
+//                   working: working,
+//                   startTime: startTime,
+//                   endTime: endTime,
+//                   startTimeInterval: startTimeInterval,
+//                   endTimeInterval: endTimeInterval,
+//                 );
 //
 //                 // Atualiza a lista de dias de trabalho usando a função definida em WorkingDays
 //                 // Provider.of<WorkingDays>(context, listen: false)

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class CalendarTimes {
   String id;
   bool working;
@@ -17,7 +15,6 @@ class CalendarTimes {
     this.breakTimes,
   });
 
-  // Converting a map to an instance
   CalendarTimes.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         working = map["working"],
@@ -31,8 +28,8 @@ class CalendarTimes {
     return {
       "id": id,
       "working": working,
-      "startTime": Timestamp.fromDate(startTime),
-      "endTime": Timestamp.fromDate(endTime),
+      "startTime": startTime,
+      "endTime": endTime,
       "appointmentInterval": appointmentInterval.inMinutes,
       "breakTimes": breakTimes,
     };

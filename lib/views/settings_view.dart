@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/views/account_view.dart';
-import 'package:fullserva/views/opening_hours.dart';
+import 'package:fullserva/views/week_days_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -24,7 +24,7 @@ class _SettingsViewState extends State<SettingsView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CalendarTimesScreen(),
+                      builder: (context) => CalendarTimesPage(),
                     ),
                   );
                 },
