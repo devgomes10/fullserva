@@ -68,7 +68,7 @@ class AppointmentRepository {
     // Consulta no Firestore para obter os agendamentos para o dia especificado
     var querySnapshot = await appointmentCollection
         .where('dateTime', isGreaterThanOrEqualTo: day)
-        .where('dateTime', isLessThan: day.add(Duration(days: 1)))
+        .where('dateTime', isLessThan: day.add(const Duration(days: 1)))
         .get();
 
     return querySnapshot.docs.map(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../controllers/calendar_times_controller.dart';
-import '../domain/entities/calendar_times.dart';
+import 'package:fullserva/views/week_days_form.dart';
+import 'package:intl/intl.dart';
+import '../controllers/week_days_controller.dart';
+import '../domain/entities/week_days.dart';
 
 class CalendarTimesPage extends StatefulWidget {
   const CalendarTimesPage({super.key});
@@ -10,45 +12,60 @@ class CalendarTimesPage extends StatefulWidget {
 }
 
 class _CalendarTimesPageState extends State<CalendarTimesPage> {
-  final CalendarTimesController _calendarTimesController =
-      CalendarTimesController();
+  final WeekDaysController calendarTimesController = WeekDaysController();
+  DateFormat timeFormat = DateFormat('HH:mm');
 
   @override
   void initState() {
     super.initState();
-    _calendarTimesController.setupInitialCalendarTimes();
+    calendarTimesController.setupInitialWeekDays();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Horários de atendimento"),
+        title: const Text("Horários de atendimento"),
       ),
-      body: StreamBuilder<List<CalendarTimes>>(
-        stream: _calendarTimesController.getCalendarTimes(),
+      body: StreamBuilder<List<WeekDays>>(
+        stream: calendarTimesController.getWeekDays(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView(
-              children: snapshot.data!
-                  .map(
-                    (calendarTimes) => ListTile(
-                      leading: Text(calendarTimes.id),
-                      title: Text(
-                          "De ${calendarTimes.startTime} a ${calendarTimes.endTime}"),
-                      subtitle: Text(
-                        calendarTimes.toString(),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          } else {
-            if (snapshot.hasError) {
-              print(_calendarTimesController.getCalendarTimes());
-            }
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Erro ao carregar os dados: ${snapshot.error}'),
+            );
+          }
+          final days = snapshot.data;
+          if (days == null || days.isEmpty) {
+            return const Center(
+              child: Text('Nenhum dado disponível'),
+            );
+          }
+          return ListView.separated(
+            itemBuilder: (context, int i) {
+              return ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WeekDaysForm(),
+                    ),
+                  );
+                },
+                leading: Text(days[i].id!),
+                title: Text(
+                    "${timeFormat.format(days[i].startTime)} às ${timeFormat.format(days[i].endTime)}"),
+                subtitle: Text(
+                    "Intervalo: ${timeFormat.format(days[i].startTimeInterval!)} às ${timeFormat.format(days[i].endTimeInterval!)}"),
+                trailing: const Icon(Icons.arrow_forward_ios),
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(),
+            itemCount: days.length,
+          );
         },
       ),
     );

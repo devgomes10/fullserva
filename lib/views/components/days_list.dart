@@ -1,2 +1,2 @@
-import 'package:fullserva/domain/entities/calendar_times.dart';
+import 'package:fullserva/domain/entities/week_days.dart';
 
