@@ -17,79 +17,79 @@ class WeekDaysController implements WeekDaysUseCase {
   }
 
   Future<void> setupInitialWeekDays() async {
+
     // Cria uma lista de dias da semana
     final weekDays = [
       WeekDays(
-        id: "Segunda-feira",
+        id: DateTime.monday,
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Terça-feira",
+        id: DateTime.tuesday,
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Quarta-feira",
+        id: DateTime.wednesday,
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Quinta-feira",
+        id: DateTime.thursday,
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Sexta-feira",
+        id: DateTime.friday,
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Sabádo",
-        working: true,
+        id: DateTime.saturday,
+        working: false,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
       WeekDays(
-        id: "Domingo",
-        working: true,
+        id: DateTime.sunday,
+        working: false,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
         appointmentInterval: 30,
-        startTimeInterval: null,
-        endTimeInterval: null,
+        startTimeInterval: DateTime(2024, 1, 1, 12),
+        endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
     ];
 
-// Adiciona os dias à coleção
     try {
       for (var day in weekDays) {
         await weekDaysRepository
             .weekDaysCollection
-            .doc(day.id) // Use o ID como identificador único
+            .doc(day.id.toString()) // Use o ID como identificador único
             .set(day.toMap());
       }
       print("Dias da semana adicionados com sucesso!");

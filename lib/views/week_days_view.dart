@@ -4,14 +4,14 @@ import 'package:intl/intl.dart';
 import '../controllers/week_days_controller.dart';
 import '../domain/entities/week_days.dart';
 
-class CalendarTimesPage extends StatefulWidget {
-  const CalendarTimesPage({super.key});
+class WeekDaysView extends StatefulWidget {
+  const WeekDaysView({super.key});
 
   @override
-  _CalendarTimesPageState createState() => _CalendarTimesPageState();
+  _WeekDaysViewState createState() => _WeekDaysViewState();
 }
 
-class _CalendarTimesPageState extends State<CalendarTimesPage> {
+class _WeekDaysViewState extends State<WeekDaysView> {
   final WeekDaysController calendarTimesController = WeekDaysController();
   DateFormat timeFormat = DateFormat('HH:mm');
 
@@ -46,20 +46,21 @@ class _CalendarTimesPageState extends State<CalendarTimesPage> {
           }
           return ListView.separated(
             itemBuilder: (context, int i) {
+              WeekDays model = days[i];
               return ListTile(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WeekDaysForm(),
+                      builder: (context) => WeekDaysForm(model: model),
                     ),
                   );
                 },
-                leading: Text(days[i].id!),
+                leading: Text(days[i].id.toString()),
                 title: Text(
                     "${timeFormat.format(days[i].startTime)} às ${timeFormat.format(days[i].endTime)}"),
                 subtitle: Text(
-                    "Intervalo: ${timeFormat.format(days[i].startTimeInterval!)} às ${timeFormat.format(days[i].endTimeInterval!)}"),
+                    "Intervalo: ${timeFormat.format(days[i].startTimeInterval)} às ${timeFormat.format(days[i].endTimeInterval)}"),
                 trailing: const Icon(Icons.arrow_forward_ios),
               );
             },

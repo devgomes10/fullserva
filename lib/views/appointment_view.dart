@@ -13,8 +13,24 @@ class AppointmentView extends StatefulWidget {
 }
 
 class _AppointmentViewState extends State<AppointmentView> {
-  DateTime today = DateTime.now();
   final AppointmentController appointmentController = AppointmentController();
+  late DateTime firstDay;
+  late DateTime lastDay;
+  late DateTime today;
+  CalendarFormat calendarFormat = CalendarFormat.month;
+  String locale = 'pt-BR';
+
+  @override
+  void initState() {
+    super.initState();
+    firstDay = DateTime.now().add(const Duration(days: -365));
+    lastDay = DateTime.now().add(const Duration(days: 365));
+    today = DateTime.now();
+  }
+
+  // void onFormatChanged(format) {
+  //   calendarFormat = format;
+  // }
 
   Future<String?> getServiceName(String serviceId) async {
     try {
@@ -56,23 +72,31 @@ class _AppointmentViewState extends State<AppointmentView> {
         body: Column(
           children: [
             TableCalendar(
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-              ),
-              selectedDayPredicate: (day) => isSameDay(today, day),
-              daysOfWeekVisible: true,
-              rowHeight: 35,
+              firstDay: firstDay,
+              lastDay: lastDay,
               focusedDay: today,
-              firstDay: DateTime.utc(2000, 01, 01),
-              lastDay: DateTime.utc(2030, 01, 01),
+              selectedDayPredicate: (day) => isSameDay(today, day),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(
-                  () {
+                      () {
                     today = focusedDay;
                   },
                 );
               },
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  // color: ...
+                ),
+                // titleTextFormatter: ...
+              ),
+              // calendarFormat: calendarFormat,
+              // onFormatChanged: (day) => onFormatChanged(day),
+              daysOfWeekVisible: true,
+              rowHeight: 35,
             ),
             Expanded(
               child: StreamBuilder<List<Appointment>>(

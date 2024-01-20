@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fullserva/controllers/week_days_controller.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../domain/entities/week_days.dart';
 
 class WeekDaysForm extends StatefulWidget {
-  const WeekDaysForm({Key? key}) : super(key: key);
+  final WeekDays? model;
+
+  const WeekDaysForm({Key? key, this.model}) : super(key: key);
 
   @override
   State<WeekDaysForm> createState() => _WeekDaysFormState();
@@ -12,15 +14,30 @@ class WeekDaysForm extends StatefulWidget {
 
 class _WeekDaysFormState extends State<WeekDaysForm> {
   bool working = false;
-  DateTime startTime =  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 08, 00);
-  DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 17, 00);
-  DateTime startTimeInterval = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 00);
-  DateTime endTimeInterval = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 13, 00);
+  DateTime startTime = DateTime.now();
+  DateTime endTime = DateTime.now();
+  DateTime startTimeInterval = DateTime.now();
+  DateTime endTimeInterval = DateTime.now();
   double appointmentInterval = 20;
   DateFormat timeFormat = DateFormat('HH:mm');
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.model != null) {
+      // Preencha os campos do formulário com os valores do dia selecionado
+      working = widget.model!.working;
+      startTime = widget.model!.startTime;
+      endTime = widget.model!.endTime;
+      startTimeInterval = widget.model!.startTimeInterval;
+      endTimeInterval = widget.model!.endTimeInterval;
+      appointmentInterval = widget.model!.appointmentInterval.toDouble();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final weekDaysModel = widget.model;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Atualizar dia'),
@@ -44,7 +61,9 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('Horário de Funcionamento: ${timeFormat.format(startTime)} às ${timeFormat.format(endTime)}'),
+            Text(
+                'Horário de Funcionamento: ${timeFormat.format(
+                    startTime)} às ${timeFormat.format(endTime)}'),
             RangeSlider(
               values: RangeValues(
                 _convertTimeToDouble(startTime),
@@ -65,7 +84,10 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Intervalo: ${timeFormat.format(startTimeInterval)} às ${timeFormat.format(endTimeInterval)}'),
+            Text(
+                'Intervalo: ${timeFormat.format(
+                    startTimeInterval)} às ${timeFormat.format(
+                    endTimeInterval)}'),
             const SizedBox(height: 8.0),
             Row(
               children: [
@@ -99,22 +121,27 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
                 });
               },
             ),
-            Text("intervalo entre agendamentos: ${appointmentInterval.toInt()} minutos"),
+            Text(
+                "intervalo entre agendamentos: ${appointmentInterval
+                    .toInt()} minutos"),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 WeekDays weekDays = WeekDays(
+                  id: weekDaysModel!.id,
                   working: working,
                   startTime: startTime,
                   endTime: endTime,
                   appointmentInterval: appointmentInterval.toInt(),
+                  startTimeInterval: startTimeInterval,
+                  endTimeInterval: endTimeInterval,
                 );
 
-                // Atualiza a lista de dias de trabalho usando a função definida em WorkingDays
-                // Provider.of<WorkingDays>(context, listen: false)
-                //     .updateWorkingDay(widget.index, updatedDay);
+                weekDays.id = weekDaysModel.id;
 
-                // Fecha a tela de configuração de horários
+                await WeekDaysController().updateWeekDays(weekDays);
+
+                print(WeekDaysController().updateWeekDays(weekDays));
                 Navigator.pop(context);
               },
               child: const Text('Confirmar'),

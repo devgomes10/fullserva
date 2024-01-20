@@ -14,11 +14,7 @@ class WeekDaysRepository {
 
   Future<void> updateWeekDays(WeekDays weekDays) async {
     try {
-      await weekDaysCollection.get().then((snapshot) {
-        for (DocumentSnapshot doc in snapshot.docs) {
-          doc.reference.update(weekDays.toMap());
-        }
-      });
+      await weekDaysCollection.doc(weekDays.id.toString()).set(weekDays.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro

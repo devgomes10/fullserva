@@ -1,19 +1,19 @@
 class WeekDays {
-  String? id;
+  int id;
   bool working;
   DateTime startTime;
   DateTime endTime;
-  DateTime? startTimeInterval;
-  DateTime? endTimeInterval;
+  DateTime startTimeInterval;
+  DateTime endTimeInterval;
   int appointmentInterval;
 
   WeekDays({
-    this.id,
+    required this.id,
     required this.working,
     required this.startTime,
     required this.endTime,
-    this.startTimeInterval,
-    this.endTimeInterval,
+    required this.startTimeInterval,
+    required this.endTimeInterval,
     required this.appointmentInterval,
   });
 
