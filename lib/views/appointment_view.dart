@@ -83,6 +83,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                   },
                 );
               },
+              locale: locale,
               headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,

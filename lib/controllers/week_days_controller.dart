@@ -25,7 +25,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -34,7 +33,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -43,7 +41,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -52,7 +49,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -61,7 +57,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: true,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -70,7 +65,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: false,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -79,7 +73,6 @@ class WeekDaysController implements WeekDaysUseCase {
         working: false,
         startTime: DateTime(2024, 1, 16, 9),
         endTime: DateTime(2024, 1, 16, 17),
-        appointmentInterval: 30,
         startTimeInterval: DateTime(2024, 1, 1, 12),
         endTimeInterval: DateTime(2024, 1, 1, 13),
       ),
@@ -89,7 +82,7 @@ class WeekDaysController implements WeekDaysUseCase {
       for (var day in weekDays) {
         await weekDaysRepository
             .weekDaysCollection
-            .doc(day.id.toString()) // Use o ID como identificador único
+            .doc(day.id.toString())
             .set(day.toMap());
       }
       print("Dias da semana adicionados com sucesso!");

@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import '../domain/entities/week_days.dart';
 
 class WeekDaysForm extends StatefulWidget {
-  final WeekDays? model;
+  final WeekDays weekDays;
 
-  const WeekDaysForm({Key? key, this.model}) : super(key: key);
+  const WeekDaysForm({Key? key, required this.weekDays}) : super(key: key);
 
   @override
   State<WeekDaysForm> createState() => _WeekDaysFormState();
@@ -21,23 +21,9 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
   double appointmentInterval = 20;
   DateFormat timeFormat = DateFormat('HH:mm');
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.model != null) {
-      // Preencha os campos do formulário com os valores do dia selecionado
-      working = widget.model!.working;
-      startTime = widget.model!.startTime;
-      endTime = widget.model!.endTime;
-      startTimeInterval = widget.model!.startTimeInterval;
-      endTimeInterval = widget.model!.endTimeInterval;
-      appointmentInterval = widget.model!.appointmentInterval.toDouble();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final weekDaysModel = widget.model;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Atualizar dia'),
@@ -62,8 +48,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
             ),
             const SizedBox(height: 16),
             Text(
-                'Horário de Funcionamento: ${timeFormat.format(
-                    startTime)} às ${timeFormat.format(endTime)}'),
+                'Horário de Funcionamento: ${timeFormat.format(startTime)} às ${timeFormat.format(endTime)}'),
             RangeSlider(
               values: RangeValues(
                 _convertTimeToDouble(startTime),
@@ -85,9 +70,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
             ),
             const SizedBox(height: 16),
             Text(
-                'Intervalo: ${timeFormat.format(
-                    startTimeInterval)} às ${timeFormat.format(
-                    endTimeInterval)}'),
+                'Intervalo: ${timeFormat.format(startTimeInterval)} às ${timeFormat.format(endTimeInterval)}'),
             const SizedBox(height: 8.0),
             Row(
               children: [
@@ -110,38 +93,22 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
               ],
             ),
             const SizedBox(height: 16),
-            Slider(
-              value: appointmentInterval,
-              max: 120,
-              divisions: 24,
-              label: appointmentInterval.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  appointmentInterval = value;
-                });
-              },
-            ),
-            Text(
-                "intervalo entre agendamentos: ${appointmentInterval
-                    .toInt()} minutos"),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
                 WeekDays weekDays = WeekDays(
-                  id: weekDaysModel!.id,
+                  id: widget.weekDays.id,
                   working: working,
                   startTime: startTime,
                   endTime: endTime,
-                  appointmentInterval: appointmentInterval.toInt(),
                   startTimeInterval: startTimeInterval,
                   endTimeInterval: endTimeInterval,
                 );
 
-                weekDays.id = weekDaysModel.id;
+
+                print("startTime: $startTime");
 
                 await WeekDaysController().updateWeekDays(weekDays);
 
-                print(WeekDaysController().updateWeekDays(weekDays));
                 Navigator.pop(context);
               },
               child: const Text('Confirmar'),
@@ -163,7 +130,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
   DateTime _convertDoubleToTime(double time) {
     int hours = time ~/ 60;
     int minutes = (time % 60).toInt();
-    return DateTime.utc(0, 1, 1, hours, minutes);
+    return DateTime(1, 1, 1, hours, minutes); // Use DateTime sem UTC
   }
 }
 
@@ -185,7 +152,7 @@ class _IntervalPickerDialogState extends State<IntervalPickerDialog> {
   DateTime _convertDoubleToTime(double time) {
     int hours = time ~/ 60;
     int minutes = (time % 60).toInt();
-    return DateTime.utc(0, 1, 1, hours, minutes);
+    return DateTime(1, 1, 1, hours, minutes); // Use DateTime sem UTC
   }
 
   String _formatTime(DateTime time) {

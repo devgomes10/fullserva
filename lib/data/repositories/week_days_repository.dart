@@ -14,7 +14,14 @@ class WeekDaysRepository {
 
   Future<void> updateWeekDays(WeekDays weekDays) async {
     try {
-      await weekDaysCollection.doc(weekDays.id.toString()).set(weekDays.toMap());
+      await weekDaysCollection.doc(weekDays.id.toString()).set({
+        "id": weekDays.id,
+        "working": weekDays.working,
+        "startTime": Timestamp.fromDate(weekDays.startTime.toLocal()), // Converta para o fuso horário local
+        "endTime": Timestamp.fromDate(weekDays.endTime.toLocal()), // Converta para o fuso horário local
+        "startTimeInterval": Timestamp.fromDate(weekDays.startTimeInterval.toLocal()), // Converta para o fuso horário local
+        "endTimeInterval": Timestamp.fromDate(weekDays.endTimeInterval.toLocal()), // Converta para o fuso horário local
+      });
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -33,7 +40,6 @@ class WeekDaysRepository {
               endTime: (doc["endTime"] as Timestamp).toDate(),
               startTimeInterval: (doc["startTimeInterval"] as Timestamp).toDate(),
               endTimeInterval: (doc["endTimeInterval"] as Timestamp).toDate(),
-              appointmentInterval: doc["appointmentInterval"],
             );
           },
         ).toList();

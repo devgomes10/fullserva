@@ -5,7 +5,6 @@ class WeekDays {
   DateTime endTime;
   DateTime startTimeInterval;
   DateTime endTimeInterval;
-  int appointmentInterval;
 
   WeekDays({
     required this.id,
@@ -14,7 +13,6 @@ class WeekDays {
     required this.endTime,
     required this.startTimeInterval,
     required this.endTimeInterval,
-    required this.appointmentInterval,
   });
 
   // Converting a map to an instance
@@ -24,8 +22,7 @@ class WeekDays {
         startTime = map["startTime"],
         endTime = map["endTime"],
         startTimeInterval = map["startTimeInterval"],
-        endTimeInterval = map["endTimeInterval"],
-        appointmentInterval = map["appointmentInterval"];
+        endTimeInterval = map["endTimeInterval"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
@@ -36,7 +33,6 @@ class WeekDays {
       "endTime": endTime,
       "startTimeInterval": startTimeInterval,
       "endTimeInterval": endTimeInterval,
-      "appointmentInterval": appointmentInterval,
     };
   }
 }

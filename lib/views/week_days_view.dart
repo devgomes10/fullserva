@@ -15,11 +15,6 @@ class _WeekDaysViewState extends State<WeekDaysView> {
   final WeekDaysController calendarTimesController = WeekDaysController();
   DateFormat timeFormat = DateFormat('HH:mm');
 
-  @override
-  void initState() {
-    super.initState();
-    calendarTimesController.setupInitialWeekDays();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +41,12 @@ class _WeekDaysViewState extends State<WeekDaysView> {
           }
           return ListView.separated(
             itemBuilder: (context, int i) {
-              WeekDays model = days[i];
               return ListTile(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WeekDaysForm(model: model),
+                      builder: (context) => WeekDaysForm(weekDays: days[i]),
                     ),
                   );
                 },
