@@ -16,37 +16,27 @@ class ServiceFormView extends StatefulWidget {
 
 class _ServiceFormViewState extends State<ServiceFormView> {
   final _formKey = GlobalKey<FormState>();
+  final ServiceController serviceController = ServiceController();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
-  final ServiceController serviceController = ServiceController();
-  Duration selectedDuration = const Duration(minutes: 5);
+  int? _currentSliderValue = 5;
+  final List<int> _durationOptions = List.generate(24 * 12, (index) => (index + 1) * 5);
 
-  String _formatDuration(Duration duration) {
-    int hours = duration.inHours;
-    int minutes = duration.inMinutes % 60;
+  String formatDuration(int minutes) {
+    int hours = minutes ~/ 60;
+    int remainingMinutes = minutes % 60;
 
-    if (hours > 0 && minutes > 0) {
-      return '$hours h $minutes min';
+    if (hours > 0 && remainingMinutes > 0) {
+      return '$hours h e $remainingMinutes m';
     } else if (hours > 0) {
       return '$hours h';
     } else {
-      return '$minutes min';
+      return '$remainingMinutes m';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuItem<Duration>> durationItems = [];
-
-    for (int i = 5; i <= 600; i += 5) {
-      durationItems.add(
-        DropdownMenuItem<Duration>(
-          value: Duration(minutes: i),
-          child: Text(_formatDuration(Duration(minutes: i))),
-        ),
-      );
-    }
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -69,53 +59,55 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                     return null;
                   },
                 ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: DropdownButtonFormField<Duration>(
-                        hint: const Text("Duração"),
-                        value: selectedDuration,
-                        items: durationItems,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedDuration = value!;
-                          });
-                        },
-                        decoration: const InputDecoration(labelText: 'Duração'),
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Obrigatório';
-                          }
-                          return null;
-                        },
+                const SizedBox(width: 20,),
+                SizedBox(
+                  width: 150,
+                  child:
+                  DropdownButtonFormField<int>(
+                    hint: const Text("Duração"),
+                    value: _currentSliderValue,
+                    items: _durationOptions.map((int value) {
+                      return DropdownMenuItem<int>(value: value, child: Text(formatDuration(value),),);
+                    }).toList(),
+                    onChanged: (int? value) {
+                      if (value != null) {
+                        setState(() {
+                          _currentSliderValue = value;
+                        });
+                      }
+                    },
+                    decoration: const InputDecoration(labelText: 'Duração'),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Obrigatório';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 20,),
+                SizedBox(
+                  width: 150,
+                  child: TextFormField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      MaskTextInputFormatter(
+                        filter: {"#": RegExp(r'[0-9]')},
                       ),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: "Preço",
+                      hintText: "0,00",
+                      prefixIcon: Icon(Icons.attach_money),
                     ),
-                    const SizedBox(width: 20,),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: _priceController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          MaskTextInputFormatter(
-                            filter: {"#": RegExp(r'[0-9]')},
-                          ),
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: "Preço",
-                          hintText: "0,00",
-                          prefixIcon: Icon(Icons.attach_money),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Obrigatório";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Obrigatório";
+                      }
+                      return null;
+                    },
+                  ),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -124,7 +116,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                       final service = Service(
                         id: const Uuid().v4(),
                         name: _nameController.text,
-                        duration: selectedDuration,
+                        duration: _currentSliderValue!.toInt(),
                         price: double.parse(_priceController.text),
                       );
                       serviceController.addService(service);
