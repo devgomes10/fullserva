@@ -9,13 +9,12 @@ class ServiceRepository {
 
   ServiceRepository() {
     // uidService = FirebaseAuth.instance.currentUser!.uid;
-    serviceCollection =
-        FirebaseFirestore.instance.collection("service");
+    serviceCollection = FirebaseFirestore.instance.collection("service");
   }
 
   Future<void> addService(Service service) async {
     try {
-      await serviceCollection.add(service.toMap());
+      await serviceCollection.doc(service.id).set(service.toMap());
     } catch (error) {
       print("Erro: $error");
       // Tratar em caso de erro
@@ -25,25 +24,23 @@ class ServiceRepository {
   Stream<List<Service>> getService() {
     return serviceCollection.snapshots().map(
       (snapshot) {
-        return snapshot.docs.map((doc) {
-          return Service(
-            id: doc["id"],
-            name: doc["name"],
-            duration: doc["duration"],
-            price: doc["price"],
-          );
-        }).toList();
+        return snapshot.docs.map(
+          (doc) {
+            return Service(
+              id: doc["id"],
+              name: doc["name"],
+              duration: doc["duration"],
+              price: doc["price"],
+            );
+          },
+        ).toList();
       },
     );
   }
 
   Future<void> updateService(Service service) async {
     try {
-      await serviceCollection.get().then((snapshot) {
-        for (DocumentSnapshot doc in snapshot.docs) {
-          doc.reference.delete();
-        }
-      });
+      await serviceCollection.doc(service.id).update(service.toMap());
     } catch (error) {
       print("Erro: $error");
       // Tratar em caso de erro

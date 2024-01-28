@@ -5,7 +5,7 @@ import '../../domain/entities/appointment.dart';
 class AppointmentRepository {
   // late String uidAppointment;
   late CollectionReference appointmentCollection;
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  static final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   AppointmentRepository() {
     // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
@@ -14,7 +14,7 @@ class AppointmentRepository {
 
   Future<void> addAppointment(Appointment appointment) async {
     try {
-      await appointmentCollection.add(appointment.toMap());
+      await appointmentCollection.doc(appointment.id).set(appointment.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -27,7 +27,7 @@ class AppointmentRepository {
         return snapshot.docs.map(
           (doc) {
             return Appointment(
-              id: doc.id,
+              id: doc["id"],
               clientName: doc['clientName'],
               clientPhone: doc['clientPhone'],
               serviceId: doc['serviceId'],
@@ -42,13 +42,7 @@ class AppointmentRepository {
 
   Future<void> updateAppointment(Appointment appointment) async {
     try {
-      await appointmentCollection.get().then(
-        (snapshot) {
-          for (DocumentSnapshot doc in snapshot.docs) {
-            doc.reference.update(appointment.toMap());
-          }
-        },
-      );
+      await appointmentCollection.doc(appointment.id).update(appointment.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro

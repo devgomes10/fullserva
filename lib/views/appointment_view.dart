@@ -28,29 +28,6 @@ class _AppointmentViewState extends State<AppointmentView> {
     today = DateTime.now();
   }
 
-  // void onFormatChanged(format) {
-  //   calendarFormat = format;
-  // }
-
-  Future<String?> getServiceName(String serviceId) async {
-    try {
-      final DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
-          .collection("services")
-          .doc(serviceId)
-          .get();
-
-      if (serviceSnapshot.exists) {
-        final serviceName = serviceSnapshot["name"];
-        return serviceName;
-      } else {
-        return null; // Serviço não encontrado
-      }
-    } catch (error) {
-      print("Erro ao buscar nome do serviço: $error");
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -63,7 +40,7 @@ class _AppointmentViewState extends State<AppointmentView> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AppointmentFormView(),
+                builder: (context) => AppointmentFormView(),
               ),
             );
           },
@@ -100,7 +77,8 @@ class _AppointmentViewState extends State<AppointmentView> {
               rowHeight: 35,
             ),
             Expanded(
-              child: StreamBuilder<List<Appointment>>(
+              child: // Em AppointmentView
+              StreamBuilder<List<Appointment>>(
                 stream: appointmentController.getAppointments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -119,12 +97,10 @@ class _AppointmentViewState extends State<AppointmentView> {
                   }
 
                   final appointmentsForDay = appointments
-                      .where(
-                        (appointment) =>
-                            appointment.dateTime.year == today.year &&
-                            appointment.dateTime.month == today.month &&
-                            appointment.dateTime.day == today.day,
-                      )
+                      .where((appointment) =>
+                  appointment.dateTime.year == today.year &&
+                      appointment.dateTime.month == today.month &&
+                      appointment.dateTime.day == today.day)
                       .toList();
 
                   return ListView.separated(
@@ -132,27 +108,39 @@ class _AppointmentViewState extends State<AppointmentView> {
                     itemCount: appointmentsForDay.length,
                     itemBuilder: (context, index) {
                       final appointment = appointmentsForDay[index];
-                      return ListTile(
-                        leading: Text(
-                          "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
-                        ),
-                        title: FutureBuilder<String?>(
-                          future: getServiceName(appointment.serviceId),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Text("Carregando...");
-                            } else if (snapshot.hasError ||
-                                snapshot.data == null) {
-                              return const Text("Serviço não encontrado");
-                            } else {
-                              return Text(snapshot.data!);
-                            }
-                          },
-                        ),
-                        subtitle: Text(appointment.clientName),
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        onTap: () {},
+                      return FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection("service")
+                            .doc(appointment.serviceId)
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Erro ao carregar o serviço');
+                          }
+
+                          final serviceName = snapshot.data?['name'];
+
+                          return ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AppointmentFormView(model: appointment),
+                                ),
+                              );
+                            },
+                            leading: Text(
+                              "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
+                            ),
+                            title: Text(serviceName ?? 'Serviço não encontrado'),
+                            subtitle: Text(appointment.clientName),
+                            trailing: const Icon(Icons.arrow_forward_ios),
+                          );
+                        },
                       );
                     },
                   );

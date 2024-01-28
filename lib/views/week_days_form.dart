@@ -18,8 +18,17 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
   DateTime endTime = DateTime.now();
   DateTime startTimeInterval = DateTime.now();
   DateTime endTimeInterval = DateTime.now();
-  double appointmentInterval = 20;
   DateFormat timeFormat = DateFormat('HH:mm');
+
+  @override
+  void initState() {
+    super.initState();
+    working = widget.weekDays.working;
+    startTime = widget.weekDays.startTime;
+    endTime = widget.weekDays.endTime;
+    startTimeInterval = widget.weekDays.startTimeInterval;
+    endTimeInterval = widget.weekDays.endTimeInterval;
+  }
 
 
   @override

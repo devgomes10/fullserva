@@ -17,10 +17,10 @@ class WeekDaysRepository {
       await weekDaysCollection.doc(weekDays.id.toString()).set({
         "id": weekDays.id,
         "working": weekDays.working,
-        "startTime": Timestamp.fromDate(weekDays.startTime.toLocal()), // Converta para o fuso horário local
-        "endTime": Timestamp.fromDate(weekDays.endTime.toLocal()), // Converta para o fuso horário local
-        "startTimeInterval": Timestamp.fromDate(weekDays.startTimeInterval.toLocal()), // Converta para o fuso horário local
-        "endTimeInterval": Timestamp.fromDate(weekDays.endTimeInterval.toLocal()), // Converta para o fuso horário local
+        "startTime": Timestamp.fromDate(weekDays.startTime.toLocal()),
+        "endTime": Timestamp.fromDate(weekDays.endTime.toLocal()),
+        "startTimeInterval": Timestamp.fromDate(weekDays.startTimeInterval.toLocal()),
+        "endTimeInterval": Timestamp.fromDate(weekDays.endTimeInterval.toLocal()),
       });
     } catch (error) {
       print("Erro: $error");

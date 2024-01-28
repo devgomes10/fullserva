@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
@@ -7,7 +8,9 @@ import 'package:uuid/uuid.dart';
 import '../domain/entities/service.dart';
 
 class AppointmentFormView extends StatefulWidget {
-  const AppointmentFormView({super.key});
+  final Appointment? model;
+
+  const AppointmentFormView({super.key, this.model});
 
   @override
   _AppointmentFormViewState createState() => _AppointmentFormViewState();
@@ -15,21 +18,28 @@ class AppointmentFormView extends StatefulWidget {
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
-  TimeOfDay selectedTime = TimeOfDay.now();
-  DateTime selectedDate = DateTime.now();
-  late TextEditingController _clientNameController;
-  late TextEditingController _clientPhoneController;
-  late TextEditingController _internalObservationsController;
+
+  DateTime? selectedDate;
+  final _clientNameController = TextEditingController();
+  final _clientPhoneController = TextEditingController();
+  final _internalObservationsController = TextEditingController();
   final AppointmentController _controller = AppointmentController();
   final ServiceController serviceController = ServiceController();
+  String uniqueId = const Uuid().v4();
   late List<Service> services = [];
   late Service? selectedService = services.isNotEmpty ? services.first : null;
+
   @override
   void initState() {
     super.initState();
-    _clientNameController = TextEditingController();
-    _clientPhoneController = TextEditingController();
-    _internalObservationsController = TextEditingController();
+    if (widget.model != null) {
+      selectedDate = widget.model!.dateTime;
+      _clientNameController.text = widget.model!.clientName;
+      _clientPhoneController.text = widget.model!.clientPhone;
+      _internalObservationsController.text =
+          widget.model!.internalObservations!;
+      // selectedService = widget.model!.serviceId as Service?;
+    }
     loadServices();
   }
 
@@ -51,6 +61,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
   @override
   Widget build(BuildContext context) {
+    final appointmentModel = widget.model;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Novo Agendamento"),
@@ -99,10 +110,10 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   items: services
                       .map(
                         (service) => DropdownMenuItem<Service>(
-                      value: service,
-                      child: Text(service.name),
-                    ),
-                  )
+                          value: service,
+                          child: Text(service.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -117,51 +128,30 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   },
                 ),
               ),
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      const Text("Data"),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final DateTime? dateTime = await showDatePicker(
-                            context: context,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(3000),
-                          );
-                          if (dateTime != null) {
-                            setState(() {
-                              selectedDate = dateTime;
-                            });
-                          }
-                        },
-                        child: Text(
-                            "${selectedDate.day} / ${selectedDate.month} / ${selectedDate.year}"),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const Text("Hora"),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final TimeOfDay? timeOfDay = await showTimePicker(
-                            context: context,
-                            initialTime: selectedTime,
-                            initialEntryMode: TimePickerEntryMode.dial,
-                          );
-                          if (timeOfDay != null) {
-                            setState(() {
-                              selectedTime = timeOfDay;
-                            });
-                          }
-                        },
-                        child: Text(
-                            "${selectedTime.hour} : ${selectedTime.minute}"),
-                      ),
-                    ],
-                  ),
-                ],
+              ElevatedButton(
+                onPressed: () {
+                  DatePicker.showDateTimePicker(
+                    context,
+                    locale: LocaleType.pt,
+                    showTitleActions: true,
+                    onConfirm: (date) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                    },
+                    onChanged: (date) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                    },
+                    currentTime: DateTime.now(),
+                  );
+                },
+                child: Text(
+                  selectedDate != null
+                      ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
+                      : 'Selecionar Data e Hora',
+                ),
               ),
               TextFormField(
                 controller: _internalObservationsController,
@@ -172,36 +162,26 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    DateTime dateTime = DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                      selectedTime.hour,
-                      selectedTime.minute,
+                    Appointment appointment = Appointment(
+                      id: appointmentModel?.id ?? uniqueId,
+                      clientName: _clientNameController.text,
+                      clientPhone: _clientPhoneController.text,
+                      serviceId: selectedService!.id,
+                      dateTime: selectedDate!,
+                      internalObservations: _internalObservationsController.text,
                     );
 
-                    if (selectedService != null) {
-                      Appointment appointment = Appointment(
-                        id: const Uuid().v4(),
-                        clientName: _clientNameController.text,
-                        clientPhone: _clientPhoneController.text,
-                        serviceId: selectedService!.id,
-                        dateTime: dateTime,
-                        internalObservations: _internalObservationsController.text,
-                      );
-
-                      await _controller.addAppointment(appointment);
-
-                      Navigator.pop(context, true);
+                    if (appointmentModel != null) {
+                      await _controller.updateAppointment(appointment);
                     } else {
-                      // Lógica para lidar com o caso em que selectedService é nulo
-                      // Pode ser exibida uma mensagem de erro ou outra ação apropriada
+                      await _controller.addAppointment(appointment);
                     }
+
+                    Navigator.pop(context, true);
                   }
                 },
                 child: const Text('Salvar'),
               ),
-
             ],
           ),
         ),
