@@ -18,7 +18,6 @@ class AppointmentFormView extends StatefulWidget {
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
-
   DateTime? selectedDate;
   final _clientNameController = TextEditingController();
   final _clientPhoneController = TextEditingController();
@@ -65,6 +64,15 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Novo Agendamento"),
+        actions: appointmentModel != null ? [
+          IconButton(
+            onPressed: () async {
+              await _controller.removeAppointment(appointmentModel.id);
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.delete),
+          ),
+        ] : null,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

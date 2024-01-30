@@ -54,6 +54,15 @@ class _ServiceFormViewState extends State<ServiceFormView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Adicionar Serviço"),
+          actions: serviceModel != null ? [
+            IconButton(
+              onPressed: () async {
+                await serviceController.removeService(serviceModel.id);
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ] : null,
         ),
         body: Form(
           key: _formKey,

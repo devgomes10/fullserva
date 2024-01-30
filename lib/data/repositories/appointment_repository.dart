@@ -57,25 +57,4 @@ class AppointmentRepository {
       // tratar em caso de erro
     }
   }
-
-  Future<List<Appointment>> getAppointmentsForDay(DateTime day) async {
-    // Consulta no Firestore para obter os agendamentos para o dia especificado
-    var querySnapshot = await appointmentCollection
-        .where('dateTime', isGreaterThanOrEqualTo: day)
-        .where('dateTime', isLessThan: day.add(const Duration(days: 1)))
-        .get();
-
-    return querySnapshot.docs.map(
-          (doc) {
-        return Appointment(
-          id: doc.id,
-          clientName: doc['clientName'],
-          clientPhone: doc['clientPhone'],
-          serviceId: doc['serviceId'],
-          dateTime: (doc['dateTime'] as Timestamp).toDate(),
-          internalObservations: doc['internalObservations'],
-        );
-      },
-    ).toList();
-  }
 }
