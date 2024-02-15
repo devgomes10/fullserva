@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/week_days_form.dart';
+import 'package:fullserva/views/settings/opening_hours/week_days_form.dart';
 import 'package:intl/intl.dart';
-import '../controllers/week_days_controller.dart';
-import '../domain/entities/week_days.dart';
+import '../../../controllers/week_days_controller.dart';
+import '../../../domain/entities/week_days.dart';
 
 class WeekDaysView extends StatefulWidget {
   const WeekDaysView({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/week_days_controller.dart';
 import 'package:intl/intl.dart';
-import '../domain/entities/week_days.dart';
+import '../../../domain/entities/week_days.dart';
 
 class WeekDaysForm extends StatefulWidget {
   final WeekDays weekDays;

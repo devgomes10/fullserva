@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/appointment_view.dart';
-import 'package:fullserva/views/dashboard_view.dart';
-import 'package:fullserva/views/service_view.dart';
-import 'package:fullserva/views/settings_view.dart';
+import 'package:fullserva/views/appointments/appointment_view.dart';
+import 'package:fullserva/views/dash/dashboard_view.dart';
+import 'package:fullserva/views/employees/employees_view.dart';
+import 'package:fullserva/views/services/service_view.dart';
+import 'package:fullserva/views/settings/home/settings_view.dart';
 
 class MenuNavigator extends StatefulWidget {
   const MenuNavigator({super.key});
@@ -22,19 +23,23 @@ class _MenuNavigatorState extends State<MenuNavigator> {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
-            label: "Agendamentos",
+              label: "Agenda",
           ),
           NavigationDestination(
             icon: Icon(Icons.build_outlined),
             label: "Serviços",
           ),
           NavigationDestination(
+            icon: Icon(Icons.person_outlined),
+            label: "Equipe",
+          ),
+          NavigationDestination(
             icon: Icon(Icons.bubble_chart_outlined),
             label: "Painel",
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            label: "Configurações",
+            icon: Icon(Icons.more_horiz_outlined),
+            label: "Mais",
           ),
         ],
         animationDuration: const Duration(milliseconds: 1000),
@@ -48,6 +53,7 @@ class _MenuNavigatorState extends State<MenuNavigator> {
       body: const [
         AppointmentView(),
         ServiceView(),
+        EmployeesView(),
         DashboardView(),
         SettingsView(),
       ] [currentPageIndex],

@@ -5,7 +5,7 @@ import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
-import '../domain/entities/service.dart';
+import '../../domain/entities/service.dart';
 
 class AppointmentFormView extends StatefulWidget {
   final Appointment? model;

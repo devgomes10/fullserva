@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/service_controller.dart';
-import 'package:fullserva/views/service_form_view.dart';
+import 'package:fullserva/views/services/service_form_view.dart';
 import 'package:intl/intl.dart';
-import '../domain/entities/service.dart';
+import '../../domain/entities/service.dart';
 
 class ServiceView extends StatefulWidget {
   const ServiceView({super.key});
