@@ -5,7 +5,7 @@ import '../../domain/entities/appointment.dart';
 class AppointmentRepository {
   // late String uidAppointment;
   late CollectionReference appointmentCollection;
-  static final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   AppointmentRepository() {
     // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
@@ -57,4 +57,5 @@ class AppointmentRepository {
       // tratar em caso de erro
     }
   }
+
 }

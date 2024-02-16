@@ -5,7 +5,7 @@ abstract class AppointmentUseCase {
 
   Stream<List<Appointment>> getAppointments();
 
-  Future<void> removeAppointment(String appointment);
-
   Future<void> updateAppointment(Appointment appointment);
+
+  Future<void> removeAppointment(String appointment);
 }

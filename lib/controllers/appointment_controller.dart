@@ -3,7 +3,7 @@ import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/usecases/appointment_usecase.dart';
 
 class AppointmentController implements AppointmentUseCase {
-  final AppointmentRepository appointmentRepository = AppointmentRepository();
+  AppointmentRepository appointmentRepository = AppointmentRepository();
 
   @override
   Future<void> addAppointment(Appointment appointment) async {
@@ -16,12 +16,12 @@ class AppointmentController implements AppointmentUseCase {
   }
 
   @override
-  Future<void> removeAppointment(String appointment) {
-    return appointmentRepository.removeAppointment(appointment);
+  Future<void> updateAppointment(Appointment appointment) {
+    return appointmentRepository.updateAppointment(appointment);
   }
 
   @override
-  Future<void> updateAppointment(Appointment appointment) {
-    return appointmentRepository.updateAppointment(appointment);
+  Future<void> removeAppointment(String appointment) {
+    return appointmentRepository.removeAppointment(appointment);
   }
 }

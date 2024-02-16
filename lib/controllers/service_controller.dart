@@ -3,7 +3,7 @@ import 'package:fullserva/domain/entities/service.dart';
 import 'package:fullserva/domain/usecases/service_usecase.dart';
 
 class ServiceController implements ServiceUseCase {
-  final ServiceRepository serviceRepository = ServiceRepository();
+  ServiceRepository serviceRepository = ServiceRepository();
 
   @override
   Future<void> addService(Service service) {
@@ -16,12 +16,12 @@ class ServiceController implements ServiceUseCase {
   }
 
   @override
-  Future<void> removeService(String service) {
-    return serviceRepository.removeService(service);
+  Future<void> updateService(Service service) {
+    return serviceRepository.updateService(service);
   }
 
   @override
-  Future<void> updateService(Service service) {
-    return serviceRepository.updateService(service);
+  Future<void> removeService(String service) {
+    return serviceRepository.removeService(service);
   }
 }

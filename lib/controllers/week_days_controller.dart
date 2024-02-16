@@ -3,7 +3,7 @@ import 'package:fullserva/domain/entities/week_days.dart';
 import 'package:fullserva/domain/usecases/week_days_usecase.dart';
 
 class WeekDaysController implements WeekDaysUseCase {
-  final WeekDaysRepository weekDaysRepository =
+  WeekDaysRepository weekDaysRepository =
   WeekDaysRepository();
 
   @override
