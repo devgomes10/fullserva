@@ -74,7 +74,7 @@ class _AppointmentViewState extends State<AppointmentView> {
               daysOfWeekVisible: true,
               rowHeight: 35,
             ),
-            Expanded(
+            SingleChildScrollView(
               child: // Em AppointmentView
               StreamBuilder<List<Appointment>>(
                 stream: appointmentController.getAppointments(),

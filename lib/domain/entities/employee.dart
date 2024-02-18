@@ -3,7 +3,7 @@ class Employee {
   String name;
   String email;
   String password;
-  int phone;
+  String phone;
   List<String> servicesIdList;
 
   Employee({

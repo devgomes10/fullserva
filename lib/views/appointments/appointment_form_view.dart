@@ -61,136 +61,138 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   @override
   Widget build(BuildContext context) {
     final appointmentModel = widget.model;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Novo Agendamento"),
-        actions: appointmentModel != null ? [
-          IconButton(
-            onPressed: () async {
-              await _controller.removeAppointment(appointmentModel.id);
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.delete),
-          ),
-        ] : null,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                keyboardType: TextInputType.text,
-                controller: _clientNameController,
-                decoration: const InputDecoration(labelText: 'Nome do Cliente'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  MaskTextInputFormatter(
-                    mask: '(##) #####-####',
-                    filter: {"#": RegExp(r'[0-9]')},
-                  )
-                ],
-                controller: _clientPhoneController,
-                decoration:
-                    const InputDecoration(labelText: 'Telefone do Cliente'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                width: 280,
-                child: DropdownButtonFormField<Service>(
-                  hint: const Text("Escolha um serviço"),
-                  icon: const Icon(Icons.build_outlined),
-                  value: selectedService,
-                  items: services
-                      .map(
-                        (service) => DropdownMenuItem<Service>(
-                          value: service,
-                          child: Text(service.name),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedService = value!;
-                    });
-                  },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Novo Agendamento"),
+          actions: appointmentModel != null ? [
+            IconButton(
+              onPressed: () async {
+                await _controller.removeAppointment(appointmentModel.id);
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ] : null,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                TextFormField(
+                  keyboardType: TextInputType.text,
+                  controller: _clientNameController,
+                  decoration: const InputDecoration(labelText: 'Nome do Cliente'),
                   validator: (value) {
-                    if (value == null) {
+                    if (value == null || value.isEmpty) {
                       return 'Obrigatório';
                     }
                     return null;
                   },
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  DatePicker.showDateTimePicker(
-                    context,
-                    locale: LocaleType.pt,
-                    showTitleActions: true,
-                    onConfirm: (date) {
-                      setState(() {
-                        selectedDate = date;
-                      });
-                    },
-                    onChanged: (date) {
-                      setState(() {
-                        selectedDate = date;
-                      });
-                    },
-                    currentTime: DateTime.now(),
-                  );
-                },
-                child: Text(
-                  selectedDate != null
-                      ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
-                      : 'Selecionar Data e Hora',
-                ),
-              ),
-              TextFormField(
-                controller: _internalObservationsController,
-                decoration: const InputDecoration(
-                    labelText: 'Observações Internas (Opcional)'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    Appointment appointment = Appointment(
-                      id: appointmentModel?.id ?? uniqueId,
-                      clientName: _clientNameController.text,
-                      clientPhone: _clientPhoneController.text,
-                      serviceId: selectedService!.id,
-                      dateTime: selectedDate!,
-                      internalObservations: _internalObservationsController.text,
-                    );
-
-                    if (appointmentModel != null) {
-                      await _controller.updateAppointment(appointment);
-                    } else {
-                      await _controller.addAppointment(appointment);
+                TextFormField(
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    MaskTextInputFormatter(
+                      mask: '(##) #####-####',
+                      filter: {"#": RegExp(r'[0-9]')},
+                    )
+                  ],
+                  controller: _clientPhoneController,
+                  decoration:
+                      const InputDecoration(labelText: 'Telefone do Cliente'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Obrigatório';
                     }
-
-                    Navigator.pop(context, true);
-                  }
-                },
-                child: const Text('Salvar'),
-              ),
-            ],
+                    return null;
+                  },
+                ),
+                SizedBox(
+                  width: 280,
+                  child: DropdownButtonFormField<Service>(
+                    hint: const Text("Escolha um serviço"),
+                    icon: const Icon(Icons.build_outlined),
+                    value: selectedService,
+                    items: services
+                        .map(
+                          (service) => DropdownMenuItem<Service>(
+                            value: service,
+                            child: Text(service.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedService = value!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Obrigatório';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                      context,
+                      locale: LocaleType.pt,
+                      showTitleActions: true,
+                      onConfirm: (date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                      },
+                      onChanged: (date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                      },
+                      currentTime: DateTime.now(),
+                    );
+                  },
+                  child: Text(
+                    selectedDate != null
+                        ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
+                        : 'Selecionar Data e Hora',
+                  ),
+                ),
+                TextFormField(
+                  controller: _internalObservationsController,
+                  decoration: const InputDecoration(
+                      labelText: 'Observações Internas (Opcional)'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      Appointment appointment = Appointment(
+                        id: appointmentModel?.id ?? uniqueId,
+                        clientName: _clientNameController.text,
+                        clientPhone: _clientPhoneController.text,
+                        serviceId: selectedService!.id,
+                        dateTime: selectedDate!,
+                        internalObservations: _internalObservationsController.text,
+                      );
+      
+                      if (appointmentModel != null) {
+                        await _controller.updateAppointment(appointment);
+                      } else {
+                        await _controller.addAppointment(appointment);
+                      }
+      
+                      Navigator.pop(context, true);
+                    }
+                  },
+                  child: const Text('Salvar'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -13,7 +13,7 @@ class ServiceView extends StatefulWidget {
 
 class _ServiceViewState extends State<ServiceView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
-  final ServiceController serviceController = ServiceController();
+  ServiceController serviceController = ServiceController();
 
   String _formatDuration(int duration) {
     int hours = duration ~/ 60;
@@ -46,54 +46,55 @@ class _ServiceViewState extends State<ServiceView> {
           },
           child: const Icon(Icons.add),
         ),
-        body: StreamBuilder<List<Service>>(
-          stream: serviceController.getService(),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Service>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return const Center(
-                // Adicionar uma imagem
-                child: Text('Erro ao carregar os dados'),
-              );
-            }
-            final services = snapshot.data;
-            if (services == null || services.isEmpty) {
-              // Adicionar uma imagem
-              return const Center(
-                child: Text('Nenhum dado disponível'),
-              );
-            }
-            return ListView.separated(
-              itemBuilder: (BuildContext context, int i) {
-                Service model = services[i];
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceFormView(model: model)));
-                  },
-                  title: Text(
-                    services[i].name,
-                  ),
-                  subtitle: Row(
-                    children: [
-                      // Aqui vai ficar a duração do serviço
-                      Text(
-                        "${_formatDuration(services[i].duration)}"
-                      ),
-                      Text(
-                          // Aqui vai ficar o preço do serviço
-                          " | ${real.format(services[i].price)}")
-                    ],
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
+        body: SingleChildScrollView(
+          child: StreamBuilder<List<Service>>(
+            stream: serviceController.getService(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return const Center(
+                  // Adicionar uma imagem
+                  child: Text('Erro ao carregar os dados'),
                 );
-              },
-              separatorBuilder: (_, __) => const Divider(),
-              itemCount: services.length,
-            );
-          },
+              }
+              final services = snapshot.data;
+              if (services == null || services.isEmpty) {
+                // Adicionar uma imagem
+                return const Center(
+                  child: Text('Nenhum dado disponível'),
+                );
+              }
+              return ListView.separated(
+                itemBuilder: (BuildContext context, int i) {
+                  Service model = services[i];
+                  return ListTile(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceFormView(model: model)));
+                    },
+                    title: Text(
+                      services[i].name,
+                    ),
+                    subtitle: Row(
+                      children: [
+                        // Aqui vai ficar a duração do serviço
+                        Text(
+                          _formatDuration(services[i].duration)
+                        ),
+                        Text(
+                            // Aqui vai ficar o preço do serviço
+                            " | ${real.format(services[i].price)}")
+                      ],
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                  );
+                },
+                separatorBuilder: (_, __) => const Divider(),
+                itemCount: services.length,
+              );
+            },
+          ),
         ),
       ),
     );

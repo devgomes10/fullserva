@@ -64,10 +64,11 @@ class _ServiceFormViewState extends State<ServiceFormView> {
             ),
           ] : null,
         ),
-        body: Form(
-          key: _formKey,
-          child: Center(
-            child: Column(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
               children: [
                 TextFormField(
                   controller: _nameController,
