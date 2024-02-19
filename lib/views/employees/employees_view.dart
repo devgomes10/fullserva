@@ -21,9 +21,8 @@ class _EmployeesViewState extends State<EmployeesView> {
       ),
       floatingActionButton: FloatingActionButton(onPressed: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => EmployeeFormView()));
-      }, child: Icon(Icons.add),),
-      body: SingleChildScrollView(
-        child: StreamBuilder<List<Employee>>(
+      }, child: const Icon(Icons.add),),
+      body: StreamBuilder<List<Employee>>(
           stream: _employeeController.getEmployees(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,7 +62,6 @@ class _EmployeesViewState extends State<EmployeesView> {
             );
           }
         ),
-      ),
     );
   }
 }
