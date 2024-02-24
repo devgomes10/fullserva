@@ -19,13 +19,11 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
   final _formKey = GlobalKey<FormState>();
   EmployeeController _employeeController = EmployeeController();
   int _selectedServices = 0;
-  List<bool> _isRole = [false, false, false];
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
-  List<String> _servicesId = [];
-  int _role = 0;
+  List<String> _servicesIdList = [];
   List<Service> _availableServices = [];
   ServiceController _serviceController = ServiceController();
   Map<String, bool> _isChecked = {};
@@ -38,7 +36,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
       _emailController.text = widget.model!.email;
       _passwordController.text = widget.model!.password;
       _phoneController.text = widget.model!.phone;
-      // _servicesIdList = widget.model!.servicesIdList;
+      _servicesIdList = widget.model!.servicesIdList;
     }
     _fetchAvailableServices();
   }
@@ -47,8 +45,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
     _serviceController.getService().listen((services) {
       setState(() {
         _availableServices = services;
-        _isChecked = Map.fromIterable(services,
-            key: (service) => service.id, value: (_) => false);
+        _isChecked = Map.fromIterable(services, key: (service) => service.id, value: (_) => false);
       });
     });
   }
@@ -57,7 +54,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Novo colaborador"),
+        title: Text("Equipe"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -65,23 +62,8 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
           key: _formKey,
           child: ListView(
             children: [
-              ToggleButtons(
-                children: const [
-                  Text("Operacional"),
-                  Text("Assistente"),
-                  Text("Administração"),
-                ],
-                isSelected:
-                    List.generate(_isRole.length, (index) => index == _role),
-                onPressed: (int newIndex) {
-                  setState(() {
-                    _role = newIndex;
-                  });
-                  print(_role);
-                },
-              ),
               TextFormField(
-                keyboardType: TextInputType.name,
+                keyboardType: TextInputType.text,
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Nome'),
                 validator: (value) {
@@ -95,7 +77,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
                 keyboardType: TextInputType.emailAddress,
                 controller: _emailController,
                 decoration:
-                    const InputDecoration(labelText: 'E-mail de acesso'),
+                const InputDecoration(labelText: 'E-mail de acesso'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Obrigatório';
@@ -106,7 +88,8 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
               TextFormField(
                 keyboardType: TextInputType.text,
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Senha de acesso'),
+                decoration:
+                const InputDecoration(labelText: 'Senha de acesso'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Obrigatório';
@@ -117,8 +100,8 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
               TextFormField(
                 keyboardType: TextInputType.phone,
                 controller: _phoneController,
-                decoration:
-                    const InputDecoration(labelText: 'Telefone do Colaborador'),
+                decoration: const InputDecoration(
+                    labelText: 'Telefone do Colaborador'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Obrigatório';
@@ -130,44 +113,26 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
                 hint: Text("Serviços: $_selectedServices"),
                 items: _availableServices
                     .map((service) => DropdownMenuItem(
-                          value: service.id,
-                          child: CheckboxListTile(
-                            title: Text(service.name),
-                            value: _isChecked[service.id],
-                            onChanged: (value) {
-                              setState(() {
-                                _isChecked[service.id] = value!;
-                                if (value!) {
-                                  _servicesId.add(service.id);
-                                  _selectedServices++;
-                                } else {
-                                  _servicesId.remove(service.id);
-                                  _selectedServices--;
-                                }
-                              });
-                            },
-                          ),
-                        ))
+                  value: service.id,
+                  child: CheckboxListTile(
+                    title: Text(service.name),
+                    value: _isChecked[service.id],
+                    onChanged: (value) {
+                      setState(() {
+                        _isChecked[service.id] = value!;
+                        if (value!) {
+                          _servicesIdList.add(service.id);
+                          _selectedServices++;
+                        } else {
+                          _servicesIdList.remove(service.id);
+                          _selectedServices--;
+                        }
+                      });
+                    },
+                  ),
+                ))
                     .toList(),
                 onChanged: (value) {},
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    Employee employee = Employee(
-                      id: uniqueId,
-                      name: _nameController.text,
-                      email: _emailController.text,
-                      password: _passwordController.text,
-                      phone: _phoneController.text,
-                      role: _role,
-                      serviceIds: _servicesId,
-                    );
-
-                    await _employeeController.addEmployee(employee);
-                  }
-                },
-                child: Text("ADICIONAR"),
               ),
             ],
           ),

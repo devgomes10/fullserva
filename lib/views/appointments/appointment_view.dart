@@ -74,76 +74,73 @@ class _AppointmentViewState extends State<AppointmentView> {
               daysOfWeekVisible: true,
               rowHeight: 35,
             ),
-            SingleChildScrollView(
-              child: // Em AppointmentView
-              StreamBuilder<List<Appointment>>(
-                stream: appointmentController.getAppointments(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Erro ao carregar os dados'),
-                    );
-                  }
-                  final appointments = snapshot.data;
-                  if (appointments == null || appointments.isEmpty) {
-                    return const Center(
-                      child: Text("Nenhum dado disponível"),
-                    );
-                  }
-
-                  final appointmentsForDay = appointments
-                      .where((appointment) =>
-                  appointment.dateTime.year == today.year &&
-                      appointment.dateTime.month == today.month &&
-                      appointment.dateTime.day == today.day)
-                      .toList();
-
-                  return ListView.separated(
-                    separatorBuilder: (_, __) => const Divider(),
-                    itemCount: appointmentsForDay.length,
-                    itemBuilder: (context, index) {
-                      final appointment = appointmentsForDay[index];
-                      return FutureBuilder(
-                        future: FirebaseFirestore.instance
-                            .collection("service")
-                            .doc(appointment.serviceId)
-                            .get(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          }
-                          if (snapshot.hasError) {
-                            return const Text('Erro ao carregar o serviço');
-                          }
-
-                          final serviceName = snapshot.data?['name'];
-
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AppointmentFormView(model: appointment),
-                                ),
-                              );
-                            },
-                            leading: Text(
-                              "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
-                            ),
-                            title: Text(serviceName ?? 'Serviço não encontrado'),
-                            subtitle: Text(appointment.clientName),
-                            trailing: const Icon(Icons.arrow_forward_ios),
-                          );
-                        },
-                      );
-                    },
+            StreamBuilder<List<Appointment>>(
+              stream: appointmentController.getAppointments(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text('Erro ao carregar os dados'),
                   );
-                },
-              ),
+                }
+                final appointments = snapshot.data;
+                if (appointments == null || appointments.isEmpty) {
+                  return const Center(
+                    child: Text("Nenhum dado disponível"),
+                  );
+                }
+
+                final appointmentsForDay = appointments
+                    .where((appointment) =>
+                appointment.dateTime.year == today.year &&
+                    appointment.dateTime.month == today.month &&
+                    appointment.dateTime.day == today.day)
+                    .toList();
+
+                return ListView.separated(
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemCount: appointmentsForDay.length,
+                  itemBuilder: (context, index) {
+                    final appointment = appointmentsForDay[index];
+                    return FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection("service")
+                          .doc(appointment.serviceId)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return const Text('Erro ao carregar o serviço');
+                        }
+
+                        final serviceName = snapshot.data?['name'];
+
+                        return ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AppointmentFormView(model: appointment),
+                              ),
+                            );
+                          },
+                          leading: Text(
+                            "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
+                          ),
+                          title: Text(serviceName ?? 'Serviço não encontrado'),
+                          subtitle: Text(appointment.clientName),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
