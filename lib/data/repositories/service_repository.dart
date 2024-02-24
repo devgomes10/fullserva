@@ -31,6 +31,7 @@ class ServiceRepository {
               name: doc["name"],
               duration: doc["duration"],
               price: doc["price"],
+              employeeIds: doc["employeeIds"],
             );
           },
         ).toList();

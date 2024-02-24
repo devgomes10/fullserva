@@ -20,6 +20,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   int? _currentSliderValue = 5;
+  List<String> _employeeIds = [];
   final List<int> _durationOptions =
       List.generate(24 * 12, (index) => (index + 1) * 5);
 
@@ -54,21 +55,23 @@ class _ServiceFormViewState extends State<ServiceFormView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Adicionar Serviço"),
-          actions: serviceModel != null ? [
-            IconButton(
-              onPressed: () async {
-                await serviceController.removeService(serviceModel.id);
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete),
-            ),
-          ] : null,
+          actions: serviceModel != null
+              ? [
+                  IconButton(
+                    onPressed: () async {
+                      await serviceController.removeService(serviceModel.id);
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                ]
+              : null,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: ListView(
+            child: Column(
               children: [
                 TextFormField(
                   controller: _nameController,
@@ -149,6 +152,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                         name: _nameController.text,
                         duration: _currentSliderValue!.toInt(),
                         price: double.parse(_priceController.text),
+                        employeeIds: _employeeIds,
                       );
 
                       if (serviceModel != null) {
@@ -160,7 +164,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text("Adicionar Serviço"),
+                  child: const Text("ADICIONAR"),
                 ),
               ],
             ),

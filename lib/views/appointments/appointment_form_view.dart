@@ -20,6 +20,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
   final _clientNameController = TextEditingController();
+  final _clientEmailController = TextEditingController();
+  final _employeeEmailController = TextEditingController();
   final _clientPhoneController = TextEditingController();
   final _internalObservationsController = TextEditingController();
   final AppointmentController _controller = AppointmentController();
@@ -34,6 +36,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     if (widget.model != null) {
       selectedDate = widget.model!.dateTime;
       _clientNameController.text = widget.model!.clientName;
+      _clientEmailController.text = widget.model!.clientEmail;
+      _employeeEmailController.text = widget.model!.employeeEmail;
       _clientPhoneController.text = widget.model!.clientPhone;
       _internalObservationsController.text =
           widget.model!.internalObservations!;
@@ -46,6 +50,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   void dispose() {
     _clientNameController.dispose();
     _clientPhoneController.dispose();
+    _employeeEmailController.dispose();
+    _clientEmailController.dispose();
     _internalObservationsController.dispose();
     super.dispose();
   }
@@ -79,12 +85,23 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: ListView(
+            child: Column(
               children: [
                 TextFormField(
                   keyboardType: TextInputType.text,
                   controller: _clientNameController,
                   decoration: const InputDecoration(labelText: 'Nome do Cliente'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Obrigatório';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _clientEmailController,
+                  decoration: const InputDecoration(labelText: 'Email do cliente'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Obrigatório';
@@ -137,6 +154,9 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     },
                   ),
                 ),
+
+                // escolher o colaborador
+
                 ElevatedButton(
                   onPressed: () {
                     DatePicker.showDateTimePicker(
@@ -174,6 +194,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       Appointment appointment = Appointment(
                         id: appointmentModel?.id ?? uniqueId,
                         clientName: _clientNameController.text,
+                        clientEmail: _clientEmailController.text,
+                        employeeEmail: _employeeEmailController.text,
                         clientPhone: _clientPhoneController.text,
                         serviceId: selectedService!.id,
                         dateTime: selectedDate!,
@@ -189,7 +211,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       Navigator.pop(context, true);
                     }
                   },
-                  child: const Text('Salvar'),
+                  child: const Text('ADICIONAR'),
                 ),
               ],
             ),

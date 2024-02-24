@@ -31,7 +31,8 @@ class EmployeeRepository {
               email: doc["email"],
               password: doc["password"],
               phone: doc["phone"],
-              servicesIdList: doc["serviceIdList"],
+              role: doc["role"],
+              serviceIds: doc["serviceIds"],
             );
           },
         ).toList();

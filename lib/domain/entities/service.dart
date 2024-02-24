@@ -3,12 +3,14 @@ class Service {
   String name;
   int duration;
   double price;
+  List<String> employeeIds;
 
   Service({
     required this.id,
     required this.name,
     required this.duration,
     required this.price,
+    required this.employeeIds,
   });
 
   // Converting a map to an instance
@@ -16,7 +18,8 @@ class Service {
       : id = map["id"],
         name = map["name"],
         duration = map["duration"],
-        price = map["price"];
+        price = map["price"],
+        employeeIds = map["employeeIds"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
@@ -25,6 +28,7 @@ class Service {
       "name": name,
       "duration": duration,
       "price": price,
+      "employeeIds": employeeIds,
     };
   }
 }

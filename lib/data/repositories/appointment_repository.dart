@@ -28,11 +28,13 @@ class AppointmentRepository {
           (doc) {
             return Appointment(
               id: doc["id"],
-              clientName: doc['clientName'],
-              clientPhone: doc['clientPhone'],
-              serviceId: doc['serviceId'],
-              dateTime: (doc['dateTime'] as Timestamp).toDate(),
-              internalObservations: doc['internalObservations'],
+              clientName: doc["clientName"],
+              clientEmail: doc["clientEmail"],
+              employeeEmail: doc["employeeEmail"],
+              clientPhone: doc["clientPhone"],
+              serviceId: doc["serviceId"],
+              dateTime: (doc["dateTime"] as Timestamp).toDate(),
+              internalObservations: doc["dateTime"],
             );
           },
         ).toList();
