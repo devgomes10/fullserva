@@ -23,21 +23,24 @@ class ServiceRepository {
 
   Stream<List<Service>> getService() {
     return serviceCollection.snapshots().map(
-      (snapshot) {
+          (snapshot) {
         return snapshot.docs.map(
-          (doc) {
+              (doc) {
+            // Convertendo a lista dinâmica para uma lista de strings
+            List<String> employeeIds = List<String>.from(doc["employeeIds"] ?? []);
             return Service(
-              id: doc["id"],
+              id: doc.id,
               name: doc["name"],
               duration: doc["duration"],
               price: doc["price"],
-              employeeIds: doc["employeeIds"],
+              employeeIds: employeeIds,
             );
           },
         ).toList();
       },
     );
   }
+
 
   Future<void> updateService(Service service) async {
     try {

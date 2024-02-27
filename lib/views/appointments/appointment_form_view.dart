@@ -201,13 +201,11 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         dateTime: selectedDate!,
                         internalObservations: _internalObservationsController.text,
                       );
-      
                       if (appointmentModel != null) {
                         await _controller.updateAppointment(appointment);
                       } else {
                         await _controller.addAppointment(appointment);
                       }
-      
                       Navigator.pop(context, true);
                     }
                   },

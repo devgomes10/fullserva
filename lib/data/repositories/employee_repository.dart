@@ -25,6 +25,7 @@ class EmployeeRepository {
       (snapshot) {
         return snapshot.docs.map(
           (doc) {
+            List<String> serviceIds = List<String>.from(doc["serviceIds"] ?? []);
             return Employee(
               id: doc["id"],
               name: doc["name"],
@@ -32,7 +33,7 @@ class EmployeeRepository {
               password: doc["password"],
               phone: doc["phone"],
               role: doc["role"],
-              serviceIds: doc["serviceIds"],
+              serviceIds: serviceIds,
             );
           },
         ).toList();

@@ -18,15 +18,13 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
   String uniqueId = const Uuid().v4();
   final _formKey = GlobalKey<FormState>();
   EmployeeController _employeeController = EmployeeController();
-  int _selectedServices = 0;
+  ServiceController _serviceController = ServiceController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
+  List<String> _selectedServicesIds = [];
   List<String> _servicesIdList = [];
-  List<Service> _availableServices = [];
-  ServiceController _serviceController = ServiceController();
-  Map<String, bool> _isChecked = {};
 
   @override
   void initState() {
@@ -36,7 +34,6 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
       _emailController.text = widget.model!.email;
       _passwordController.text = widget.model!.password;
       _phoneController.text = widget.model!.phone;
-      _servicesIdList = widget.model!.servicesIdList;
     }
     _fetchAvailableServices();
   }
@@ -44,8 +41,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
   void _fetchAvailableServices() {
     _serviceController.getService().listen((services) {
       setState(() {
-        _availableServices = services;
-        _isChecked = Map.fromIterable(services, key: (service) => service.id, value: (_) => false);
+        _selectedServicesIds.clear();
       });
     });
   }
@@ -60,7 +56,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
               TextFormField(
                 keyboardType: TextInputType.text,
@@ -100,8 +96,8 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
               TextFormField(
                 keyboardType: TextInputType.phone,
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                    labelText: 'Telefone do Colaborador'),
+                decoration:
+                const InputDecoration(labelText: 'Telefone do Colaborador'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Obrigatório';
@@ -109,30 +105,58 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
                   return null;
                 },
               ),
-              DropdownButtonFormField(
-                hint: Text("Serviços: $_selectedServices"),
-                items: _availableServices
-                    .map((service) => DropdownMenuItem(
-                  value: service.id,
-                  child: CheckboxListTile(
-                    title: Text(service.name),
-                    value: _isChecked[service.id],
-                    onChanged: (value) {
-                      setState(() {
-                        _isChecked[service.id] = value!;
-                        if (value!) {
-                          _servicesIdList.add(service.id);
-                          _selectedServices++;
-                        } else {
-                          _servicesIdList.remove(service.id);
-                          _selectedServices--;
-                        }
-                      });
+              Text("Atribuir serviços"),
+              Expanded(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(border: Border.all(width: 5)),
+                  child: StreamBuilder<List<Service>>(
+                    stream: _serviceController.getService(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(
+                          // Adicionar uma imagem
+                          child: Text('Erro ao carregar os dados'),
+                        );
+                      }
+                      final services = snapshot.data;
+                      if (services == null || services.isEmpty) {
+                        // Adicionar uma imagem
+                        return const Center(
+                          child: Text('Nenhum dado disponível'),
+                        );
+                      }
+                      return ListView.builder(
+                        itemCount: services.length,
+                        itemBuilder: (context, index) {
+                          final service = services[index];
+                          final isSelected = _selectedServicesIds.contains(service.id);
+                          final isSelectedNotifier = ValueNotifier<bool>(isSelected);
+                          return ValueListenableBuilder<bool>(
+                            valueListenable: isSelectedNotifier,
+                            builder: (context, value, child) {
+                              return CheckboxListTile(
+                                title: Text(service.name),
+                                value: value,
+                                onChanged: (bool? newValue) {
+                                  isSelectedNotifier.value = newValue!;
+                                  if (newValue) {
+                                    _selectedServicesIds.add(service.id);
+                                  } else {
+                                    _selectedServicesIds.remove(service.id);
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
                     },
                   ),
-                ))
-                    .toList(),
-                onChanged: (value) {},
+                ),
               ),
             ],
           ),
