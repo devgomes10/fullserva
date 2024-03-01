@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/appointment.dart';
@@ -60,4 +62,27 @@ class AppointmentRepository {
     }
   }
 
+  Stream<int> getTotalAppointmentByMonth(DateTime selectedDate) {
+    DateTime startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+    DateTime endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+
+    // Cria um StreamController para emitir o valor total
+    StreamController<int> controller = StreamController<int>();
+
+    // Consulta Firestore para recuperar os agendamentos dentro do intervalo de datas
+    appointmentCollection
+        .where('dateTime', isGreaterThanOrEqualTo: startOfMonth, isLessThan: endOfMonth)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+
+      // Calcula o total de agendamentos
+      int total = snapshot.docs.length;
+
+      // Emite o total para o stream
+      controller.add(total);
+    });
+
+    // Retorna o stream do controller
+    return controller.stream;
+  }
 }

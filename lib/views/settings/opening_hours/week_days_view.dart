@@ -15,7 +15,6 @@ class _WeekDaysViewState extends State<WeekDaysView> {
   final WeekDaysController calendarTimesController = WeekDaysController();
   DateFormat timeFormat = DateFormat('HH:mm');
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,6 +40,28 @@ class _WeekDaysViewState extends State<WeekDaysView> {
           }
           return ListView.separated(
             itemBuilder: (context, int i) {
+
+              String getDiaDaSemana(int indice) {
+                switch (indice) {
+                  case 1:
+                    return 'Segunda-feira';
+                  case 2:
+                    return 'Terça-feira';
+                  case 3:
+                    return 'Quarta-feira';
+                  case 4:
+                    return 'Quinta-feira';
+                  case 5:
+                    return 'Sexta-feira';
+                  case 6:
+                    return 'Sábado';
+                  case 7:
+                    return 'Domingo';
+                  default:
+                    return 'Índice inválido';
+                }
+              }
+
               return ListTile(
                 onTap: () {
                   Navigator.push(
@@ -50,7 +71,7 @@ class _WeekDaysViewState extends State<WeekDaysView> {
                     ),
                   );
                 },
-                leading: Text(days[i].id.toString()),
+                leading: Text(getDiaDaSemana(days[i].id)),
                 title: Text(
                     "${timeFormat.format(days[i].startTime)} às ${timeFormat.format(days[i].endTime)}"),
                 subtitle: Text(
