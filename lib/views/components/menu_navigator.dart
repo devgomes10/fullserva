@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fullserva/views/appointments/appointment_view.dart';
 import 'package:fullserva/views/dash/dashboard_view.dart';
 import 'package:fullserva/views/employees/employees_view.dart';
+import 'package:fullserva/views/more/more/more_view.dart';
 import 'package:fullserva/views/services/service_view.dart';
-import 'package:fullserva/views/settings/home/settings_view.dart';
 
 class MenuNavigator extends StatefulWidget {
   const MenuNavigator({super.key});
@@ -55,7 +55,7 @@ class _MenuNavigatorState extends State<MenuNavigator> {
         ServiceView(),
         EmployeesView(),
         DashboardView(),
-        SettingsView(),
+        MoreView(),
       ] [currentPageIndex],
     );
   }

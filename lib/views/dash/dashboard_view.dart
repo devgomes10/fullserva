@@ -54,15 +54,15 @@ class _DashboardViewState extends State<DashboardView> {
                 ),
               ],
             ),
-            StreamBuilder(
-              stream: AppointmentRepository()
-                  .getTotalAppointmentByMonth(_selectedDate),
-              builder: (BuildContext context,
-                  AsyncSnapshot<int> appointmentsSnapshot) {
-                int totalAppointments = appointmentsSnapshot.data ?? 0;
-                return Text("$totalAppointments");
-              },
-            ),
+            // StreamBuilder(
+            //   stream: AppointmentRepository()
+            //       .getTotalAppointmentByMonth(_selectedDate),
+            //   builder: (BuildContext context,
+            //       AsyncSnapshot<int> appointmentsSnapshot) {
+            //     int totalAppointments = appointmentsSnapshot.data ?? 0;
+            //     return Text("$totalAppointments");
+            //   },
+            // ),
           ],
         ),
       ),

@@ -36,7 +36,7 @@ class AppointmentRepository {
               clientPhone: doc["clientPhone"],
               serviceId: doc["serviceId"],
               dateTime: (doc["dateTime"] as Timestamp).toDate(),
-              internalObservations: doc["dateTime"],
+              internalObservations: doc["internalObservations"],
             );
           },
         ).toList();
@@ -62,27 +62,27 @@ class AppointmentRepository {
     }
   }
 
-  Stream<int> getTotalAppointmentByMonth(DateTime selectedDate) {
-    DateTime startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
-    DateTime endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
-
-    // Cria um StreamController para emitir o valor total
-    StreamController<int> controller = StreamController<int>();
-
-    // Consulta Firestore para recuperar os agendamentos dentro do intervalo de datas
-    appointmentCollection
-        .where('dateTime', isGreaterThanOrEqualTo: startOfMonth, isLessThan: endOfMonth)
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-
-      // Calcula o total de agendamentos
-      int total = snapshot.docs.length;
-
-      // Emite o total para o stream
-      controller.add(total);
-    });
-
-    // Retorna o stream do controller
-    return controller.stream;
-  }
+  // Stream<int> getTotalAppointmentByMonth(DateTime selectedDate) {
+  //   DateTime startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+  //   DateTime endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+  //
+  //   // Cria um StreamController para emitir o valor total
+  //   StreamController<int> controller = StreamController<int>();
+  //
+  //   // Consulta Firestore para recuperar os agendamentos dentro do intervalo de datas
+  //   appointmentCollection
+  //       .where('dateTime', isGreaterThanOrEqualTo: startOfMonth, isLessThan: endOfMonth)
+  //       .snapshots()
+  //       .listen((QuerySnapshot snapshot) {
+  //
+  //     // Calcula o total de agendamentos
+  //     int total = snapshot.docs.length;
+  //
+  //     // Emite o total para o stream
+  //     controller.add(total);
+  //   });
+  //
+  //   // Retorna o stream do controller
+  //   return controller.stream;
+  // }
 }

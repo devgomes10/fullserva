@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
-import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../domain/entities/appointment.dart';
@@ -34,7 +33,7 @@ class _AppointmentViewState extends State<AppointmentView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Agendamentos"),
+          title: const Text("Agenda"),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -81,8 +80,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return const Center(
-                    child: Text('Erro ao carregar os dados'),
+                  return Center(
+                    child: Text('Erro ao carregar os dados: ${snapshot.error}'),
                   );
                 }
                 final appointments = snapshot.data;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/settings/opening_hours/week_days_form.dart';
+import 'package:fullserva/views/more/opening_hours/week_days_form.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/week_days_controller.dart';
 import '../../../domain/entities/week_days.dart';
@@ -40,7 +40,6 @@ class _WeekDaysViewState extends State<WeekDaysView> {
           }
           return ListView.separated(
             itemBuilder: (context, int i) {
-
               String getDiaDaSemana(int indice) {
                 switch (indice) {
                   case 1:

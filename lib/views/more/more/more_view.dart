@@ -1,36 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/employees/employees_view.dart';
-import 'package:fullserva/views/settings/account/account_view.dart';
-import 'package:fullserva/views/settings/opening_hours/week_days_view.dart';
 
-class SettingsView extends StatefulWidget {
-  const SettingsView({super.key});
+import '../account/account_view.dart';
+import '../business/business_form_view.dart';
+import '../opening_hours/week_days_view.dart';
+
+class MoreView extends StatefulWidget {
+  const MoreView({super.key});
 
   @override
-  State<SettingsView> createState() => _SettingsViewState();
+  State<MoreView> createState() => _MoreViewState();
 }
 
-class _SettingsViewState extends State<SettingsView> {
+class _MoreViewState extends State<MoreView> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Configurações"),
+          title: const Text("Mais opções"),
         ),
         body: Column(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EmployeesView(),
-                  ),
-                );
-              },
-              child: const Text("Colaboradores"),
-            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -43,6 +33,19 @@ class _SettingsViewState extends State<SettingsView> {
               child: const Text("Horários de atendimento"),
             ),
             ElevatedButton(
+              onPressed: () {},
+              child: const Text("Link do site"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BusinessFormView()),
+                );
+              },
+              child: const Text("Página do site"),
+            ),
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -51,11 +54,15 @@ class _SettingsViewState extends State<SettingsView> {
                   ),
                 );
               },
-              child: const Text("Conta"),
+              child: const Text("Configurações da conta"),
             ),
             ElevatedButton(
               onPressed: () {},
               child: const Text("Premium"),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("Sair"),
             ),
           ],
         ),
