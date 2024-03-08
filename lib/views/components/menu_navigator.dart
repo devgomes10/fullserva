@@ -50,7 +50,7 @@ class _MenuNavigatorState extends State<MenuNavigator> {
           });
         },
       ),
-      body: const [
+      body: [
         AppointmentView(),
         ServiceView(),
         EmployeesView(),
