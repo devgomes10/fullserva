@@ -1,16 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:uuid/uuid.dart';
 import '../../domain/entities/service.dart';
+import '../../utils/consts/unique_id.dart';
 
 class AppointmentFormView extends StatefulWidget {
-  final Appointment? model;
-
-  const AppointmentFormView({super.key, this.model});
+  const AppointmentFormView({super.key});
 
   @override
   _AppointmentFormViewState createState() => _AppointmentFormViewState();
@@ -24,25 +25,15 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _employeeEmailController = TextEditingController();
   final _clientPhoneController = TextEditingController();
   final _internalObservationsController = TextEditingController();
-  final AppointmentController _controller = AppointmentController();
-  final ServiceController serviceController = ServiceController();
-  String uniqueId = const Uuid().v4();
-  late List<Service> services = [];
-  late Service? selectedService = services.isNotEmpty ? services.first : null;
+  final AppointmentController _appointmentController = AppointmentController();
+  final ServiceController _serviceController = ServiceController();
+  late List<Service> _services = [];
+  late Service? _selectedService =
+      _services.isNotEmpty ? _services.first : null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.model != null) {
-      selectedDate = widget.model!.dateTime;
-      _clientNameController.text = widget.model!.clientName;
-      _clientEmailController.text = widget.model!.clientEmail;
-      _employeeEmailController.text = widget.model!.employeeEmail;
-      _clientPhoneController.text = widget.model!.clientPhone;
-      _internalObservationsController.text =
-          widget.model!.internalObservations!;
-      // selectedService = widget.model!.serviceId as Service?;
-    }
     loadServices();
   }
 
@@ -57,161 +48,183 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   }
 
   Future<void> loadServices() async {
-    serviceController.getService().listen((List<Service> event) {
+    _serviceController.getService().listen((List<Service> event) {
       setState(() {
-        services = event;
+        _services = event;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final appointmentModel = widget.model;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Novo Agendamento"),
-          actions: appointmentModel != null ? [
-            IconButton(
-              onPressed: () async {
-                await _controller.removeAppointment(appointmentModel.id);
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete),
-            ),
-          ] : null,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  keyboardType: TextInputType.text,
-                  controller: _clientNameController,
-                  decoration: const InputDecoration(labelText: 'Nome do Cliente'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  controller: _clientEmailController,
-                  decoration: const InputDecoration(labelText: 'Email do cliente'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    MaskTextInputFormatter(
-                      mask: '(##) #####-####',
-                      filter: {"#": RegExp(r'[0-9]')},
-                    )
-                  ],
-                  controller: _clientPhoneController,
-                  decoration:
-                      const InputDecoration(labelText: 'Telefone do Cliente'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(
-                  width: 280,
-                  child: DropdownButtonFormField<Service>(
-                    hint: const Text("Escolha um serviço"),
-                    icon: const Icon(Icons.build_outlined),
-                    value: selectedService,
-                    items: services
-                        .map(
-                          (service) => DropdownMenuItem<Service>(
-                            value: service,
-                            child: Text(service.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedService = value!;
-                      });
-                    },
+            child: Flexible(
+              child: Column(
+                children: [
+                  TextFormField(
+                    keyboardType: TextInputType.name,
+                    controller: _clientNameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome do cliente',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
                     validator: (value) {
-                      if (value == null) {
-                        return 'Obrigatório';
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira o nome do cliente';
                       }
                       return null;
                     },
                   ),
-                ),
-
-                // escolher o colaborador
-
-                ElevatedButton(
-                  onPressed: () {
-                    DatePicker.showDateTimePicker(
-                      context,
-                      locale: LocaleType.pt,
-                      showTitleActions: true,
-                      onConfirm: (date) {
-                        setState(() {
-                          selectedDate = date;
-                        });
-                      },
-                      onChanged: (date) {
-                        setState(() {
-                          selectedDate = date;
-                        });
-                      },
-                      currentTime: DateTime.now(),
-                    );
-                  },
-                  child: Text(
-                    selectedDate != null
-                        ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
-                        : 'Selecionar Data e Hora',
-                  ),
-                ),
-                TextFormField(
-                  controller: _internalObservationsController,
-                  decoration: const InputDecoration(
-                      labelText: 'Observações Internas (Opcional)'),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      Appointment appointment = Appointment(
-                        id: appointmentModel?.id ?? uniqueId,
-                        clientName: _clientNameController.text,
-                        clientEmail: _clientEmailController.text,
-                        employeeEmail: _employeeEmailController.text,
-                        clientPhone: _clientPhoneController.text,
-                        serviceId: selectedService!.id,
-                        dateTime: selectedDate!,
-                        internalObservations: _internalObservationsController.text,
-                      );
-                      if (appointmentModel != null) {
-                        await _controller.updateAppointment(appointment);
-                      } else {
-                        await _controller.addAppointment(appointment);
+                  const SizedBox(height: 26),
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: _clientEmailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email do cliente',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira o email do cliente';
                       }
-                      Navigator.pop(context, true);
-                    }
-                  },
-                  child: const Text('ADICIONAR'),
-                ),
-              ],
+                      if (!value.contains('@')) {
+                        return 'Por favor, insira um email válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 26),
+                  TextFormField(
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      MaskTextInputFormatter(
+                        mask: '(##) #####-####',
+                      )
+                    ],
+                    controller: _clientPhoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Telefone do cliente',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira o telefone do cliente';
+                      }
+                      if (value.length < 15) {
+                        return 'Por favor, insira um número válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 26),
+                  SizedBox(
+                    width: 280,
+                    child: DropdownButtonFormField<Service>(
+                      hint: const Text("Escolha um serviço"),
+                      icon: const Icon(Icons.build_outlined),
+                      value: _selectedService,
+                      items: _services
+                          .map(
+                            (service) => DropdownMenuItem<Service>(
+                              value: service,
+                              child: Text(service.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedService = value!;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Obrigatório';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+
+                  // escolher o colaborador
+
+                  ElevatedButton(
+                    onPressed: () {
+                      DatePicker.showDateTimePicker(
+                        context,
+                        locale: LocaleType.pt,
+                        showTitleActions: true,
+                        onConfirm: (date) {
+                          setState(() {
+                            selectedDate = date;
+                          });
+                        },
+                        onChanged: (date) {
+                          setState(() {
+                            selectedDate = date;
+                          });
+                        },
+                        currentTime: DateTime.now(),
+                      );
+                    },
+                    child: Text(
+                      selectedDate != null
+                          ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
+                          : 'Selecionar Data e Hora',
+                    ),
+                  ),
+                  const SizedBox(height: 26),
+                  TextFormField(
+                    keyboardType: TextInputType.multiline,
+                    controller: _internalObservationsController,
+                    decoration: InputDecoration(
+                      labelText: 'Observações Internas (Opcional)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    maxLength: 100,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        Appointment appointment = Appointment(
+                          id: uniqueId,
+                          clientName: _clientNameController.text,
+                          clientEmail: _clientEmailController.text,
+                          employeeEmail: _employeeEmailController.text,
+                          clientPhone: _clientPhoneController.text,
+                          serviceId: _selectedService!.id,
+                          dateTime: selectedDate!,
+                          internalObservations:
+                              _internalObservationsController.text,
+                        );
+                        await _appointmentController
+                            .addAppointment(appointment);
+                        Navigator.pop(context, true);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+
+                    ),
+                    child: const Text('ADICIONAR'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

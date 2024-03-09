@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fullserva/utils/themes/theme_light.dart';
 import 'package:fullserva/views/components/menu_navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/week_days_controller.dart';
@@ -35,10 +36,8 @@ class Fullserva extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      themeMode: ThemeMode.light,
+      theme: themeLight,
       home: const MenuNavigator(),
     );
   }
