@@ -42,9 +42,12 @@ class AppointmentRepository {
     );
   }
 
+
   Future<void> updateAppointment(Appointment appointment) async {
     try {
-      await appointmentCollection.doc(appointment.id).update(appointment.toMap());
+      await appointmentCollection
+          .doc(appointment.id)
+          .update(appointment.toMap());
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
@@ -57,31 +60,6 @@ class AppointmentRepository {
     } catch (error) {
       print("Erro: $error");
       // tratar em caso de erro
-    }
-  }
-
-  Future<List<Appointment>> getAppointmentsForDay(DateTime day) async {
-    try {
-      final QuerySnapshot snapshot = await appointmentCollection
-          .where("dateTime", isGreaterThanOrEqualTo: day)
-          .where("dateTime", isLessThan: day.add(Duration(days: 1)))
-          .get();
-
-      return snapshot.docs.map((doc) {
-        return Appointment(
-          id: doc["id"],
-          clientName: doc["clientName"],
-          clientEmail: doc["clientEmail"],
-          employeeEmail: doc["employeeEmail"],
-          clientPhone: doc["clientPhone"],
-          serviceId: doc["serviceId"],
-          dateTime: (doc["dateTime"] as Timestamp).toDate(),
-          internalObservations: doc["internalObservations"],
-        );
-      }).toList();
-    } catch (error) {
-      print("Erro: $error");
-      return [];
     }
   }
 }

@@ -41,7 +41,6 @@ class ServiceRepository {
     );
   }
 
-
   Future<void> updateService(Service service) async {
     try {
       await serviceCollection.doc(service.id).update(service.toMap());

@@ -70,7 +70,12 @@ class _ServiceViewState extends State<ServiceView> {
                 Service model = services[i];
                 return ListTile(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceFormView(model: model)));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ServiceFormView(model: model),
+                      ),
+                    );
                   },
                   title: Text(
                     services[i].name,
@@ -78,9 +83,7 @@ class _ServiceViewState extends State<ServiceView> {
                   subtitle: Row(
                     children: [
                       // Aqui vai ficar a duração do serviço
-                      Text(
-                        _formatDuration(services[i].duration)
-                      ),
+                      Text(_formatDuration(services[i].duration)),
                       Text(
                           // Aqui vai ficar o preço do serviço
                           " | ${real.format(services[i].price)}")

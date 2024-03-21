@@ -6,6 +6,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
+import 'package:fullserva/views/components/modal_bottom.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../domain/entities/service.dart';
 import '../../utils/consts/unique_id.dart';
@@ -64,19 +65,19 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Flexible(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
               child: Column(
                 children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
                   TextFormField(
                     keyboardType: TextInputType.name,
                     controller: _clientNameController,
                     decoration: InputDecoration(
                       labelText: 'Nome do cliente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -132,10 +133,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   ),
                   const SizedBox(height: 26),
                   SizedBox(
-                    width: 280,
                     child: DropdownButtonFormField<Service>(
                       hint: const Text("Escolha um serviço"),
-                      icon: const Icon(Icons.build_outlined),
                       value: _selectedService,
                       items: _services
                           .map(
@@ -158,7 +157,19 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       },
                     ),
                   ),
-
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context, // Passar o contexto capturado aqui
+                        builder: (BuildContext context) => modalBottomSheet(context: context),
+                      );
+                    },
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "aqui",
+                      ),
+                    ),
+                  ),
                   // escolher o colaborador
 
                   ElevatedButton(
@@ -218,9 +229,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         Navigator.pop(context, true);
                       }
                     },
-                    style: ElevatedButton.styleFrom(
-
-                    ),
+                    style: ElevatedButton.styleFrom(),
                     child: const Text('ADICIONAR'),
                   ),
                 ],
