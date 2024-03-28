@@ -3,7 +3,8 @@ import 'package:fullserva/controllers/service_controller.dart';
 import '../../domain/entities/service.dart';
 
 ServiceController _serviceController = ServiceController();
-Widget modalBottomSheet({
+
+Widget modalOfferings({
   required BuildContext context,
 }) {
   return StreamBuilder<List<Service>>(
@@ -18,8 +19,8 @@ Widget modalBottomSheet({
           child: Text('Erro ao carregar os dados: ${snapshot.error}'),
         );
       }
-      final streamDatas = snapshot.data;
-      if (streamDatas == null || streamDatas.isEmpty) {
+      final services = snapshot.data;
+      if (services == null || services.isEmpty) {
         return Center(
           child: Text("Está vázio"),
         );
@@ -27,12 +28,15 @@ Widget modalBottomSheet({
       return ListView.separated(
         itemBuilder: (BuildContext context, int i) {
           return ListTile(
-            title: Text(streamDatas[i].name),
-            subtitle: Text(streamDatas[i].duration.toString()),
+            onTap: () {
+              Navigator.pop(context, services[i]);
+            },
+            title: Text(services[i].name),
+            subtitle: Text(services[i].duration.toString()),
           );
         },
         separatorBuilder: (_, __) => const Divider(),
-        itemCount: streamDatas.length,
+        itemCount: services.length,
       );
     },
   );

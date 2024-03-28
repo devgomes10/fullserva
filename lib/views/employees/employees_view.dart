@@ -19,49 +19,58 @@ class _EmployeesViewState extends State<EmployeesView> {
       appBar: AppBar(
         title: const Text("Equipe"),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => EmployeeFormView()));
-      }, child: const Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => EmployeeFormView()));
+        },
+        child: const Icon(Icons.add),
+      ),
       body: StreamBuilder<List<Employee>>(
-          stream: _employeeController.getEmployees(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return const Center(
-                // Adicionar uma imagem
-                child: Text('Erro ao carregar os dados'),
-              );
-            }
-            final employees = snapshot.data;
-            if (employees == null || employees.isEmpty) {
+        stream: _employeeController.getEmployees(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Center(
               // Adicionar uma imagem
-              return const Center(
-                child: Text('Nenhum dado disponível'),
-              );
-            }
-            return ListView.separated(
-              itemBuilder: (BuildContext context, int i) {
-                Employee model = employees[i];
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => EmployeeFormView(model: model)));
-                  },
-                  title: Text(
-                    employees[i].name,
-                  ),
-                  subtitle: Text(
-                      employees[i].email,
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                );
-              },
-              separatorBuilder: (_, __) => const Divider(),
-              itemCount: employees.length,
+              child: Text('Erro ao carregar os dados'),
             );
           }
-        ),
+          final employees = snapshot.data;
+          if (employees == null || employees.isEmpty) {
+            // Adicionar uma imagem
+            return const Center(
+              child: Text('Nenhum dado disponível'),
+            );
+          }
+          return ListView.separated(
+            itemBuilder: (BuildContext context, int i) {
+              Employee model = employees[i];
+              return ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EmployeeFormView(model: model),
+                    ),
+                  );
+                },
+                title: Text(
+                  employees[i].name,
+                ),
+                subtitle: Text(
+                  employees[i].email,
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios),
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(),
+            itemCount: employees.length,
+          );
+        },
+      ),
     );
   }
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
-import 'package:fullserva/views/components/modal_bottom.dart';
+import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/views/components/modal_coworkers.dart';
+import 'package:fullserva/views/components/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../domain/entities/service.dart';
 import '../../utils/consts/unique_id.dart';
@@ -25,18 +26,10 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _clientEmailController = TextEditingController();
   final _employeeEmailController = TextEditingController();
   final _clientPhoneController = TextEditingController();
+  Service? _offering;
+  Employee? _coworker;
   final _internalObservationsController = TextEditingController();
   final AppointmentController _appointmentController = AppointmentController();
-  final ServiceController _serviceController = ServiceController();
-  late List<Service> _services = [];
-  late Service? _selectedService =
-      _services.isNotEmpty ? _services.first : null;
-
-  @override
-  void initState() {
-    super.initState();
-    loadServices();
-  }
 
   @override
   void dispose() {
@@ -46,14 +39,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     _clientEmailController.dispose();
     _internalObservationsController.dispose();
     super.dispose();
-  }
-
-  Future<void> loadServices() async {
-    _serviceController.getService().listen((List<Service> event) {
-      setState(() {
-        _services = event;
-      });
-    });
   }
 
   @override
@@ -88,26 +73,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   ),
                   const SizedBox(height: 26),
                   TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _clientEmailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email do cliente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira o email do cliente';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Por favor, insira um email válido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 26),
-                  TextFormField(
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
                       MaskTextInputFormatter(
@@ -132,70 +97,64 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     },
                   ),
                   const SizedBox(height: 26),
-                  SizedBox(
-                    child: DropdownButtonFormField<Service>(
-                      hint: const Text("Escolha um serviço"),
-                      value: _selectedService,
-                      items: _services
-                          .map(
-                            (service) => DropdownMenuItem<Service>(
-                              value: service,
-                              child: Text(service.name),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedService = value!;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Obrigatório';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context, // Passar o contexto capturado aqui
-                        builder: (BuildContext context) => modalBottomSheet(context: context),
-                      );
-                    },
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "aqui",
-                      ),
-                    ),
-                  ),
-                  // escolher o colaborador
-
                   ElevatedButton(
-                    onPressed: () {
-                      DatePicker.showDateTimePicker(
-                        context,
-                        locale: LocaleType.pt,
-                        showTitleActions: true,
-                        onConfirm: (date) {
-                          setState(() {
-                            selectedDate = date;
-                          });
-                        },
-                        onChanged: (date) {
-                          setState(() {
-                            selectedDate = date;
-                          });
-                        },
-                        currentTime: DateTime.now(),
+                    onPressed: () async {
+                      final offering = await showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) => modalOfferings(
+                          context: context,
+                        ),
                       );
+                      if (offering != null) {
+                        setState(() {
+                          _offering = offering as Service;
+                        });
+                      }
                     },
-                    child: Text(
-                      selectedDate != null
-                          ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} ${selectedDate!.hour}:${selectedDate!.minute}'
-                          : 'Selecionar Data e Hora',
+                    child: Text(_offering?.name ?? "Selecione um serviço"),
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
+                  ),
+                  const SizedBox(height: 26),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final coworker = await showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) => modalCoworkers(
+                          context: context,
+                        ),
+                      );
+                      if (coworker != null) {
+                        setState(() {
+                          _coworker = coworker as Employee;
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                    ),
+                    child: Text(_coworker?.name ?? "Selecione um colaborador"),
+                  ),
+                  const SizedBox(height: 26),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Text("Data"),
+                        ),
+                      ),
+                      const SizedBox(width: 5,),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                          },
+                          child: Text("Hora"),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 26),
                   TextFormField(
@@ -219,7 +178,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                           clientEmail: _clientEmailController.text,
                           employeeEmail: _employeeEmailController.text,
                           clientPhone: _clientPhoneController.text,
-                          serviceId: _selectedService!.id,
+                          serviceId: _offering!.id,
                           dateTime: selectedDate!,
                           internalObservations:
                               _internalObservationsController.text,

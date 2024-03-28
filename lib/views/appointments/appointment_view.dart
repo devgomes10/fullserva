@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
-import 'package:fullserva/data/repositories/appointment_repository.dart';
+import 'package:fullserva/domain/entities/employee.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
+import 'package:fullserva/views/components/modal_coworkers.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../domain/entities/appointment.dart';
 
@@ -14,12 +15,13 @@ class AppointmentView extends StatefulWidget {
 }
 
 class _AppointmentViewState extends State<AppointmentView> {
-  final AppointmentController appointmentController = AppointmentController();
+  final AppointmentController _appointmentController = AppointmentController();
   late DateTime firstDay;
   late DateTime lastDay;
   late DateTime today;
   CalendarFormat calendarFormat = CalendarFormat.month;
   String locale = 'pt-BR';
+  Employee? _coworker;
 
   @override
   void initState() {
@@ -74,10 +76,31 @@ class _AppointmentViewState extends State<AppointmentView> {
               daysOfWeekVisible: true,
               rowHeight: 35,
             ),
+            const SizedBox(
+              height: 14,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final coworker = await showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext context) => modalCoworkers(
+                    context: context,
+                  ),
+                );
+                if (coworker != null) {
+                  _coworker = coworker as Employee;
+                }
+              },
+              child: Text(_coworker?.name ?? "Filtre por um colaborador"),
+              style: ElevatedButton.styleFrom(),
+            ),
+            const SizedBox(
+              height: 14,
+            ),
             Expanded(
               child: // Em AppointmentView
-              StreamBuilder<List<Appointment>>(
-                stream: appointmentController.getAppointments(),
+                  StreamBuilder<List<Appointment>>(
+                stream: _appointmentController.getAppointments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -96,9 +119,9 @@ class _AppointmentViewState extends State<AppointmentView> {
 
                   final appointmentsForDay = appointments
                       .where((appointment) =>
-                  appointment.dateTime.year == today.year &&
-                      appointment.dateTime.month == today.month &&
-                      appointment.dateTime.day == today.day)
+                          appointment.dateTime.year == today.year &&
+                          appointment.dateTime.month == today.month &&
+                          appointment.dateTime.day == today.day)
                       .toList();
 
                   return ListView.separated(
@@ -112,7 +135,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                             .doc(appointment.serviceId)
                             .get(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           }
                           if (snapshot.hasError) {
@@ -123,11 +147,37 @@ class _AppointmentViewState extends State<AppointmentView> {
 
                           return ListTile(
                             onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(serviceName),
+                                  content: Text(
+                                    "O cliente ${appointment.clientName} tem um agendamento para o dia ${appointment.dateTime.hour}:${appointment.dateTime.minute} com o funcionário ${appointment.employeeEmail}",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Legal"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        _appointmentController
+                                            .removeAppointment(appointment.id);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Desmarcar"),
+                                    )
+                                  ],
+                                ),
+                              );
                             },
                             leading: Text(
                               "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                             ),
-                            title: Text(serviceName ?? 'Serviço não encontrado'),
+                            title:
+                                Text(serviceName ?? 'Serviço não encontrado'),
                             subtitle: Text(appointment.clientName),
                             trailing: const Icon(Icons.arrow_forward_ios),
                           );
@@ -144,4 +194,3 @@ class _AppointmentViewState extends State<AppointmentView> {
     );
   }
 }
-
