@@ -26,6 +26,7 @@ dependencies:
   time_range_picker: ^2.2.0
   flutter_datetime_picker_plus: ^2.1.0
   shared_preferences: ^2.2.2
+  currency_text_input_formatter: ^2.1.11
 
 dev_dependencies:
   flutter_test:

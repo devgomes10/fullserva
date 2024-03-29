@@ -1,9 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
-import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/employee.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
@@ -16,7 +12,7 @@ class AppointmentFormView extends StatefulWidget {
   const AppointmentFormView({super.key});
 
   @override
-  _AppointmentFormViewState createState() => _AppointmentFormViewState();
+  State<AppointmentFormView> createState() => _AppointmentFormViewState();
 }
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
@@ -30,6 +26,12 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   Employee? _coworker;
   final _internalObservationsController = TextEditingController();
   final AppointmentController _appointmentController = AppointmentController();
+
+  List<DateTime> datasIndisponiveis = [
+    DateTime(2024, 3, 31),
+    DateTime(2024, 4, 4),
+    DateTime(2024, 4, 15),
+  ];
 
   @override
   void dispose() {
@@ -55,13 +57,11 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
               key: _formKey,
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 26),
                   TextFormField(
                     keyboardType: TextInputType.name,
                     controller: _clientNameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nome do cliente',
                     ),
                     validator: (value) {
@@ -80,11 +80,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       )
                     ],
                     controller: _clientPhoneController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Telefone do cliente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -111,10 +108,10 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         });
                       }
                     },
-                    child: Text(_offering?.name ?? "Selecione um serviço"),
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
+                    child: Text(_offering?.name ?? "Selecione um serviço"),
                   ),
                   const SizedBox(height: 26),
                   ElevatedButton(
@@ -142,16 +139,29 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
-                          child: Text("Data"),
+                          onPressed: () {
+                            showDatePicker(
+                              context: context,
+                              firstDate: DateTime.now()
+                                  .add(const Duration(days: -365)),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                              selectableDayPredicate: (DateTime date) {
+                                return !datasIndisponiveis.contains(date);
+                              },
+                            );
+                          },
+                          child: const Text("Data"),
                         ),
                       ),
-                      const SizedBox(width: 5,),
+                      const SizedBox(
+                        width: 5,
+                      ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                          },
-                          child: Text("Hora"),
+                          onPressed: () {},
+                          child: const Text("Hora"),
                         ),
                       ),
                     ],
@@ -160,11 +170,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   TextFormField(
                     keyboardType: TextInputType.multiline,
                     controller: _internalObservationsController,
-                    decoration: InputDecoration(
-                      labelText: 'Observações Internas (Opcional)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                    decoration: const InputDecoration(
+                      labelText: 'Observações',
                     ),
                     maxLength: 100,
                   ),
@@ -188,7 +195,9 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         Navigator.pop(context, true);
                       }
                     },
-                    style: ElevatedButton.styleFrom(),
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                    ),
                     child: const Text('ADICIONAR'),
                   ),
                 ],

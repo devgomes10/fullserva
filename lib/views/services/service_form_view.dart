@@ -1,7 +1,8 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/service_controller.dart';
 import 'package:fullserva/domain/entities/service.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:fullserva/views/components/picker_duration_offering.dart';
 import 'package:uuid/uuid.dart';
 
 class ServiceFormView extends StatefulWidget {
@@ -19,23 +20,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
   final ServiceController serviceController = ServiceController();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
-  int? _currentSliderValue = 5;
-  List<String> _employeeIds = [];
-  final List<int> _durationOptions =
-      List.generate(24 * 12, (index) => (index + 1) * 5);
-
-  String formatDuration(int minutes) {
-    int hours = minutes ~/ 60;
-    int remainingMinutes = minutes % 60;
-
-    if (hours > 0 && remainingMinutes > 0) {
-      return '$hours h e $remainingMinutes m';
-    } else if (hours > 0) {
-      return '$hours h';
-    } else {
-      return '$remainingMinutes m';
-    }
-  }
+  final List<String> _coworkersIds = [];
 
   @override
   void initState() {
@@ -44,7 +29,6 @@ class _ServiceFormViewState extends State<ServiceFormView> {
     if (widget.model != null) {
       _nameController.text = widget.model!.name;
       _priceController.text = widget.model!.price.toString();
-      _currentSliderValue = widget.model!.duration;
     }
   }
 
@@ -69,104 +53,91 @@ class _ServiceFormViewState extends State<ServiceFormView> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: "Nome do Serviço",
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Obrigatório";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                SizedBox(
-                  width: 150,
-                  child: DropdownButtonFormField<int>(
-                    hint: const Text("Duração"),
-                    value: _currentSliderValue,
-                    items: _durationOptions.map((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(
-                          formatDuration(value),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (int? value) {
-                      if (value != null) {
-                        setState(() {
-                          _currentSliderValue = value;
-                        });
-                      }
-                    },
-                    decoration: const InputDecoration(labelText: 'Duração'),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const SizedBox(height: 26),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                        labelText: "Descrição",
+                        hintText: "Qual serviço você oferece?"),
                     validator: (value) {
-                      if (value == null) {
-                        return 'Obrigatório';
+                      if (value == null || value.isEmpty) {
+                        return "Por favor, digite o nome do serviço";
                       }
                       return null;
                     },
                   ),
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                SizedBox(
-                  width: 150,
-                  child: TextFormField(
+                  const SizedBox(height: 26),
+                  TextFormField(
                     controller: _priceController,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      MaskTextInputFormatter(
-                        filter: {"#": RegExp(r'[0-9]')},
-                      ),
+                      CurrencyTextInputFormatter(
+                          locale: 'pt_BR', decimalDigits: 0, symbol: 'R\$')
                     ],
                     decoration: const InputDecoration(
                       labelText: "Preço",
-                      hintText: "0,00",
-                      prefixIcon: Icon(Icons.attach_money),
+                      hintText: "R\$ 0,00",
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Obrigatório";
+                        return "Por favor, digite o preço do serviço";
                       }
                       return null;
                     },
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final updatedService = Service(
-                        id: serviceModel?.id ?? uniqueId,
-                        name: _nameController.text,
-                        duration: _currentSliderValue!.toInt(),
-                        price: double.parse(_priceController.text),
-                        employeeIds: _employeeIds,
-                      );
-
-                      if (serviceModel != null) {
-                        serviceController.updateService(updatedService);
-                      } else {
-                        serviceController.addService(updatedService);
-                      }
-
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text("ADICIONAR"),
-                ),
-              ],
+                  const SizedBox(height: 26),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await pickerDurationOffering(context: context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                    ),
+                    child: const Text('Selecione a duração'),
+                  ),
+                  const SizedBox(height: 26),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                    ),
+                    child: Text("Selecione a equipe desse serviço: 0"),
+                  ),
+                  const SizedBox(height: 42),
+                  ElevatedButton(
+                    onPressed: () {
+                      // if (_formKey.currentState!.validate()) {
+                      //   final updatedService = Service(
+                      //     id: serviceModel?.id ?? uniqueId,
+                      //     name: _nameController.text,
+                      //     duration: _currentSliderValue!.toInt(),
+                      //     price: double.parse(_priceController.text),
+                      //     employeeIds: _employeeIds,
+                      //   );
+                      //
+                      //   if (serviceModel != null) {
+                      //     serviceController.updateService(updatedService);
+                      //   } else {
+                      //     serviceController.addService(updatedService);
+                      //   }
+                      //
+                      //   Navigator.pop(context);
+                      // }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                    ),
+                    child: (serviceModel != null)
+                        ? const Text("ATUALIZAR")
+                        : const Text("ADICIONAR"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
