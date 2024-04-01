@@ -19,7 +19,7 @@ class _WeekDaysViewState extends State<WeekDaysView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Horários de atendimento"),
+        title: const Text("HORÁRIOS DE ATENDIMENTO"),
       ),
       body: StreamBuilder<List<WeekDays>>(
         stream: calendarTimesController.getWeekDays(),

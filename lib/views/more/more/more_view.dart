@@ -17,7 +17,7 @@ class _MoreViewState extends State<MoreView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Mais opções"),
+          title: const Text("MAIS OPÇÕES"),
         ),
         body: Column(
           children: [

@@ -38,7 +38,7 @@ class _ServiceFormViewState extends State<ServiceFormView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Adicionar Serviço"),
+          title: const Text("NOVO SERVIÇO"),
           actions: serviceModel != null
               ? [
                   IconButton(

@@ -70,7 +70,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
     final employeeModel = widget.model;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Equipe"),
+        title: Text("NOVO COLABORADOR"),
         actions: employeeModel != null
             ? [
                 IconButton(

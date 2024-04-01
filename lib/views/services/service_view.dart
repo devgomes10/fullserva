@@ -33,7 +33,7 @@ class _ServiceViewState extends State<ServiceView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Serviços"),
+          title: const Text("SERVICE"),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {

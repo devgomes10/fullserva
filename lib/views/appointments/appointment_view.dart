@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/utils/themes/theme_colors.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../domain/entities/appointment.dart';
 
@@ -23,6 +25,13 @@ class _AppointmentViewState extends State<AppointmentView> {
   String locale = 'pt-BR';
   Employee? _coworker;
 
+  String capitalizeFirstLetter(String text) {
+    if (text == null || text.isEmpty) {
+      return text; // Retorna o texto original se for nulo ou vazio
+    }
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +45,7 @@ class _AppointmentViewState extends State<AppointmentView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Agendamentos"),
+          title: const Text("AGENDA"),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -63,12 +72,28 @@ class _AppointmentViewState extends State<AppointmentView> {
               },
               // eventLoader: (day) {},
               locale: locale,
-              headerStyle: const HeaderStyle(
+              headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
-                titleTextStyle: TextStyle(
+                titleTextStyle: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                ),
+                titleTextFormatter: (day, locale) {
+                  String formattedText =
+                      DateFormat('MMMM yyyy', locale).format(day);
+                  return capitalizeFirstLetter(formattedText);
+                },
+              ),
+              daysOfWeekStyle: DaysOfWeekStyle(
+                dowTextFormatter: (day, locale) => DateFormat.E(locale).format(day)[0].toUpperCase(),
+              ),
+              calendarStyle: const CalendarStyle(
+                rangeHighlightColor: Colors.yellow,
+                outsideDaysVisible: false,
+                holidayDecoration: BoxDecoration(
+                  color: Colors.pink,
+                  shape: BoxShape.circle,
                 ),
               ),
               // calendarFormat: calendarFormat,

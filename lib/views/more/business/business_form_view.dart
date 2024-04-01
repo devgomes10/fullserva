@@ -23,7 +23,7 @@ class _BusinessFormViewState extends State<BusinessFormView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Personalize seu site"),
+        title: Text("PERSONALIZE O SITE"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -3,23 +3,34 @@ import 'package:fullserva/utils/themes/theme_colors.dart';
 import 'package:fullserva/utils/themes/theme_fonts.dart';
 
 ThemeData themeLight = ThemeData(
-    primaryColor: ThemeColors.primary,
-    colorScheme: ColorScheme.fromSwatch(
-      backgroundColor: ThemeColors.secondary,
+  primaryColor: ThemeColors.primary,
+  colorScheme: ColorScheme.fromSwatch(
+    primarySwatch: ThemeColors.primarySwatch,
+    backgroundColor: ThemeColors.secondary,
+  ),
+  textTheme: TextTheme(
+    bodyLarge: ThemeFonts.primary,
+    bodyMedium: ThemeFonts.primary,
+    bodySmall: ThemeFonts.primary,
+  ),
+  appBarTheme: AppBarTheme(
+    centerTitle: true,
+    titleTextStyle: ThemeFonts.secondary.copyWith(
+      color: Colors.black87,
+      fontSize: 26,
     ),
-    textTheme: TextTheme(
-      bodyMedium: ThemeFonts.primary,
-      titleMedium: ThemeFonts.secondary,
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    contentPadding: EdgeInsets.all(16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
     ),
-    appBarTheme: AppBarTheme(
-      centerTitle: true,
-      titleTextStyle: ThemeFonts.primary,
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.black26),
     ),
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ));
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    elevation: 0,
+  ),
+);

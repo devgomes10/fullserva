@@ -17,7 +17,7 @@ class _EmployeesViewState extends State<EmployeesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Equipe"),
+        title: const Text("EQUIPE"),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

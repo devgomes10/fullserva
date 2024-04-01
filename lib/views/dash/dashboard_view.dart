@@ -30,7 +30,7 @@ class _DashboardViewState extends State<DashboardView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Painel"),
+          title: const Text("PAINEL"),
         ),
         body: Column(
           children: [

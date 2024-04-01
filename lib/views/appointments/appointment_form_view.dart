@@ -48,7 +48,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Novo Agendamento"),
+          title: const Text("NOVO AGENDAMENTO"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

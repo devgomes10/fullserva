@@ -20,7 +20,7 @@ class _AccountViewState extends State<AccountView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Configurações da conta"),
+        title: const Text("MINHA CONTA"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

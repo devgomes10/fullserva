@@ -35,7 +35,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Atualizar dia'),
+        title: const Text('ATUALIZAR O DIA'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
