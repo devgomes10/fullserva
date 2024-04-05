@@ -1,4 +1,4 @@
-class WeekDays {
+class OpeningHours {
   int id;
   bool working;
   DateTime startTime;
@@ -6,7 +6,7 @@ class WeekDays {
   DateTime startTimeInterval;
   DateTime endTimeInterval;
 
-  WeekDays({
+  OpeningHours({
     required this.id,
     required this.working,
     required this.startTime,
@@ -16,7 +16,7 @@ class WeekDays {
   });
 
   // Converting a map to an instance
-  WeekDays.fromMap(Map<String, dynamic> map)
+  OpeningHours.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         working = map["working"],
         startTime = map["startTime"],

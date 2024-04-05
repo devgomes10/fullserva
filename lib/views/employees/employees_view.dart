@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/employee_controller.dart';
-import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/controllers/coworker_controller.dart';
+import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/views/employees/employee_form_view.dart';
 
 class EmployeesView extends StatefulWidget {
@@ -11,7 +11,7 @@ class EmployeesView extends StatefulWidget {
 }
 
 class _EmployeesViewState extends State<EmployeesView> {
-  EmployeeController _employeeController = EmployeeController();
+  CoworkerController _employeeController = CoworkerController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,8 @@ class _EmployeesViewState extends State<EmployeesView> {
         },
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<List<Employee>>(
-        stream: _employeeController.getEmployees(),
+      body: StreamBuilder<List<Coworker>>(
+        stream: _employeeController.getCoworker(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -47,7 +47,7 @@ class _EmployeesViewState extends State<EmployeesView> {
           }
           return ListView.separated(
             itemBuilder: (BuildContext context, int i) {
-              Employee model = employees[i];
+              Coworker model = employees[i];
               return ListTile(
                 onTap: () {
                   Navigator.push(

@@ -3,5 +3,5 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ThemeFonts {
   static TextStyle primary = GoogleFonts.fredoka();
-  static TextStyle secondary = GoogleFonts.amaranth();
+  static TextStyle secondary = GoogleFonts.nunito();
 }

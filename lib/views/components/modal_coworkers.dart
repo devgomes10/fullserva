@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/employee_controller.dart';
-import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/controllers/coworker_controller.dart';
+import 'package:fullserva/domain/entities/coworker.dart';
 
-EmployeeController _employeeController = EmployeeController();
+CoworkerController _employeeController = CoworkerController();
 
 Widget modalCoworkers({
   required BuildContext context,
 }) {
-  return StreamBuilder<List<Employee>>(
-    stream: _employeeController.getEmployees(),
+  return StreamBuilder<List<Coworker>>(
+    stream: _employeeController.getCoworker(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());

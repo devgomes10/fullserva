@@ -1,14 +1,15 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/service_controller.dart';
-import 'package:fullserva/domain/entities/service.dart';
-import 'package:fullserva/views/components/picker_duration_offering.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
+import 'package:fullserva/domain/entities/offering.dart';
+import 'package:fullserva/views/components/modal_duration_offering.dart';
 import 'package:uuid/uuid.dart';
 
 class ServiceFormView extends StatefulWidget {
-  final Service? model;
+  final Offering? model;
 
-  const ServiceFormView({super.key, this.model});
+  const ServiceFormView({Key? key, this.model}) : super(key: key);
 
   @override
   State<ServiceFormView> createState() => _ServiceFormViewState();
@@ -17,14 +18,17 @@ class ServiceFormView extends StatefulWidget {
 class _ServiceFormViewState extends State<ServiceFormView> {
   String uniqueId = const Uuid().v4();
   final _formKey = GlobalKey<FormState>();
-  final ServiceController serviceController = ServiceController();
+  final OfferingController serviceController = OfferingController();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final List<String> _coworkersIds = [];
+  int _selectedHour = 1;
+  int _selectedMinute = 5;
+  bool _isHourSelected = false;
+  TimeOfDay? _selectedTime;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (widget.model != null) {
       _nameController.text = widget.model!.name;
@@ -41,14 +45,14 @@ class _ServiceFormViewState extends State<ServiceFormView> {
           title: const Text("NOVO SERVIÇO"),
           actions: serviceModel != null
               ? [
-                  IconButton(
-                    onPressed: () async {
-                      await serviceController.removeService(serviceModel.id);
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.delete),
-                  ),
-                ]
+            IconButton(
+              onPressed: () async {
+                await serviceController.removeOffering(serviceModel.id);
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ]
               : null,
         ),
         body: Padding(
@@ -93,12 +97,15 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                   const SizedBox(height: 26),
                   ElevatedButton(
                     onPressed: () async {
-                      await pickerDurationOffering(context: context);
+                      await modalDurationOffering(
+                        context: context,
+                      );
+                      setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: const Text('Selecione a duração'),
+                    child: Text("Selecione a duração"),
                   ),
                   const SizedBox(height: 26),
                   ElevatedButton(
@@ -106,29 +113,12 @@ class _ServiceFormViewState extends State<ServiceFormView> {
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: Text("Selecione a equipe desse serviço: 0"),
+                    child: Text(
+                        "Selecione a equipe desse serviço: 0"),
                   ),
                   const SizedBox(height: 42),
                   ElevatedButton(
-                    onPressed: () {
-                      // if (_formKey.currentState!.validate()) {
-                      //   final updatedService = Service(
-                      //     id: serviceModel?.id ?? uniqueId,
-                      //     name: _nameController.text,
-                      //     duration: _currentSliderValue!.toInt(),
-                      //     price: double.parse(_priceController.text),
-                      //     employeeIds: _employeeIds,
-                      //   );
-                      //
-                      //   if (serviceModel != null) {
-                      //     serviceController.updateService(updatedService);
-                      //   } else {
-                      //     serviceController.addService(updatedService);
-                      //   }
-                      //
-                      //   Navigator.pop(context);
-                      // }
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),

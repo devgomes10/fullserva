@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/business_controller.dart';
-import 'package:fullserva/controllers/service_controller.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/domain/entities/business.dart';
 import 'package:intl/intl.dart';
 
-import '../../domain/entities/service.dart';
+import '../../domain/entities/offering.dart';
 
 class OfferingPageView extends StatefulWidget {
   const OfferingPageView({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class OfferingPageView extends StatefulWidget {
 
 class _OfferingPageViewState extends State<OfferingPageView> {
   BusinessController _businessController = BusinessController();
-  ServiceController _serviceController = ServiceController();
+  OfferingController _serviceController = OfferingController();
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
 
   String _formatDuration(int duration) {
@@ -59,8 +59,8 @@ class _OfferingPageViewState extends State<OfferingPageView> {
             );
           },
         ),
-        StreamBuilder<List<Service>>(
-          stream: _serviceController.getService(),
+        StreamBuilder<List<Offering>>(
+          stream: _serviceController.getOfferings(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -80,7 +80,7 @@ class _OfferingPageViewState extends State<OfferingPageView> {
             }
             return ListView.separated(
               itemBuilder: (BuildContext context, int i) {
-                Service model = services[i];
+                Offering model = services[i];
                 return ListTile(
                   onTap: () {},
                   title: Text(

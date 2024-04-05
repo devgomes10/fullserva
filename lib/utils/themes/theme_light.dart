@@ -17,11 +17,13 @@ ThemeData themeLight = ThemeData(
     centerTitle: true,
     titleTextStyle: ThemeFonts.secondary.copyWith(
       color: Colors.black87,
-      fontSize: 26,
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 8
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
-    contentPadding: EdgeInsets.all(16),
+    contentPadding: const EdgeInsets.all(16),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(20),
     ),
@@ -33,4 +35,11 @@ ThemeData themeLight = ThemeData(
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     elevation: 0,
   ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      // backgroundColor: ThemeColors.primary,
+      // textStyle: ThemeFonts.primary.copyWith(color: Colors.white,),
+
+    )
+  )
 );

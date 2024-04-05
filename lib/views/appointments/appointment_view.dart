@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
-import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/utils/themes/theme_colors.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
@@ -23,7 +23,7 @@ class _AppointmentViewState extends State<AppointmentView> {
   late DateTime today;
   CalendarFormat calendarFormat = CalendarFormat.month;
   String locale = 'pt-BR';
-  Employee? _coworker;
+  Coworker? _coworker;
 
   String capitalizeFirstLetter(String text) {
     if (text == null || text.isEmpty) {
@@ -113,7 +113,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                   ),
                 );
                 if (coworker != null) {
-                  _coworker = coworker as Employee;
+                  _coworker = coworker as Coworker;
                 }
               },
               child: Text(_coworker?.name ?? "Filtre por um colaborador"),

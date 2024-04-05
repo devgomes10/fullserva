@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/week_days_controller.dart';
+import 'package:fullserva/controllers/opening_hours_controller.dart';
 import 'package:intl/intl.dart';
-import '../../../domain/entities/week_days.dart';
+import '../../../domain/entities/opening_hours.dart';
 
 class WeekDaysForm extends StatefulWidget {
-  final WeekDays weekDays;
+  final OpeningHours weekDays;
 
   const WeekDaysForm({Key? key, required this.weekDays}) : super(key: key);
 
@@ -104,7 +104,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                WeekDays weekDays = WeekDays(
+                OpeningHours weekDays = OpeningHours(
                   id: widget.weekDays.id,
                   working: working,
                   startTime: startTime,
@@ -116,7 +116,7 @@ class _WeekDaysFormState extends State<WeekDaysForm> {
 
                 print("startTime: $startTime");
 
-                await WeekDaysController().updateWeekDays(weekDays);
+                await OpeningHoursController().updateOpeningHours(weekDays);
 
                 Navigator.pop(context);
               },

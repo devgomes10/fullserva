@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/views/more/opening_hours/week_days_form.dart';
 import 'package:intl/intl.dart';
-import '../../../controllers/week_days_controller.dart';
-import '../../../domain/entities/week_days.dart';
+import '../../../controllers/opening_hours_controller.dart';
+import '../../../domain/entities/opening_hours.dart';
 
 class WeekDaysView extends StatefulWidget {
   const WeekDaysView({super.key});
@@ -12,7 +12,7 @@ class WeekDaysView extends StatefulWidget {
 }
 
 class _WeekDaysViewState extends State<WeekDaysView> {
-  final WeekDaysController calendarTimesController = WeekDaysController();
+  final OpeningHoursController calendarTimesController = OpeningHoursController();
   DateFormat timeFormat = DateFormat('HH:mm');
 
   @override
@@ -21,8 +21,8 @@ class _WeekDaysViewState extends State<WeekDaysView> {
       appBar: AppBar(
         title: const Text("HORÁRIOS DE ATENDIMENTO"),
       ),
-      body: StreamBuilder<List<WeekDays>>(
-        stream: calendarTimesController.getWeekDays(),
+      body: StreamBuilder<List<OpeningHours>>(
+        stream: calendarTimesController.getOpeningHours(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

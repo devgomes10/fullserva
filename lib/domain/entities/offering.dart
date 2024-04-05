@@ -1,25 +1,25 @@
-class Service {
+class Offering {
   String id;
   String name;
   int duration;
   double price;
-  List<String> employeeIds;
+  List<String> coworkerIds;
 
-  Service({
+  Offering({
     required this.id,
     required this.name,
     required this.duration,
     required this.price,
-    required this.employeeIds,
+    required this.coworkerIds,
   });
 
   // Converting a map to an instance
-  Service.fromMap(Map<String, dynamic> map)
+  Offering.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
         duration = map["duration"],
         price = map["price"],
-        employeeIds = map["employeeIds"];
+        coworkerIds = map["coworkerIds"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
@@ -28,7 +28,7 @@ class Service {
       "name": name,
       "duration": duration,
       "price": price,
-      "employeeIds": employeeIds,
+      "coworkerIds": coworkerIds,
     };
   }
 }

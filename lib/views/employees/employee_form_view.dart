@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/employee_controller.dart';
-import 'package:fullserva/domain/entities/employee.dart';
-import 'package:fullserva/domain/entities/service.dart';
-import 'package:fullserva/controllers/service_controller.dart';
+import 'package:fullserva/controllers/coworker_controller.dart';
+import 'package:fullserva/domain/entities/coworker.dart';
+import 'package:fullserva/domain/entities/offering.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:uuid/uuid.dart';
 
 class EmployeeFormView extends StatefulWidget {
-  final Employee? model;
+  final Coworker? model;
 
   const EmployeeFormView({Key? key, this.model}) : super(key: key);
 
@@ -17,8 +17,8 @@ class EmployeeFormView extends StatefulWidget {
 class _EmployeeFormViewState extends State<EmployeeFormView> {
   String _uniqueId = const Uuid().v4();
   final _formKey = GlobalKey<FormState>();
-  EmployeeController _employeeController = EmployeeController();
-  ServiceController _serviceController = ServiceController();
+  CoworkerController _employeeController = CoworkerController();
+  OfferingController _serviceController = OfferingController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -58,7 +58,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
   }
 
   void _fetchAvailableServices() {
-    _serviceController.getService().listen((services) {
+    _serviceController.getOfferings().listen((services) {
       setState(() {
         _selectedServicesIds.clear();
       });
@@ -75,7 +75,7 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
             ? [
                 IconButton(
                   onPressed: () async {
-                    await _employeeController.removeEmployee(employeeModel.id);
+                    await _employeeController.removeCoworker(employeeModel.id);
                     Navigator.pop(context);
                   },
                   icon: Icon(Icons.delete),
@@ -165,8 +165,8 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
                 width: MediaQuery.of(context).size.width,
                 height: 200,
                 decoration: BoxDecoration(border: Border.all(width: 5)),
-                child: StreamBuilder<List<Service>>(
-                  stream: _serviceController.getService(),
+                child: StreamBuilder<List<Offering>>(
+                  stream: _serviceController.getOfferings(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -218,20 +218,20 @@ class _EmployeeFormViewState extends State<EmployeeFormView> {
                 onPressed: () async {
                   int selectedValue = _selectedOptionIndex.value;
                   if (_formKey.currentState!.validate()) {
-                    Employee employee = Employee(
+                    Coworker coworker = Coworker(
                       id: _uniqueId,
                       name: _nameController.text,
                       email: _emailController.text,
                       password: _passwordController.text,
                       phone: _phoneController.text,
                       role: selectedValue,
-                      serviceIds: _selectedServicesIds,
+                      offeringIds: _selectedServicesIds,
                     );
 
                     if (employeeModel != null) {
-                      await _employeeController.updateEmployee(employee);
+                      await _employeeController.updateCoworker(coworker);
                     } else {
-                      await _employeeController.addEmployee(employee);
+                      await _employeeController.addCoworker(coworker);
                     }
                     Navigator.pop(context, true);
                   }

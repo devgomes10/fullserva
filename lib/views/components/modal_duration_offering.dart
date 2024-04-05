@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 int _selectedHour = 1;
 int _selectedMinute = 5;
 
-Future pickerDurationOffering({
+Future modalDurationOffering({
   required BuildContext context,
 }) {
   return showCupertinoModalPopup(
@@ -23,7 +23,7 @@ Future pickerDurationOffering({
                   onSelectedItemChanged: (index) => _selectedHour = index + 1,
                   children: List<Widget>.generate(
                     24,
-                    (index) => Center(
+                        (index) => Center(
                       child: Text('$index horas'),
                     ),
                   ),
@@ -40,10 +40,10 @@ Future pickerDurationOffering({
                   scrollController: FixedExtentScrollController(
                       initialItem: _selectedMinute ~/ 5),
                   onSelectedItemChanged: (index) =>
-                      _selectedMinute = (index + 1) * 5,
+                  _selectedMinute = (index + 1) * 5,
                   children: List<Widget>.generate(
                     12,
-                    (index) => Center(
+                        (index) => Center(
                       child: Text('${(index + 1) * 5} minutos'),
                     ),
                   ),
@@ -56,8 +56,10 @@ Future pickerDurationOffering({
       cancelButton: CupertinoActionSheetAction(
         child: const Text('CONFIRMAR'),
         onPressed: () {
+          TimeOfDay timeOfDay = TimeOfDay(hour: _selectedHour, minute: _selectedMinute);
           Navigator.pop(
             context,
+            timeOfDay,
           );
         },
       ),

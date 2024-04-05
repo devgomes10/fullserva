@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:fullserva/utils/themes/theme_light.dart';
 import 'package:fullserva/views/components/menu_navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'controllers/week_days_controller.dart';
+import 'controllers/opening_hours_controller.dart';
 import 'data/firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -19,7 +19,7 @@ void main() async {
   bool daysInitialized = prefs.getBool('days_initialized') ?? false;
   if (!daysInitialized) {
     // Se os dias ainda não foram inicializados, então inicialize-os
-    await WeekDaysController().setupInitialWeekDays();
+    await OpeningHoursController().setupInitialOpeningHours();
     // Marca a flag indicando que os dias já foram inicializados
     await prefs.setBool('days_initialized', true);
   }

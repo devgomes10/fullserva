@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
-import 'package:fullserva/domain/entities/employee.dart';
+import 'package:fullserva/domain/entities/coworker.dart';
+import 'package:fullserva/views/components/modal_available_times.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
 import 'package:fullserva/views/components/modal_offerings.dart';
+import 'package:fullserva/views/components/modal_duration_offering.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import '../../domain/entities/service.dart';
+import '../../domain/entities/offering.dart';
 import '../../utils/consts/unique_id.dart';
 
 class AppointmentFormView extends StatefulWidget {
@@ -22,8 +24,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _clientEmailController = TextEditingController();
   final _employeeEmailController = TextEditingController();
   final _clientPhoneController = TextEditingController();
-  Service? _offering;
-  Employee? _coworker;
+  Offering? _offering;
+  Coworker? _coworker;
   final _internalObservationsController = TextEditingController();
   final AppointmentController _appointmentController = AppointmentController();
 
@@ -104,7 +106,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       );
                       if (offering != null) {
                         setState(() {
-                          _offering = offering as Service;
+                          _offering = offering as Offering;
                         });
                       }
                     },
@@ -124,7 +126,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       );
                       if (coworker != null) {
                         setState(() {
-                          _coworker = coworker as Employee;
+                          _coworker = coworker as Coworker;
                         });
                       }
                     },
@@ -160,7 +162,9 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            modalAvailableTimes(context: context);
+                          },
                           child: const Text("Hora"),
                         ),
                       ),

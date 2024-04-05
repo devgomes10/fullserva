@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/service_controller.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/views/services/service_form_view.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/service.dart';
+import '../../domain/entities/offering.dart';
 
 class ServiceView extends StatefulWidget {
   const ServiceView({super.key});
@@ -13,7 +13,7 @@ class ServiceView extends StatefulWidget {
 
 class _ServiceViewState extends State<ServiceView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
-  ServiceController serviceController = ServiceController();
+  OfferingController serviceController = OfferingController();
 
   String _formatDuration(int duration) {
     int hours = duration ~/ 60;
@@ -33,7 +33,7 @@ class _ServiceViewState extends State<ServiceView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("SERVICE"),
+          title: const Text("SERVIÇO"),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -46,8 +46,8 @@ class _ServiceViewState extends State<ServiceView> {
           },
           child: const Icon(Icons.add),
         ),
-        body: StreamBuilder<List<Service>>(
-          stream: serviceController.getService(),
+        body: StreamBuilder<List<Offering>>(
+          stream: serviceController.getOfferings(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -67,7 +67,7 @@ class _ServiceViewState extends State<ServiceView> {
             }
             return ListView.separated(
               itemBuilder: (BuildContext context, int i) {
-                Service model = services[i];
+                Offering model = services[i];
                 return ListTile(
                   onTap: () {
                     Navigator.push(
@@ -83,10 +83,16 @@ class _ServiceViewState extends State<ServiceView> {
                   subtitle: Row(
                     children: [
                       // Aqui vai ficar a duração do serviço
-                      Text(_formatDuration(services[i].duration)),
+                      Text(
+                        _formatDuration(
+                          services[i].duration,
+                        ),
+                      ),
                       Text(
                           // Aqui vai ficar o preço do serviço
-                          " | ${real.format(services[i].price)}")
+                          " | ${real.format(
+                        services[i].price,
+                      )}")
                     ],
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),

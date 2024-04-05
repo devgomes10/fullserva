@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/service_controller.dart';
-import '../../domain/entities/service.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
+import '../../domain/entities/offering.dart';
 
-ServiceController _serviceController = ServiceController();
+OfferingController _serviceController = OfferingController();
 
 Widget modalOfferings({
   required BuildContext context,
 }) {
-  return StreamBuilder<List<Service>>(
-    stream: _serviceController.getService(),
+  return StreamBuilder<List<Offering>>(
+    stream: _serviceController.getOfferings(),
     builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());

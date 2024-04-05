@@ -1,31 +1,31 @@
-class Employee {
+class Coworker {
   String id;
   String name;
   String email;
   String password;
   String phone;
   int role;
-  List<String> serviceIds;
+  List<String> offeringIds;
 
-  Employee({
+  Coworker({
     required this.id,
     required this.name,
     required this.email,
     required this.password,
     required this.phone,
     required this.role,
-    required this.serviceIds,
+    required this.offeringIds,
   });
 
   // Converting a map to an instance
-  Employee.fromMap(Map<String, dynamic> map)
+  Coworker.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         name = map["name"],
         email = map["email"],
         password = map["password"],
         phone = map["phone"],
         role = map["role"],
-        serviceIds = map["serviceIds"];
+        offeringIds = map["offeringIds"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
@@ -36,7 +36,7 @@ class Employee {
       "password": password,
       "phone": phone,
       "role": role,
-      "serviceIds": serviceIds,
+      "offeringIds": offeringIds,
     };
   }
 }
