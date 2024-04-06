@@ -5,16 +5,16 @@ import 'package:fullserva/domain/entities/offering.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:uuid/uuid.dart';
 
-class EmployeeFormView extends StatefulWidget {
+class CoworkerFormView extends StatefulWidget {
   final Coworker? model;
 
-  const EmployeeFormView({Key? key, this.model}) : super(key: key);
+  const CoworkerFormView({Key? key, this.model}) : super(key: key);
 
   @override
-  State<EmployeeFormView> createState() => _EmployeeFormViewState();
+  State<CoworkerFormView> createState() => _CoworkerFormViewState();
 }
 
-class _EmployeeFormViewState extends State<EmployeeFormView> {
+class _CoworkerFormViewState extends State<CoworkerFormView> {
   String _uniqueId = const Uuid().v4();
   final _formKey = GlobalKey<FormState>();
   CoworkerController _employeeController = CoworkerController();

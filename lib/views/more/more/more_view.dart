@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../account/account_view.dart';
 import '../business/business_form_view.dart';
-import '../opening_hours/week_days_view.dart';
+import '../opening_hours/opening_hours_view.dart';
 
 class MoreView extends StatefulWidget {
   const MoreView({super.key});

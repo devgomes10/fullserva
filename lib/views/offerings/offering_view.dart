@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
-import 'package:fullserva/views/services/service_form_view.dart';
+import 'package:fullserva/views/offerings/offering_form_view.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/offering.dart';
 
-class ServiceView extends StatefulWidget {
-  const ServiceView({super.key});
+class OfferingView extends StatefulWidget {
+  const OfferingView({super.key});
 
   @override
-  State<ServiceView> createState() => _ServiceViewState();
+  State<OfferingView> createState() => _OfferingViewState();
 }
 
-class _ServiceViewState extends State<ServiceView> {
+class _OfferingViewState extends State<OfferingView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
   OfferingController serviceController = OfferingController();
 
@@ -40,7 +40,7 @@ class _ServiceViewState extends State<ServiceView> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ServiceFormView(),
+                builder: (context) => const OfferingFormView(),
               ),
             );
           },
@@ -73,7 +73,7 @@ class _ServiceViewState extends State<ServiceView> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ServiceFormView(model: model),
+                        builder: (context) => OfferingFormView(model: model),
                       ),
                     );
                   },

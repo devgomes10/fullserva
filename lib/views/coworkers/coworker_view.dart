@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/coworker_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
-import 'package:fullserva/views/employees/employee_form_view.dart';
+import 'package:fullserva/views/coworkers/coworker_form_view.dart';
 
-class EmployeesView extends StatefulWidget {
-  const EmployeesView({super.key});
+class CoworkerView extends StatefulWidget {
+  const CoworkerView({super.key});
 
   @override
-  State<EmployeesView> createState() => _EmployeesViewState();
+  State<CoworkerView> createState() => _CoworkerViewState();
 }
 
-class _EmployeesViewState extends State<EmployeesView> {
-  CoworkerController _employeeController = CoworkerController();
+class _CoworkerViewState extends State<CoworkerView> {
+  final CoworkerController _coworkerController = CoworkerController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +22,12 @@ class _EmployeesViewState extends State<EmployeesView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => EmployeeFormView()));
+              MaterialPageRoute(builder: (context) => CoworkerFormView()));
         },
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<List<Coworker>>(
-        stream: _employeeController.getCoworker(),
+        stream: _coworkerController.getCoworker(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -53,7 +53,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EmployeeFormView(model: model),
+                      builder: (context) => CoworkerFormView(model: model),
                     ),
                   );
                 },

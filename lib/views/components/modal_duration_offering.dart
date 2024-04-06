@@ -16,11 +16,10 @@ Future modalDurationOffering({
             Expanded(
               child: SizedBox(
                 height: 250,
-                // Defina a altura desejada aqui
                 child: CupertinoPicker(
                   backgroundColor: Colors.white,
                   itemExtent: 30,
-                  onSelectedItemChanged: (index) => _selectedHour = index + 1,
+                  onSelectedItemChanged: (index) => _selectedHour = index,
                   children: List<Widget>.generate(
                     24,
                         (index) => Center(
@@ -33,14 +32,13 @@ Future modalDurationOffering({
             Expanded(
               child: SizedBox(
                 height: 250,
-                // Defina a altura desejada aqui
                 child: CupertinoPicker(
                   backgroundColor: Colors.white,
                   itemExtent: 30,
                   scrollController: FixedExtentScrollController(
                       initialItem: _selectedMinute ~/ 5),
                   onSelectedItemChanged: (index) =>
-                  _selectedMinute = (index + 1) * 5,
+                  _selectedMinute = (index) * 5,
                   children: List<Widget>.generate(
                     12,
                         (index) => Center(
@@ -54,7 +52,7 @@ Future modalDurationOffering({
         ),
       ],
       cancelButton: CupertinoActionSheetAction(
-        child: const Text('CONFIRMAR'),
+        child:  Text('CONFIRMAR $_selectedMinute : $_selectedHour'),
         onPressed: () {
           TimeOfDay timeOfDay = TimeOfDay(hour: _selectedHour, minute: _selectedMinute);
           Navigator.pop(

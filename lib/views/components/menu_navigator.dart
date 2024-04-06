@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/views/appointments/appointment_view.dart';
+import 'package:fullserva/views/coworkers/coworker_view.dart';
 import 'package:fullserva/views/dash/dashboard_view.dart';
-import 'package:fullserva/views/employees/employees_view.dart';
 import 'package:fullserva/views/more/more/more_view.dart';
-import 'package:fullserva/views/services/service_view.dart';
+import 'package:fullserva/views/offerings/offering_view.dart';
 
 class MenuNavigator extends StatefulWidget {
   const MenuNavigator({super.key});
@@ -14,7 +14,6 @@ class MenuNavigator extends StatefulWidget {
 
 class _MenuNavigatorState extends State<MenuNavigator> {
   int currentPageIndex = 0;
-
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +49,10 @@ class _MenuNavigatorState extends State<MenuNavigator> {
           });
         },
       ),
-      body: [
+      body: const [
         AppointmentView(),
-        ServiceView(),
-        EmployeesView(),
+        OfferingView(),
+        CoworkerView(),
         DashboardView(),
         MoreView(),
       ] [currentPageIndex],

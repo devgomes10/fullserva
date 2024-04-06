@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/more/opening_hours/week_days_form.dart';
+import 'package:fullserva/views/more/opening_hours/opening_hours_form.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/opening_hours_controller.dart';
 import '../../../domain/entities/opening_hours.dart';
