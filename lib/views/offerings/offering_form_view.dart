@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fullserva/controllers/coworker_controller.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/domain/entities/offering.dart';
-import 'package:duration_picker/duration_picker.dart';
-import 'package:fullserva/views/components/modal_duration_offering.dart';
+import 'package:fullserva/utils/consts/unique_id.dart';
 
 class OfferingFormView extends StatefulWidget {
-  // if it is different from null, it is editing
   final Offering? model;
 
   const OfferingFormView({Key? key, this.model}) : super(key: key);
@@ -19,17 +16,20 @@ class OfferingFormView extends StatefulWidget {
 
 class _OfferingFormViewState extends State<OfferingFormView> {
   final _formKey = GlobalKey<FormState>();
+  int? _currentSliderValue;
+
   final CoworkerController _coworkerController = CoworkerController();
   final OfferingController _offeringController = OfferingController();
 
-  // model attributes
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
-  final List<String> _coworkersIds = [];
-  int? _currentSliderValue = 5;
+  List<String> _coworkersIds = [];
+
+  // list of ints with 288 total elements that are multiples of 5, starting from 5 and going up to 1440
   final List<int> _durationOptions =
       List.generate(24 * 12, (index) => (index + 1) * 5);
 
+  // takes an int value and return a formatted string representing that value in hours and minutes.
   String formatDuration(int minutes) {
     int hours = minutes ~/ 60;
     int remainingMinutes = minutes % 60;
@@ -46,9 +46,12 @@ class _OfferingFormViewState extends State<OfferingFormView> {
   @override
   void initState() {
     super.initState();
+    // showing object parameters when editing
     if (widget.model != null) {
       _nameController.text = widget.model!.name;
       _priceController.text = widget.model!.price.toString();
+      _currentSliderValue = widget.model!.duration;
+      _coworkersIds = widget.model!.coworkerIds;
     }
   }
 
@@ -58,9 +61,11 @@ class _OfferingFormViewState extends State<OfferingFormView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("NOVO SERVIÇO"),
+          title:
+              Text(offeringModel != null ? "Editando serviço" : "Novo serviço"),
           actions: offeringModel != null
               ? [
+                  // excluding offering when editing
                   IconButton(
                     onPressed: () async {
                       await _offeringController
@@ -97,14 +102,6 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                   TextFormField(
                     controller: _priceController,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      // package for to customize currency (Real)
-                      CurrencyTextInputFormatter(
-                        locale: 'pt_BR',
-                        decimalDigits: 0,
-                        symbol: 'R\$',
-                      ),
-                    ],
                     decoration: const InputDecoration(
                       labelText: "Preço",
                       hintText: "R\$ 0,00",
@@ -131,11 +128,26 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                     ),
                   ),
                   const SizedBox(height: 26),
-                  const Text("Quais colaboradores trabalham com esse serviço?"),
+                  const Text(
+                    "Quais colaboradores trabalham com esse serviço?",
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 8
+                  ),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 200,
-                    decoration: BoxDecoration(border: Border.all(width: 5)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
                     child: StreamBuilder<List<Coworker>>(
                       stream: _coworkerController.getCoworker(),
                       builder: (context, snapshot) {
@@ -160,13 +172,11 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                         return ListView.builder(
                           itemCount: coworkers.length,
                           itemBuilder: (context, index) {
-                            final coworker = coworkers[index];
 
-                            // checking stored ids
-                            final isSelected =
-                                _coworkersIds.contains(coworker.id);
-                            final isSelectedNotifier =
-                                ValueNotifier<bool>(isSelected);
+                            final coworker = coworkers[index];
+                            final isSelected = _coworkersIds.contains(coworker.id);
+                            final isSelectedNotifier = ValueNotifier<bool>(isSelected);
+
                             return ValueListenableBuilder<bool>(
                               valueListenable: isSelectedNotifier,
                               builder: (context, value, child) {
@@ -180,6 +190,8 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                                     } else {
                                       _coworkersIds.remove(coworker.id);
                                     }
+
+                                    print(_coworkersIds);
                                   },
                                 );
                               },
@@ -191,7 +203,35 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                   ),
                   const SizedBox(height: 42),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      if (_currentSliderValue == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Por favor, selecione a duração do serviço",
+                            ),
+                          ),
+                        );
+                      } else {
+                        if (_formKey.currentState!.validate()) {
+                          Offering offering = Offering(
+                            id: uniqueId,
+                            name: _nameController.text,
+                            duration: _currentSliderValue!.toInt(),
+                            price: double.parse(_priceController.text),
+                            coworkerIds: _coworkersIds,
+                          );
+
+                          if (offeringModel != null) {
+                            await _offeringController.updateOffering(offering);
+                          } else {
+                            await _offeringController.addOffering(offering);
+                          }
+
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
@@ -208,15 +248,18 @@ class _OfferingFormViewState extends State<OfferingFormView> {
     );
   }
 
-  void _showDurationModal(BuildContext context) {
+  void _showDurationModal(BuildContext context) async {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 300,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(
+                height: 15,
+              ),
               const Text(
                 'Selecione a duração',
                 style: TextStyle(
@@ -224,7 +267,7 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               Expanded(
                 child: ListView.builder(
                   itemCount: _durationOptions.length,

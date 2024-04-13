@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/coworker_controller.dart';
+import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/domain/entities/offering.dart';
-import 'package:fullserva/controllers/offering_controller.dart';
-import 'package:uuid/uuid.dart';
+import '../../utils/consts/unique_id.dart';
 
 class CoworkerFormView extends StatefulWidget {
   final Coworker? model;
@@ -15,34 +15,16 @@ class CoworkerFormView extends StatefulWidget {
 }
 
 class _CoworkerFormViewState extends State<CoworkerFormView> {
-  String _uniqueId = const Uuid().v4();
   final _formKey = GlobalKey<FormState>();
-  CoworkerController _employeeController = CoworkerController();
-  OfferingController _serviceController = OfferingController();
+
+  final CoworkerController _coworkerController = CoworkerController();
+  final OfferingController _offeringController = OfferingController();
+
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
-  List<String> _selectedServicesIds = [];
-  List<String> _servicesIdList = [];
-  int _selectedRole = -1;
-  List<bool> _selectionsRole = [false, false, false];
-  ValueNotifier<int> _selectedOptionIndex = ValueNotifier<int>(-1);
-
-  void _updateSelectedRole(int i) {
-    setState(() {
-      for (int buttonIndex = 0;
-          buttonIndex < _selectionsRole.length;
-          buttonIndex++) {
-        if (buttonIndex == i) {
-          _selectionsRole[buttonIndex] = true; // Seleciona o botão pressionado
-        } else {
-          _selectionsRole[buttonIndex] = false; // Desseleciona os outros botões
-        }
-      }
-      _selectedRole = i; // Atualiza o índice da opção selecionada
-    });
-  }
+  final ValueNotifier<int> _selectedRole = ValueNotifier<int>(-1);
 
   @override
   void initState() {
@@ -52,33 +34,25 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
       _emailController.text = widget.model!.email;
       _passwordController.text = widget.model!.password;
       _phoneController.text = widget.model!.phone;
-      _selectedOptionIndex.value = widget.model!.role;
+      _selectedRole.value = widget.model!.role;
     }
-    _fetchAvailableServices();
-  }
-
-  void _fetchAvailableServices() {
-    _serviceController.getOfferings().listen((services) {
-      setState(() {
-        _selectedServicesIds.clear();
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final employeeModel = widget.model;
+    final coworkerModel = widget.model;
     return Scaffold(
       appBar: AppBar(
-        title: Text("NOVO COLABORADOR"),
-        actions: employeeModel != null
+        title: const Text("NOVO COLABORADOR"),
+        actions: coworkerModel != null
             ? [
+                // excluding coworker when editing
                 IconButton(
                   onPressed: () async {
-                    await _employeeController.removeCoworker(employeeModel.id);
+                    await _coworkerController.removeCoworker(coworkerModel.id);
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                 ),
               ]
             : null,
@@ -90,121 +64,145 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
           child: Column(
             children: [
               ValueListenableBuilder<int>(
-                valueListenable: _selectedOptionIndex,
+                valueListenable: _selectedRole,
                 builder: (context, selectedIndex, _) {
                   return ToggleButtons(
-                    children: <Widget>[
-                      Text('Operacional'),
-                      Text('Assistencial'),
-                      Text('Administrativo'),
-                    ],
                     isSelected: [
                       selectedIndex == 0,
                       selectedIndex == 1,
                       selectedIndex == 2
                     ],
                     onPressed: (int index) {
-                      _selectedOptionIndex.value =
-                          index; // Atualiza o valor do índice selecionado
-                      // Após atualizar o índice selecionado, você pode realizar outras operações aqui
-                      // Se necessário, como salvar o valor selecionado em uma variável int
-                      int selectedValue = index;
-                      print('Valor selecionado: $selectedValue');
+                      _selectedRole.value = index;
                     },
+                    children: const <Widget>[
+                      Text('Operacional'),
+                      Text('Assistencial'),
+                      Text('Administrativo'),
+                    ],
                   );
                 },
               ),
+              const SizedBox(height: 26),
               TextFormField(
                 keyboardType: TextInputType.text,
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nome'),
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                  hintText: "Qual o nome do colaborador?",
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
+                    return 'Por favor, digite o nome do colaborador';
                   }
                   return null;
                 },
               ),
+              const SizedBox(height: 26),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 controller: _emailController,
-                decoration:
-                    const InputDecoration(labelText: 'E-mail de acesso'),
+                decoration: const InputDecoration(
+                  labelText: 'Email de acesso',
+                  hintText: "Qual o email para acessar a conta?",
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
+                    return 'Por favor, digite o email do colaborador';
                   }
                   return null;
                 },
               ),
+              const SizedBox(height: 26),
               TextFormField(
                 keyboardType: TextInputType.text,
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Senha de acesso'),
+                decoration: const InputDecoration(
+                  labelText: 'Senha de acesso',
+                  hintText: "Qual a senha para acessar a conta?",
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
+                    return 'Por favor, digite a senha de acesso';
                   }
                   return null;
                 },
               ),
+              const SizedBox(height: 26),
               TextFormField(
                 keyboardType: TextInputType.phone,
                 controller: _phoneController,
-                decoration:
-                    const InputDecoration(labelText: 'Telefone do Colaborador'),
+                decoration: const InputDecoration(
+                  labelText: 'Telefone do Colaborador',
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Obrigatório';
+                    return 'Por favor, digite o telefone do colaborador';
                   }
                   return null;
                 },
               ),
-              Text("Atribuir serviços"),
+              const SizedBox(height: 26),
+              const Text(
+                "Quais serviços esse colaborador realiza?",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 200,
-                decoration: BoxDecoration(border: Border.all(width: 5)),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    width: 1,
+                    color: Colors.grey,
+                  ),
+                ),
                 child: StreamBuilder<List<Offering>>(
-                  stream: _serviceController.getOfferings(),
+                  stream: _offeringController.getOfferings(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
-                      return const Center(
-                        // Adicionar uma imagem
-                        child: Text('Erro ao carregar os dados'),
-                      );
+                      return const Center(child: Text('Erro ao carregar os dados'));
                     }
-                    final services = snapshot.data;
-                    if (services == null || services.isEmpty) {
-                      // Adicionar uma imagem
-                      return const Center(
-                        child: Text('Nenhum dado disponível'),
-                      );
+                    final offerings = snapshot.data!;
+                    if (offerings.isEmpty) {
+                      return const Center(child: Text('Nenhum dado disponível'));
                     }
                     return ListView.builder(
-                      itemCount: services.length,
+                      itemCount: offerings.length,
+                      // Dentro do itemBuilder do ListView.builder do StreamBuilder em CoworkerFormView
                       itemBuilder: (context, index) {
-                        final service = services[index];
-                        final isSelected =
-                            _selectedServicesIds.contains(service.id);
-                        final isSelectedNotifier =
-                            ValueNotifier<bool>(isSelected);
+                        final offering = offerings[index];
+                        final isSelected = widget.model != null && offering.coworkerIds.contains(widget.model!.id);
+                        final isSelectedNotifier = ValueNotifier<bool>(isSelected);
+
                         return ValueListenableBuilder<bool>(
                           valueListenable: isSelectedNotifier,
                           builder: (context, value, child) {
                             return CheckboxListTile(
-                              title: Text(service.name),
+                              title: Text(offering.name),
                               value: value,
                               onChanged: (bool? newValue) {
-                                isSelectedNotifier.value = newValue!;
-                                if (newValue) {
-                                  _selectedServicesIds.add(service.id);
+                                if (newValue!) {
+                                  if (!isSelected) {
+                                    setState(() {
+                                      offering.coworkerIds.add(widget.model!.id);
+                                    });
+                                  }
                                 } else {
-                                  _selectedServicesIds.remove(service.id);
+                                  if (isSelected) {
+                                    setState(() {
+                                      offering.coworkerIds.remove(widget.model!.id);
+                                    });
+                                  }
                                 }
+                                isSelectedNotifier.value = newValue;
                               },
                             );
                           },
@@ -214,29 +212,29 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                   },
                 ),
               ),
+              const SizedBox(height: 42),
               ElevatedButton(
                 onPressed: () async {
-                  int selectedValue = _selectedOptionIndex.value;
                   if (_formKey.currentState!.validate()) {
                     Coworker coworker = Coworker(
-                      id: _uniqueId,
+                      id: uniqueId,
                       name: _nameController.text,
                       email: _emailController.text,
                       password: _passwordController.text,
                       phone: _phoneController.text,
-                      role: selectedValue,
-                      offeringIds: _selectedServicesIds,
+                      role: _selectedRole.value,
                     );
 
-                    if (employeeModel != null) {
-                      await _employeeController.updateCoworker(coworker);
+                    if (coworkerModel != null) {
+                      await _coworkerController.updateCoworker(coworker);
                     } else {
-                      await _employeeController.addCoworker(coworker);
+                      await _coworkerController.addCoworker(coworker);
                     }
+
                     Navigator.pop(context, true);
                   }
                 },
-                child: Text("CONFIRMAR"),
+                child: Text(coworkerModel != null ? "ATUALIZAR" : "ADICIONAR"),
               ),
             ],
           ),

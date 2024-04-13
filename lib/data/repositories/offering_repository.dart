@@ -23,11 +23,11 @@ class OfferingRepository {
 
   Stream<List<Offering>> getOffering() {
     return offeringCollection.snapshots().map(
-          (snapshot) {
+      (snapshot) {
         return snapshot.docs.map(
-              (doc) {
-            // Convertendo a lista dinâmica para uma lista de strings
-            List<String> coworkerIds = List<String>.from(doc["coworkerIds"] ?? []);
+          (doc) {
+            List<String> coworkerIds =
+                List<String>.from(doc["coworkerIds"] ?? []);
             return Offering(
               id: doc.id,
               name: doc["name"],

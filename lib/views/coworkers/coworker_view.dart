@@ -21,8 +21,12 @@ class _CoworkerViewState extends State<CoworkerView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CoworkerFormView()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CoworkerFormView(),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),
@@ -33,9 +37,9 @@ class _CoworkerViewState extends State<CoworkerView> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(
+            return Center(
               // Adicionar uma imagem
-              child: Text('Erro ao carregar os dados'),
+              child: Text('Erro ao carregar os dados: ${snapshot.error}'),
             );
           }
           final employees = snapshot.data;

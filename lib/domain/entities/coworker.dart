@@ -5,7 +5,6 @@ class Coworker {
   String password;
   String phone;
   int role;
-  List<String> offeringIds;
 
   Coworker({
     required this.id,
@@ -14,7 +13,6 @@ class Coworker {
     required this.password,
     required this.phone,
     required this.role,
-    required this.offeringIds,
   });
 
   // Converting a map to an instance
@@ -24,8 +22,7 @@ class Coworker {
         email = map["email"],
         password = map["password"],
         phone = map["phone"],
-        role = map["role"],
-        offeringIds = map["offeringIds"];
+        role = map["role"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
@@ -36,7 +33,6 @@ class Coworker {
       "password": password,
       "phone": phone,
       "role": role,
-      "offeringIds": offeringIds,
     };
   }
 }
