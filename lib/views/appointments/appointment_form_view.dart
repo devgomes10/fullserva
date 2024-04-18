@@ -18,32 +18,22 @@ class AppointmentFormView extends StatefulWidget {
 }
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
-  final _formKey = GlobalKey<FormState>();
-  DateTime? selectedDate;
-  final _clientNameController = TextEditingController();
-  final _clientEmailController = TextEditingController();
-  final _employeeEmailController = TextEditingController();
-  final _clientPhoneController = TextEditingController();
-  Offering? _offering;
-  Coworker? _coworker;
-  final _internalObservationsController = TextEditingController();
   final AppointmentController _appointmentController = AppointmentController();
+  final _formKey = GlobalKey<FormState>();
+
+  DateTime? _selectedDateTime;
+  final _clientNameController = TextEditingController();
+  final _clientPhoneController = TextEditingController();
+  final _observationsController = TextEditingController();
+
+  Offering? _selectedOfferingId;
+  Coworker? _selectedCoworkerId;
 
   List<DateTime> datasIndisponiveis = [
     DateTime(2024, 3, 31),
     DateTime(2024, 4, 4),
     DateTime(2024, 4, 15),
   ];
-
-  @override
-  void dispose() {
-    _clientNameController.dispose();
-    _clientPhoneController.dispose();
-    _employeeEmailController.dispose();
-    _clientEmailController.dispose();
-    _internalObservationsController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +96,14 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       );
                       if (offering != null) {
                         setState(() {
-                          _offering = offering as Offering;
+                          _selectedOfferingId = offering as Offering;
                         });
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: Text(_offering?.name ?? "Selecione um serviço"),
+                    child: Text(_selectedOfferingId?.name ?? "Selecione um serviço"),
                   ),
                   const SizedBox(height: 26),
                   ElevatedButton(
@@ -126,14 +116,14 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       );
                       if (coworker != null) {
                         setState(() {
-                          _coworker = coworker as Coworker;
+                          _selectedCoworkerId = coworker as Coworker;
                         });
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: Text(_coworker?.name ?? "Selecione um colaborador"),
+                    child: Text(_selectedCoworkerId?.name ?? "Selecione um colaborador"),
                   ),
                   const SizedBox(height: 26),
                   Row(
@@ -173,26 +163,25 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   const SizedBox(height: 26),
                   TextFormField(
                     keyboardType: TextInputType.multiline,
-                    controller: _internalObservationsController,
+                    controller: _observationsController,
                     decoration: const InputDecoration(
                       labelText: 'Observações',
                     ),
                     maxLength: 100,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 42),
                   ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         Appointment appointment = Appointment(
                           id: uniqueId,
                           clientName: _clientNameController.text,
-                          clientEmail: _clientEmailController.text,
-                          employeeEmail: _employeeEmailController.text,
+                          coworkerId: _selectedCoworkerId!.id,
                           clientPhone: _clientPhoneController.text,
-                          serviceId: _offering!.id,
-                          dateTime: selectedDate!,
-                          internalObservations:
-                              _internalObservationsController.text,
+                          offeringId: _selectedOfferingId!.id,
+                          dateTime: _selectedDateTime!,
+                          observations:
+                              _observationsController.text,
                         );
                         await _appointmentController
                             .addAppointment(appointment);

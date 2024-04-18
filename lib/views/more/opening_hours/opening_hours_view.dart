@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/views/more/opening_hours/opening_hours_form.dart';
+import 'package:fullserva/views/more/opening_hours/opening_hours_form_view.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/opening_hours_controller.dart';
 import '../../../domain/entities/opening_hours.dart';
 
-class WeekDaysView extends StatefulWidget {
-  const WeekDaysView({super.key});
+class OpeningHoursView extends StatefulWidget {
+  const OpeningHoursView({super.key});
 
   @override
-  _WeekDaysViewState createState() => _WeekDaysViewState();
+  State<OpeningHoursView> createState() => _OpeningHoursViewState();
 }
 
-class _WeekDaysViewState extends State<WeekDaysView> {
-  final OpeningHoursController calendarTimesController = OpeningHoursController();
+class _OpeningHoursViewState extends State<OpeningHoursView> {
+  final OpeningHoursController _openingHoursController =
+      OpeningHoursController();
   DateFormat timeFormat = DateFormat('HH:mm');
 
   @override
@@ -22,7 +23,7 @@ class _WeekDaysViewState extends State<WeekDaysView> {
         title: const Text("HORÁRIOS DE ATENDIMENTO"),
       ),
       body: StreamBuilder<List<OpeningHours>>(
-        stream: calendarTimesController.getOpeningHours(),
+        stream: _openingHoursController.getOpeningHours(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -40,8 +41,8 @@ class _WeekDaysViewState extends State<WeekDaysView> {
           }
           return ListView.separated(
             itemBuilder: (context, int i) {
-              String getDiaDaSemana(int indice) {
-                switch (indice) {
+              String formatNameDay(int index) {
+                switch (index) {
                   case 1:
                     return 'Segunda-feira';
                   case 2:
@@ -66,15 +67,15 @@ class _WeekDaysViewState extends State<WeekDaysView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WeekDaysForm(weekDays: days[i]),
+                      builder: (context) =>
+                          OpeningHoursFormView(openingHours: days[i]),
                     ),
                   );
                 },
-                leading: Text(getDiaDaSemana(days[i].id)),
-                title: Text(
-                    "${timeFormat.format(days[i].startTime)} às ${timeFormat.format(days[i].endTime)}"),
+                leading: Text(formatNameDay(days[i].id)),
+                title: Text("${days[i].startTime} às ${days[i].endTime}"),
                 subtitle: Text(
-                    "Intervalo: ${timeFormat.format(days[i].startTimeInterval)} às ${timeFormat.format(days[i].endTimeInterval)}"),
+                    "Intervalo: ${days[i].startTimeInterval} às ${days[i].endTimeInterval}"),
                 trailing: const Icon(Icons.arrow_forward_ios),
               );
             },

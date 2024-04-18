@@ -1,10 +1,10 @@
 class OpeningHours {
   int id;
   bool working;
-  DateTime startTime;
-  DateTime endTime;
-  DateTime startTimeInterval;
-  DateTime endTimeInterval;
+  int startTime;
+  int endTime;
+  int startTimeInterval;
+  int endTimeInterval;
 
   OpeningHours({
     required this.id,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fullserva/views/appointments/appointment_view.dart';
 import 'package:fullserva/views/coworkers/coworker_view.dart';
 import 'package:fullserva/views/dash/dashboard_view.dart';
-import 'package:fullserva/views/more/more/more_view.dart';
+import 'package:fullserva/views/more/more_view.dart';
 import 'package:fullserva/views/offerings/offering_view.dart';
 
 class MenuNavigator extends StatefulWidget {

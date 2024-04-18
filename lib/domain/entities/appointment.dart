@@ -1,46 +1,42 @@
 class Appointment {
   String id;
   String clientName;
-  String clientEmail;
-  String employeeEmail;
+  String coworkerId;
   String clientPhone;
-  String serviceId;
+  String offeringId;
   DateTime dateTime;
-  String? internalObservations;
+  String? observations;
 
   Appointment({
     required this.id,
     required this.clientName,
-    required this.clientEmail,
-    required this.employeeEmail,
+    required this.coworkerId,
     required this.clientPhone,
-    required this.serviceId,
+    required this.offeringId,
     required this.dateTime,
-    this.internalObservations,
+    this.observations,
   });
 
   // Converting a map to an instance
   Appointment.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         clientName = map["clientName"],
-        clientEmail = map["clientEmail"],
-        employeeEmail = map["employeeEmail"],
+        coworkerId = map["coworkerId"],
         clientPhone = map["clientPhone"],
-        serviceId = map["serviceId"],
+        offeringId = map["offeringId"],
         dateTime = map["dateTime"],
-        internalObservations = map["internalObservations"];
+        observations = map["observations"];
 
   // Convert an instance to a map
   Map<String, dynamic> toMap() {
     return {
       "id": id,
       "clientName": clientName,
-      "clientEmail": clientEmail,
-      "employeeEmail": employeeEmail,
+      "coworkerId": coworkerId,
       "clientPhone": clientPhone,
-      "serviceId": serviceId,
+      "offeringId": offeringId,
       "dateTime": dateTime,
-      "internalObservations": internalObservations,
+      "observations": observations,
     };
   }
 }

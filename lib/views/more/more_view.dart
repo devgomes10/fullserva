@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../account/account_view.dart';
-import '../business/business_form_view.dart';
-import '../opening_hours/opening_hours_view.dart';
+import 'account/account_view.dart';
+import 'business/business_form_view.dart';
+import 'opening_hours/opening_hours_view.dart';
 
 class MoreView extends StatefulWidget {
   const MoreView({super.key});
@@ -26,7 +26,7 @@ class _MoreViewState extends State<MoreView> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const WeekDaysView(),
+                    builder: (context) => const OpeningHoursView(),
                   ),
                 );
               },

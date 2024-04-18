@@ -168,19 +168,23 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
-                      return const Center(child: Text('Erro ao carregar os dados'));
+                      return const Center(
+                          child: Text('Erro ao carregar os dados'));
                     }
                     final offerings = snapshot.data!;
                     if (offerings.isEmpty) {
-                      return const Center(child: Text('Nenhum dado disponível'));
+                      return const Center(
+                          child: Text('Nenhum dado disponível'));
                     }
                     return ListView.builder(
                       itemCount: offerings.length,
                       // Dentro do itemBuilder do ListView.builder do StreamBuilder em CoworkerFormView
                       itemBuilder: (context, index) {
                         final offering = offerings[index];
-                        final isSelected = widget.model != null && offering.coworkerIds.contains(widget.model!.id);
-                        final isSelectedNotifier = ValueNotifier<bool>(isSelected);
+                        final isSelected = widget.model != null &&
+                            offering.coworkerIds.contains(widget.model!.id);
+                        final isSelectedNotifier =
+                            ValueNotifier<bool>(isSelected);
 
                         return ValueListenableBuilder<bool>(
                           valueListenable: isSelectedNotifier,
@@ -192,13 +196,15 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                                 if (newValue!) {
                                   if (!isSelected) {
                                     setState(() {
-                                      offering.coworkerIds.add(widget.model!.id);
+                                      offering.coworkerIds
+                                          .add(widget.model!.id);
                                     });
                                   }
                                 } else {
                                   if (isSelected) {
                                     setState(() {
-                                      offering.coworkerIds.remove(widget.model!.id);
+                                      offering.coworkerIds
+                                          .remove(widget.model!.id);
                                     });
                                   }
                                 }

@@ -135,9 +135,7 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 8
-                  ),
+                  const SizedBox(height: 8),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 200,
@@ -172,10 +170,11 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                         return ListView.builder(
                           itemCount: coworkers.length,
                           itemBuilder: (context, index) {
-
                             final coworker = coworkers[index];
-                            final isSelected = _coworkersIds.contains(coworker.id);
-                            final isSelectedNotifier = ValueNotifier<bool>(isSelected);
+                            final isSelected =
+                                _coworkersIds.contains(coworker.id);
+                            final isSelectedNotifier =
+                                ValueNotifier<bool>(isSelected);
 
                             return ValueListenableBuilder<bool>(
                               valueListenable: isSelectedNotifier,
@@ -190,8 +189,6 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                                     } else {
                                       _coworkersIds.remove(coworker.id);
                                     }
-
-                                    print(_coworkersIds);
                                   },
                                 );
                               },

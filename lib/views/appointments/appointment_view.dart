@@ -157,7 +157,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                       return FutureBuilder(
                         future: FirebaseFirestore.instance
                             .collection("service")
-                            .doc(appointment.serviceId)
+                            .doc(appointment.offeringId)
                             .get(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
@@ -177,7 +177,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                 builder: (context) => AlertDialog(
                                   title: Text(serviceName),
                                   content: Text(
-                                    "O cliente ${appointment.clientName} tem um agendamento para o dia ${appointment.dateTime.hour}:${appointment.dateTime.minute} com o funcionário ${appointment.employeeEmail}",
+                                    "O cliente ${appointment.clientName} tem um agendamento para o dia ${appointment.dateTime.hour}:${appointment.dateTime.minute} com o funcionário ${appointment.coworkerId}",
                                   ),
                                   actions: [
                                     TextButton(

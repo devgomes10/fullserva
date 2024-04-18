@@ -5,11 +5,11 @@ import '../../domain/entities/appointment.dart';
 class AppointmentRepository {
   // late String uidAppointment;
   late CollectionReference appointmentCollection;
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   AppointmentRepository() {
     // uidAppointment = FirebaseAuth.instance.currentUser!.uid;
-    appointmentCollection = firestore.collection("appointment");
+    appointmentCollection = db.collection("appointment");
   }
 
   Future<void> addAppointment(Appointment appointment) async {
@@ -29,12 +29,11 @@ class AppointmentRepository {
             return Appointment(
               id: doc["id"],
               clientName: doc["clientName"],
-              clientEmail: doc["clientEmail"],
-              employeeEmail: doc["employeeEmail"],
+              coworkerId: doc["coworkerId"],
               clientPhone: doc["clientPhone"],
-              serviceId: doc["serviceId"],
+              offeringId: doc["offeringId"],
               dateTime: (doc["dateTime"] as Timestamp).toDate(),
-              internalObservations: doc["internalObservations"],
+              observations: doc["observations"],
             );
           },
         ).toList();

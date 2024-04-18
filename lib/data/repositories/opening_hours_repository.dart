@@ -17,10 +17,10 @@ class OpeningHoursRepository {
       await openingHoursCollection.doc(openingHours.id.toString()).set({
         "id": openingHours.id,
         "working": openingHours.working,
-        "startTime": Timestamp.fromDate(openingHours.startTime.toLocal()),
-        "endTime": Timestamp.fromDate(openingHours.endTime.toLocal()),
-        "startTimeInterval": Timestamp.fromDate(openingHours.startTimeInterval.toLocal()),
-        "endTimeInterval": Timestamp.fromDate(openingHours.endTimeInterval.toLocal()),
+        "startTime": openingHours.startTime,
+        "endTime": openingHours.endTime,
+        "startTimeInterval": openingHours.startTimeInterval,
+        "endTimeInterval": openingHours.endTimeInterval,
       });
     } catch (error) {
       print("Erro: $error");
@@ -36,10 +36,10 @@ class OpeningHoursRepository {
             return OpeningHours(
               id: doc["id"],
               working: doc["working"],
-              startTime: (doc["startTime"] as Timestamp).toDate(),
-              endTime: (doc["endTime"] as Timestamp).toDate(),
-              startTimeInterval: (doc["startTimeInterval"] as Timestamp).toDate(),
-              endTimeInterval: (doc["endTimeInterval"] as Timestamp).toDate(),
+              startTime: doc["startTime"],
+              endTime: doc["endTime"],
+              startTimeInterval: doc["startTimeInterval"],
+              endTimeInterval: doc["endTimeInterval"],
             );
           },
         ).toList();
