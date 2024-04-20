@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/views/offerings/offering_form_view.dart';
@@ -14,6 +16,7 @@ class OfferingView extends StatefulWidget {
 class _OfferingViewState extends State<OfferingView> {
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
   OfferingController serviceController = OfferingController();
+  late StreamSubscription<List<Offering>> _subscription;
 
   String _formatDuration(int duration) {
     int hours = duration ~/ 60;
@@ -26,6 +29,18 @@ class _OfferingViewState extends State<OfferingView> {
     } else {
       return '$minutes min';
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = serviceController.getOfferings().listen((_) {});
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override

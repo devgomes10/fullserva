@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
-import 'package:fullserva/utils/themes/theme_colors.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
 import 'package:intl/intl.dart';
@@ -24,20 +24,28 @@ class _AppointmentViewState extends State<AppointmentView> {
   CalendarFormat calendarFormat = CalendarFormat.month;
   String locale = 'pt-BR';
   Coworker? _coworker;
+  late StreamSubscription<List<Appointment>> _subscription;
 
   String capitalizeFirstLetter(String text) {
-    if (text == null || text.isEmpty) {
-      return text; // Retorna o texto original se for nulo ou vazio
+    if (text.isEmpty) {
+      return text;
     }
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
   @override
   void initState() {
-    super.initState();
+    _subscription = _appointmentController.getAppointments().listen((_) {});
     firstDay = DateTime.now().add(const Duration(days: -365));
     lastDay = DateTime.now().add(const Duration(days: 365));
     today = DateTime.now();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -86,7 +94,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                 },
               ),
               daysOfWeekStyle: DaysOfWeekStyle(
-                dowTextFormatter: (day, locale) => DateFormat.E(locale).format(day)[0].toUpperCase(),
+                dowTextFormatter: (day, locale) =>
+                    DateFormat.E(locale).format(day)[0].toUpperCase(),
               ),
               calendarStyle: const CalendarStyle(
                 rangeHighlightColor: Colors.yellow,
@@ -167,9 +176,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                           if (snapshot.hasError) {
                             return const Text('Erro ao carregar o serviço');
                           }
-
                           final serviceName = snapshot.data?['name'];
-
                           return ListTile(
                             onTap: () {
                               showDialog(
@@ -184,7 +191,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: Text("Legal"),
+                                      child: const Text("Legal"),
                                     ),
                                     TextButton(
                                       onPressed: () {
@@ -192,7 +199,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                             .removeAppointment(appointment.id);
                                         Navigator.pop(context);
                                       },
-                                      child: Text("Desmarcar"),
+                                      child: const Text("Desmarcar"),
                                     )
                                   ],
                                 ),

@@ -5,10 +5,9 @@ import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/views/components/modal_available_times.dart';
 import 'package:fullserva/views/components/modal_coworkers.dart';
 import 'package:fullserva/views/components/modal_offerings.dart';
-import 'package:fullserva/views/components/modal_duration_offering.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:uuid/uuid.dart';
 import '../../domain/entities/offering.dart';
-import '../../utils/consts/unique_id.dart';
 
 class AppointmentFormView extends StatefulWidget {
   const AppointmentFormView({super.key});
@@ -20,6 +19,7 @@ class AppointmentFormView extends StatefulWidget {
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final AppointmentController _appointmentController = AppointmentController();
   final _formKey = GlobalKey<FormState>();
+  final String _uniqueId = const Uuid().v4();
 
   DateTime? _selectedDateTime;
   final _clientNameController = TextEditingController();
@@ -103,7 +103,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: Text(_selectedOfferingId?.name ?? "Selecione um serviço"),
+                    child: Text(
+                        _selectedOfferingId?.name ?? "Selecione um serviço"),
                   ),
                   const SizedBox(height: 26),
                   ElevatedButton(
@@ -123,7 +124,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
-                    child: Text(_selectedCoworkerId?.name ?? "Selecione um colaborador"),
+                    child: Text(_selectedCoworkerId?.name ??
+                        "Selecione um colaborador"),
                   ),
                   const SizedBox(height: 26),
                   Row(
@@ -174,14 +176,13 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         Appointment appointment = Appointment(
-                          id: uniqueId,
+                          id: _uniqueId,
                           clientName: _clientNameController.text,
                           coworkerId: _selectedCoworkerId!.id,
                           clientPhone: _clientPhoneController.text,
                           offeringId: _selectedOfferingId!.id,
                           dateTime: _selectedDateTime!,
-                          observations:
-                              _observationsController.text,
+                          observations: _observationsController.text,
                         );
                         await _appointmentController
                             .addAppointment(appointment);

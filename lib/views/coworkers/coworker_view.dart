@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/coworker_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
@@ -12,6 +14,19 @@ class CoworkerView extends StatefulWidget {
 
 class _CoworkerViewState extends State<CoworkerView> {
   final CoworkerController _coworkerController = CoworkerController();
+  late StreamSubscription<List<Coworker>> _subscription;
+
+  @override
+  void initState() {
+    _subscription = _coworkerController.getCoworker().listen((_) {});
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fullserva/views/more/opening_hours/opening_hours_form_view.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +17,19 @@ class _OpeningHoursViewState extends State<OpeningHoursView> {
   final OpeningHoursController _openingHoursController =
       OpeningHoursController();
   DateFormat timeFormat = DateFormat('HH:mm');
+  late StreamSubscription<List<OpeningHours>> _subscription;
+
+  @override
+  void initState() {
+    _subscription = _openingHoursController.getOpeningHours().listen((_) {});
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

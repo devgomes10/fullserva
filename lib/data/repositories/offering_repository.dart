@@ -26,14 +26,11 @@ class OfferingRepository {
       (snapshot) {
         return snapshot.docs.map(
           (doc) {
-            List<String> coworkerIds =
-                List<String>.from(doc["coworkerIds"] ?? []);
             return Offering(
-              id: doc.id,
+              id: doc["id"],
               name: doc["name"],
               duration: doc["duration"],
               price: doc["price"],
-              coworkerIds: coworkerIds,
             );
           },
         ).toList();

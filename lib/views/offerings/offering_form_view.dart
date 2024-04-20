@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/coworker_controller.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
-import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/domain/entities/offering.dart';
-import 'package:fullserva/utils/consts/unique_id.dart';
+import 'package:uuid/uuid.dart';
 
 class OfferingFormView extends StatefulWidget {
   final Offering? model;
@@ -16,20 +14,21 @@ class OfferingFormView extends StatefulWidget {
 
 class _OfferingFormViewState extends State<OfferingFormView> {
   final _formKey = GlobalKey<FormState>();
-  int? _currentSliderValue;
+  int? _duration;
+  final String _uniqueId = const Uuid().v4();
 
-  final CoworkerController _coworkerController = CoworkerController();
   final OfferingController _offeringController = OfferingController();
 
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
-  List<String> _coworkersIds = [];
 
-  // list of ints with 288 total elements that are multiples of 5, starting from 5 and going up to 1440
+  // list of ints with 288 total elements that are multiples of 5,
+  // starting from 5 and going up to 1440
   final List<int> _durationOptions =
       List.generate(24 * 12, (index) => (index + 1) * 5);
 
-  // takes an int value and return a formatted string representing that value in hours and minutes.
+  // takes an int value and return a formatted string
+  // representing that value in hours and minutes.
   String formatDuration(int minutes) {
     int hours = minutes ~/ 60;
     int remainingMinutes = minutes % 60;
@@ -45,14 +44,13 @@ class _OfferingFormViewState extends State<OfferingFormView> {
 
   @override
   void initState() {
-    super.initState();
     // showing object parameters when editing
     if (widget.model != null) {
       _nameController.text = widget.model!.name;
       _priceController.text = widget.model!.price.toString();
-      _currentSliderValue = widget.model!.duration;
-      _coworkersIds = widget.model!.coworkerIds;
+      _duration = widget.model!.duration;
     }
+    super.initState();
   }
 
   @override
@@ -122,86 +120,15 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
                     child: Text(
-                      _currentSliderValue != null
-                          ? formatDuration(_currentSliderValue!)
-                          : "Selecione a duração",
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  const Text(
-                    "Quais colaboradores trabalham com esse serviço?",
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    child: StreamBuilder<List<Coworker>>(
-                      stream: _coworkerController.getCoworker(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(
-                            // Adicionar uma imagem
-                            child: Text('Erro ao carregar os dados'),
-                          );
-                        }
-                        final coworkers = snapshot.data;
-                        if (coworkers == null || coworkers.isEmpty) {
-                          // Adicionar uma imagem
-                          return const Center(
-                            child: Text('Nenhum dado disponível'),
-                          );
-                        }
-                        return ListView.builder(
-                          itemCount: coworkers.length,
-                          itemBuilder: (context, index) {
-                            final coworker = coworkers[index];
-                            final isSelected =
-                                _coworkersIds.contains(coworker.id);
-                            final isSelectedNotifier =
-                                ValueNotifier<bool>(isSelected);
-
-                            return ValueListenableBuilder<bool>(
-                              valueListenable: isSelectedNotifier,
-                              builder: (context, value, child) {
-                                return CheckboxListTile(
-                                  title: Text(coworker.name),
-                                  value: value,
-                                  onChanged: (bool? newValue) {
-                                    isSelectedNotifier.value = newValue!;
-                                    if (newValue) {
-                                      _coworkersIds.add(coworker.id);
-                                    } else {
-                                      _coworkersIds.remove(coworker.id);
-                                    }
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
+                      _duration != null
+                          ? formatDuration(_duration!)
+                          : "Duração",
                     ),
                   ),
                   const SizedBox(height: 42),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_currentSliderValue == null) {
+                      if (_duration == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -211,12 +138,12 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                         );
                       } else {
                         if (_formKey.currentState!.validate()) {
+
                           Offering offering = Offering(
-                            id: uniqueId,
+                            id: offeringModel?.id ?? _uniqueId,
                             name: _nameController.text,
-                            duration: _currentSliderValue!.toInt(),
+                            duration: _duration!.toInt(),
                             price: double.parse(_priceController.text),
-                            coworkerIds: _coworkersIds,
                           );
 
                           if (offeringModel != null) {
@@ -278,7 +205,7 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                       ),
                       onTap: () {
                         setState(() {
-                          _currentSliderValue = duration;
+                          _duration = duration;
                         });
                         Navigator.pop(context);
                       },

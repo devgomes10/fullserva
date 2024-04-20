@@ -23,6 +23,8 @@ class CoworkerRepository {
       (snapshot) {
         return snapshot.docs.map(
           (doc) {
+            List<String> offeringIds =
+                List<String>.from(doc["offeringIds"] ?? []);
             return Coworker(
               id: doc["id"],
               name: doc["name"],
@@ -30,6 +32,7 @@ class CoworkerRepository {
               password: doc["password"],
               phone: doc["phone"],
               role: doc["role"],
+              offeringIds: offeringIds,
             );
           },
         ).toList();
