@@ -31,6 +31,8 @@ class CoworkerRepository {
               email: doc["email"],
               password: doc["password"],
               phone: doc["phone"],
+              startUnavailable: doc["startUnavailable"],
+              endUnavailable: doc["endUnavailable"],
               role: doc["role"],
               offeringIds: offeringIds,
             );

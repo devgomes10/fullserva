@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/usecases/appointment_usecase.dart';
+
+import '../domain/entities/coworker.dart';
 
 class AppointmentController implements AppointmentUseCase {
   AppointmentRepository appointmentRepository = AppointmentRepository();

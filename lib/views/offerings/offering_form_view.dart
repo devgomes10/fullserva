@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
 import 'package:fullserva/domain/entities/offering.dart';
+import 'package:fullserva/utils/formatting/format_minutes.dart';
 import 'package:uuid/uuid.dart';
+
+import '../components/modals/modal_duration_offering.dart';
 
 class OfferingFormView extends StatefulWidget {
   final Offering? model;
@@ -26,21 +29,6 @@ class _OfferingFormViewState extends State<OfferingFormView> {
   // starting from 5 and going up to 1440
   final List<int> _durationOptions =
       List.generate(24 * 12, (index) => (index + 1) * 5);
-
-  // takes an int value and return a formatted string
-  // representing that value in hours and minutes.
-  String formatDuration(int minutes) {
-    int hours = minutes ~/ 60;
-    int remainingMinutes = minutes % 60;
-
-    if (hours > 0 && remainingMinutes > 0) {
-      return '$hours h e $remainingMinutes m';
-    } else if (hours > 0) {
-      return '$hours h';
-    } else {
-      return '$remainingMinutes m';
-    }
-  }
 
   @override
   void initState() {
@@ -114,14 +102,25 @@ class _OfferingFormViewState extends State<OfferingFormView> {
                   const SizedBox(height: 26),
                   ElevatedButton(
                     onPressed: () {
-                      _showDurationModal(context);
-                    },
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DurationSelectionModal(
+                            durationOptions: _durationOptions,
+                            onDurationSelected: (selectedDuration) {
+                              setState(() {
+                                _duration = selectedDuration;
+                              });
+                            },
+                          );
+                        },
+                      );                    },
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     ),
                     child: Text(
                       _duration != null
-                          ? formatDuration(_duration!)
+                          ? formatMinutes(_duration!)
                           : "Duração",
                     ),
                   ),
@@ -169,54 +168,6 @@ class _OfferingFormViewState extends State<OfferingFormView> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showDurationModal(BuildContext context) async {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 15,
-              ),
-              const Text(
-                'Selecione a duração',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 15),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _durationOptions.length,
-                  itemBuilder: (context, index) {
-                    final duration = _durationOptions[index];
-                    return ListTile(
-                      title: Center(
-                        child: Text(
-                          formatDuration(duration),
-                        ),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _duration = duration;
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fullserva/utils/formatting/format_minutes.dart';
 import 'package:fullserva/views/more/opening_hours/opening_hours_form_view.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/opening_hours_controller.dart';
@@ -88,9 +89,10 @@ class _OpeningHoursViewState extends State<OpeningHoursView> {
                   );
                 },
                 leading: Text(formatNameDay(days[i].id)),
-                title: Text("${days[i].startTime} às ${days[i].endTime}"),
+                title: Text(
+                    "${formatMinutes(days[i].startTime)} às ${formatMinutes(days[i].endTime)}"),
                 subtitle: Text(
-                    "Intervalo: ${days[i].startTimeInterval} às ${days[i].endTimeInterval}"),
+                    "Intervalo: ${formatMinutes(days[i].startTimeInterval)} às ${formatMinutes(days[i].startTimeInterval)}"),
                 trailing: const Icon(Icons.arrow_forward_ios),
               );
             },

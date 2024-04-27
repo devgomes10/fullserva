@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
+
 class Coworker {
   String id;
   String name;
   String email;
   String password;
   String phone;
+  DateTime? startUnavailable;
+  DateTime? endUnavailable;
   int role;
   List<String> offeringIds;
 
@@ -13,6 +17,8 @@ class Coworker {
     required this.email,
     required this.password,
     required this.phone,
+    required this.startUnavailable,
+    required this.endUnavailable,
     required this.role,
     required this.offeringIds,
   });
@@ -23,6 +29,8 @@ class Coworker {
         email = map["email"],
         password = map["password"],
         phone = map["phone"],
+        startUnavailable = map["startUnavailable"],
+        endUnavailable = map["endUnavailable"],
         role = map["role"],
         offeringIds = map["offeringIds"];
 
@@ -33,6 +41,8 @@ class Coworker {
       "email": email,
       "password": password,
       "phone": phone,
+      "startUnavailable": startUnavailable,
+      "endUnavailable": endUnavailable,
       "role": role,
       "offeringIds": offeringIds,
     };

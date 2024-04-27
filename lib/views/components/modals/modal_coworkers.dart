@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/coworker_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 
-CoworkerController _employeeController = CoworkerController();
+CoworkerController _coworkerController = CoworkerController();
 
 Widget modalCoworkers({
   required BuildContext context,
+  String? offeringId,
 }) {
   return StreamBuilder<List<Coworker>>(
-    stream: _employeeController.getCoworker(),
+    stream: _coworkerController.getCoworkerByOfferingId(offeringId!),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());
       }
       if (snapshot.hasError) {
-        return const Center(
+        return  Center(
           // Adicionar uma imagem
-          child: Text('Erro ao carregar os dados'),
+          child: Text('Erro ao carregar os dados: ${snapshot.error}'),
         );
       }
-      final employees = snapshot.data;
-      if (employees == null || employees.isEmpty) {
+      final coworkers = (snapshot.data as List<dynamic>).cast<Coworker>();
+      if (coworkers == null || coworkers.isEmpty) {
         // Adicionar uma imagem
         return const Center(
           child: Text('Nenhum dado disponível'),
@@ -30,19 +31,19 @@ Widget modalCoworkers({
         itemBuilder: (BuildContext context, int i) {
           return ListTile(
             onTap: () {
-              Navigator.pop(context, employees[i]);
+              Navigator.pop(context, coworkers[i]);
             },
             title: Text(
-              employees[i].name,
+              coworkers[i].name,
             ),
             subtitle: Text(
-              employees[i].email,
+              coworkers[i].email,
             ),
             trailing: const Icon(Icons.arrow_forward_ios),
           );
         },
         separatorBuilder: (_, __) => const Divider(),
-        itemCount: employees.length,
+        itemCount: coworkers.length,
       );
     },
   );

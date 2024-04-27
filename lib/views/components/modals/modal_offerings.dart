@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/offering_controller.dart';
-import '../../domain/entities/offering.dart';
+import '../../../domain/entities/offering.dart';
 
 OfferingController _serviceController = OfferingController();
 

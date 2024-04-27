@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
-import 'package:fullserva/views/components/modal_coworkers.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../domain/entities/appointment.dart';
+import '../components/modals/modal_coworkers.dart';
 
 class AppointmentView extends StatefulWidget {
   const AppointmentView({Key? key}) : super(key: key);
@@ -125,8 +125,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                   _coworker = coworker as Coworker;
                 }
               },
-              child: Text(_coworker?.name ?? "Filtre por um colaborador"),
               style: ElevatedButton.styleFrom(),
+              child: Text(_coworker?.name ?? "Filtre por um colaborador"),
             ),
             const SizedBox(
               height: 14,
@@ -165,7 +165,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                       final appointment = appointmentsForDay[index];
                       return FutureBuilder(
                         future: FirebaseFirestore.instance
-                            .collection("service")
+                            .collection("offering")
                             .doc(appointment.offeringId)
                             .get(),
                         builder: (context, snapshot) {

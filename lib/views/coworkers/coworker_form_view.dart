@@ -28,6 +28,10 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
+  DateTimeRange selectedDates = DateTimeRange(
+    start: DateTime.now(),
+    end: DateTime.now(),
+  );
   List<String> _offeringIds = [];
   final ValueNotifier<int> _selectedRole = ValueNotifier<int>(0);
 
@@ -158,6 +162,24 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                   },
                 ),
                 const SizedBox(height: 26),
+                const Text("Dias indisponíveis"),
+                TextButton(
+                  onPressed: () async {
+                    final DateTimeRange? dateTimeRange =
+                        await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (dateTimeRange != null) {
+                      setState(() {
+                        selectedDates = dateTimeRange;
+                      });
+                    }
+                  },
+                  child: Text("${selectedDates ?? "Selecione os dias"}"),
+                ),
+                const SizedBox(height: 26),
                 const Text(
                   "Quais serviços esse colaborador realiza?",
                   style: TextStyle(
@@ -231,6 +253,8 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                         email: _emailController.text,
                         password: _passwordController.text,
                         phone: _phoneController.text,
+                        startUnavailable: selectedDates.start,
+                        endUnavailable: selectedDates.end,
                         role: _selectedRole.value,
                         offeringIds: _offeringIds,
                       );

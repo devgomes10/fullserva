@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
-import 'package:fullserva/views/components/modal_coworkers.dart';
-import 'package:fullserva/views/components/modal_offerings.dart';
+import 'package:fullserva/views/components/modals/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/offering.dart';
+import '../components/modals/modal_coworkers.dart';
 
 class AppointmentFormView extends StatefulWidget {
   const AppointmentFormView({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   final _formKey = GlobalKey<FormState>();
   final String _uniqueId = const Uuid().v4();
 
-  DateTime _selectedDate = DateTime.now();
+  DateTime? _selectedDate;
   final _clientNameController = TextEditingController();
   final _clientPhoneController = TextEditingController();
   final _observationsController = TextEditingController();
@@ -89,7 +89,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   ),
                   const SizedBox(height: 26),
                   _buildElevatedButton(
-                    label: _selectedCoworkerId?.name ?? "Selecione um colaborador",
+                    label:
+                        _selectedCoworkerId?.name ?? "Selecione um colaborador",
                     onPressed: () => _selectCoworker(),
                   ),
                   const SizedBox(height: 26),
@@ -137,7 +138,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
   Widget _buildElevatedButton({
     required String label,
-    required VoidCallback onPressed,
+    required onPressed,
   }) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -156,7 +157,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           child: ElevatedButton(
             onPressed: _selectDate,
             child: Text(
-              "Data: ${_selectedDate != null ? _selectedDate.toString() : 'Selecione uma data'}",
+              _selectedDate != null ? _selectedDate.toString() : 'Data',
             ),
           ),
         ),
@@ -186,77 +187,108 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   }
 
   void _selectCoworker() async {
-    final coworker = await showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) => modalCoworkers(
+    if (_selectedOfferingId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Selecione um serviço primeiro"),
+        ),
+      );
+    } else {
+      final coworker = await showModalBottomSheet(
         context: context,
-      ),
-    );
-    if (coworker != null) {
-      setState(() {
-        _selectedCoworkerId = coworker as Coworker;
-      });
+        builder: (BuildContext context) => modalCoworkers(
+          context: context,
+          offeringId: _selectedOfferingId!.id,
+        ),
+      );
+      if (coworker != null) {
+        setState(() {
+          _selectedCoworkerId = coworker as Coworker;
+        });
+      }
     }
   }
 
   Future<void> _selectDate() async {
-    final selectedDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now().add(const Duration(days: -365)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      selectableDayPredicate: (DateTime date) {
-        return !unavailableDates.contains(date);
-      },
-    );
+    if (_selectedCoworkerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Selecione um colaborador primeiro"),
+        ),
+      );
+    } else {
+      final selectedDate = await showDatePicker(
+        context: context,
+        firstDate: DateTime.now().add(const Duration(days: -365)),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
+        selectableDayPredicate: (DateTime date) {
 
-    if (selectedDate != null) {
-      setState(() {
-        _selectedDate = selectedDate;
-      });
+          // checking vacation coworker
+          if (_selectedCoworkerId!.startUnavailable != null &&
+              _selectedCoworkerId!.endUnavailable != null) {
+            return !date.isAfter(_selectedCoworkerId!.endUnavailable!) &&
+                !date.isBefore(_selectedCoworkerId!.startUnavailable!);
+          }
+          return true;
+        },
+      );
+
+      if (selectedDate != null) {
+        setState(() {
+          _selectedDate = selectedDate;
+        });
+      }
     }
   }
 
+
   Future<void> _showAvailableTimesModal() async {
-    if (!_isServiceSelected || !_isCoworkerSelected || !_isDateSelected) {
-      _showSnackbar("Selecione primeiro um serviço, um colaborador e uma data.");
-      return;
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Selecione uma data primeiro"),
+        ),
+      );
+    } else {
+      List<Appointment> appointments =
+          await _getAppointmentsByCoworkerAndDate();
+
+      List<DateTime> busyTimes = _calculateBusyTimes(appointments);
+
+      List<TimeOfDay> availableTimes = await _getAvailableTimes(busyTimes);
+
+      _displayAvailableTimesModal(availableTimes);
     }
-
-    List<Appointment> appointments = await _getAppointmentsByCoworkerAndDate();
-
-    List<DateTime> busyTimes = _calculateBusyTimes(appointments);
-
-    List<TimeOfDay> availableTimes = await _getAvailableTimes(busyTimes);
-
-    _displayAvailableTimesModal(availableTimes);
   }
 
   Future<List<Appointment>> _getAppointmentsByCoworkerAndDate() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("appointments")
+          .collection("appointment")
           .where("coworkerId", isEqualTo: _selectedCoworkerId!.id)
-          .where("dateTime", isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0, 0)))
-          .where("dateTime", isLessThanOrEqualTo: Timestamp.fromDate(DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59, 59)))
+          .where(
+            "dateTime",
+            isEqualTo: Timestamp.fromDate(
+              DateTime(
+                _selectedDate!.year,
+                _selectedDate!.month,
+                _selectedDate!.day,
+              ),
+            ),
+          )
           .get();
 
-      List<Appointment> appointments = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Appointment(
-          id: data['id'],
-          clientName: data['clientName'],
-          coworkerId: data['coworkerId'],
-          clientPhone: data['clientPhone'],
-          offeringId: data['offeringId'],
-          dateTime: (data['dateTime'] as Timestamp).toDate(),
-          observations: data['observations'],
-        );
-      }).toList();
+      List<Appointment> appointments = [];
+
+      for (var doc in querySnapshot.docs) {
+        Appointment appointment = Appointment.fromMap(doc.data() as Map<String, dynamic>);
+        appointments.add(appointment);
+      }
 
       return appointments;
     } catch (error) {
       print("Erro ao buscar os agendamentos: $error");
-      throw error;
+      rethrow;
     }
   }
 
@@ -264,7 +296,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     List<DateTime> busyTimes = [];
     for (var appointment in appointments) {
       DateTime startTime = appointment.dateTime;
-      DateTime endTime = startTime.add(Duration(minutes: _selectedOfferingId!.duration));
+      DateTime endTime =
+          startTime.add(Duration(minutes: _selectedOfferingId!.duration));
       busyTimes.add(startTime);
       busyTimes.add(endTime);
     }
@@ -272,11 +305,35 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   }
 
   Future<List<TimeOfDay>> _getAvailableTimes(List<DateTime> busyTimes) async {
-    final List<TimeOfDay> availableTimes = await _startTimeToEndTimeList(_selectedDate);
-    availableTimes.removeWhere((time) {
-      DateTime dateTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, time.hour, time.minute);
-      return busyTimes.any((busyTime) => dateTime.isAfter(busyTime) && dateTime.isBefore(busyTimes[busyTimes.indexOf(busyTime) + 1]));
-    });
+    // Obtenha todos os horários possíveis no dia selecionado
+    final List<TimeOfDay> allTimes =
+        await _startTimeToEndTimeList(_selectedDate!);
+
+    // Remova os horários ocupados da lista de horários possíveis
+    List<TimeOfDay> availableTimes = allTimes.where((time) {
+      DateTime dateTime = DateTime(_selectedDate!.year, _selectedDate!.month,
+          _selectedDate!.day, time.hour, time.minute);
+      return !busyTimes.any((busyTime) =>
+          dateTime.isAfter(busyTime) &&
+          dateTime.isBefore(busyTimes[busyTimes.indexOf(busyTime) + 1]));
+    }).toList();
+
+    // Verifique se os horários disponíveis respeitam a duração do serviço
+    if (_selectedOfferingId != null) {
+      final int serviceDuration = _selectedOfferingId!.duration;
+      availableTimes.removeWhere((time) {
+        DateTime startDateTime = DateTime(_selectedDate!.year,
+            _selectedDate!.month, _selectedDate!.day, time.hour, time.minute);
+        DateTime endDateTime =
+            startDateTime.add(Duration(minutes: serviceDuration));
+        // Verifique se o horário final ultrapassa o horário de fechamento do estabelecimento
+        return endDateTime.hour > 18 ||
+            (endDateTime.hour == 18 && endDateTime.minute > 0);
+        // Neste exemplo, estamos considerando que o horário de fechamento é às 18:00.
+        // Você pode ajustar esse valor conforme necessário, dependendo do horário de fechamento do estabelecimento.
+      });
+    }
+
     return availableTimes;
   }
 
@@ -346,7 +403,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                       onPressed: () {
                         _selectTime(availableTimes[index]);
                       },
-                      child: Text("${availableTimes[index].hour}:${availableTimes[index].minute}"),
+                      child: Text(
+                          "${availableTimes[index].hour}:${availableTimes[index].minute}"),
                     );
                   },
                 ),
@@ -368,23 +426,11 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         coworkerId: _selectedCoworkerId!.id,
         clientPhone: _clientPhoneController.text,
         offeringId: _selectedOfferingId!.id,
-        dateTime: _selectedDate,
+        dateTime: _selectedDate!,
         observations: _observationsController.text,
       );
       await _appointmentController.addAppointment(appointment);
       Navigator.pop(context, true);
     }
   }
-
-  void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
-  }
-
-  bool get _isServiceSelected => _selectedOfferingId != null;
-
-  bool get _isCoworkerSelected => _selectedCoworkerId != null;
-
-  bool get _isDateSelected => _selectedDate != null;
 }
