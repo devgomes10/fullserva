@@ -31,8 +31,8 @@ class CoworkerRepository {
               email: doc["email"],
               password: doc["password"],
               phone: doc["phone"],
-              startUnavailable: doc["startUnavailable"],
-              endUnavailable: doc["endUnavailable"],
+              startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
+              endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
               role: doc["role"],
               offeringIds: offeringIds,
             );

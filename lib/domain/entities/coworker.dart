@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Coworker {
   String id;
   String name;
