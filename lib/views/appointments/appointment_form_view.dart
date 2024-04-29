@@ -32,12 +32,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   Offering? _selectedOfferingId;
   Coworker? _selectedCoworkerId;
 
-  List<DateTime> unavailableDates = [
-    DateTime(2024, 3, 31),
-    DateTime(2024, 4, 4),
-    DateTime(2024, 4, 15),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -267,28 +261,65 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
   Future<List<Appointment>> _getAppointmentsByCoworkerAndDate() async {
     try {
+      print(_selectedCoworkerId!.id);
+      print(
+          "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}");
+
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("appointment")
           .where("coworkerId", isEqualTo: _selectedCoworkerId!.id)
-          .where(
-            "dateTime",
-            isEqualTo: Timestamp.fromDate(
-              DateTime(
-                _selectedDate!.year,
-                _selectedDate!.month,
-                _selectedDate!.day,
-              ),
-            ),
-          )
+          .where("dateTime",
+              isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
+                  _selectedDate!.year,
+                  _selectedDate!.month,
+                  _selectedDate!.day,
+                  0,
+                  0,
+                  0)))
+          .where("dateTime",
+              isLessThanOrEqualTo: Timestamp.fromDate(DateTime(
+                  _selectedDate!.year,
+                  _selectedDate!.month,
+                  _selectedDate!.day,
+                  23,
+                  59,
+                  59)))
           .get();
 
-      List<Appointment> appointments = [];
+      // if (querySnapshot.docs.isNotEmpty) {
+      //   for (var doc in querySnapshot.docs) {
+      //     print("Data e hora: ${doc.exists}");
+      //     print("Agendamento ID: ${doc.id}");
+      //     print("Nome do cliente: ${doc.data()}");
+      //     print("Data e hora: ${doc.get("dateTime")}");
+      //   }
+      // } else {
+      //   print("nenhum resultado do filtro");
+      // }
 
-      for (var doc in querySnapshot.docs) {
-        Appointment appointment =
-            Appointment.fromMap(doc.data() as Map<String, dynamic>);
-        appointments.add(appointment);
-      }
+      List<Appointment> appointments = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Appointment(
+          id: data['id'],
+          clientName: data['clientName'],
+          coworkerId: data['coworkerId'],
+          clientPhone: data['clientPhone'],
+          offeringId: data['offeringId'],
+          dateTime: (data['dateTime'] as Timestamp).toDate(),
+          observations: data['observations'],
+        );
+      }).toList();
+
+      // if (appointments.isNotEmpty) {
+      //   for (var appointment in appointments) {
+      //     print("Agendamento ID: ${appointment.id}");
+      //     print("Nome do cliente: ${appointment.clientName}");
+      //     print("Data e hora: ${appointment.dateTime}");
+      //   }
+      // } else {
+      //   print(
+      //       "Nenhum agendamento encontrado para o colaborador e data selecionados.");
+      // }
 
       return appointments;
     } catch (error) {
