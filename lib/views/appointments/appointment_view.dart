@@ -184,7 +184,9 @@ class _AppointmentViewState extends State<AppointmentView> {
                                 builder: (context) => AlertDialog(
                                   title: Text(serviceName),
                                   content: Text(
-                                    "O cliente ${appointment.clientName} tem um agendamento para o dia ${appointment.dateTime.hour}:${appointment.dateTime.minute} com o funcionário ${appointment.coworkerId}",
+                                    "Cliente: ${appointment.clientName}\n"
+                                        "data: ${appointment.dateTime.day}/${appointment.dateTime.month}/${appointment.dateTime.year}\n"
+                                        "horário: ${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                                   ),
                                   actions: [
                                     TextButton(
