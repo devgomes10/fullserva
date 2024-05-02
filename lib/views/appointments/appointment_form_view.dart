@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
+import 'package:fullserva/utils/formatting/minutes_to_time_of_day.dart';
 import 'package:fullserva/views/components/modals/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
@@ -435,13 +436,13 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
   bool _isTimeInInterval(TimeOfDay time, TimeOfDay start, TimeOfDay end) {
     if (time.hour > start.hour && time.hour < end.hour) {
-      return true;
+      return true; // O horário está dentro do intervalo
     } else if (time.hour == start.hour && time.minute >= start.minute) {
-      return true;
-    } else if (time.hour == end.hour && time.minute <= end.minute) {
-      return true;
+      return true; // O horário é igual ou depois do horário de início
+    } else if (time.hour == end.hour && time.minute < end.minute) {
+      return true; // O horário é igual ou antes do horário de término
     }
-    return false;
+    return false; // O horário está fora do intervalo ocupado
   }
 
   Future<List<TimeOfDay>> _startTimeToEndTimeList(DateTime dateTime) async {
@@ -454,31 +455,31 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
     if (snapshot.exists) {
       Map<String, dynamic> data = snapshot.data()!;
-      int startTime = data['startTime'];
-      int endTime = data['endTime'];
+      bool isWorking = data['working'] ?? false;
 
-      TimeOfDay startTimeOfDay = _convertMinutesToTimeOfDay(startTime);
-      TimeOfDay endTimeOfDay = _convertMinutesToTimeOfDay(endTime);
+      if (isWorking) {
+        int startTime = data['startTime'];
+        int endTime = data['endTime'];
 
-      List<TimeOfDay> timeList = [];
-      TimeOfDay currentTime = startTimeOfDay;
-      while (currentTime != endTimeOfDay) {
-        timeList.add(currentTime);
-        int minutes = currentTime.hour * 60 + currentTime.minute + 15;
-        currentTime = _convertMinutesToTimeOfDay(minutes);
+        TimeOfDay startTimeOfDay = minutesToTimeOfDay(startTime);
+        TimeOfDay endTimeOfDay = minutesToTimeOfDay(endTime);
+
+        List<TimeOfDay> timeList = [];
+        TimeOfDay currentTime = startTimeOfDay;
+        while (currentTime != endTimeOfDay) {
+          timeList.add(currentTime);
+          int minutes = currentTime.hour * 60 + currentTime.minute + 15;
+          currentTime = minutesToTimeOfDay(minutes);
+        }
+        timeList.add(endTimeOfDay);
+        return timeList;
+      } else {
+        // se for um dia que não trabalha
+        return [];
       }
-      timeList.add(endTimeOfDay);
-      return timeList;
     } else {
       return [];
     }
-  }
-
-  TimeOfDay _convertMinutesToTimeOfDay(int minutes) {
-    int hours = minutes ~/ 60;
-    int remainingMinutes = minutes % 60;
-
-    return TimeOfDay(hour: hours, minute: remainingMinutes);
   }
 
   void _displayAvailableTimesModal(List<TimeOfDay> availableTimes) {

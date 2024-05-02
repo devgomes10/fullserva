@@ -92,7 +92,7 @@ class _OpeningHoursViewState extends State<OpeningHoursView> {
                 title: Text(
                     "${formatMinutes(days[i].startTime)} às ${formatMinutes(days[i].endTime)}"),
                 subtitle: Text(
-                    "Intervalo: ${formatMinutes(days[i].startTimeInterval)} às ${formatMinutes(days[i].startTimeInterval)}"),
+                    "Intervalo: ${formatMinutes(days[i].startTimeInterval)} às ${formatMinutes(days[i].endTimeInterval)}"),
                 trailing: const Icon(Icons.arrow_forward_ios),
               );
             },
