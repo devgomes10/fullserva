@@ -355,14 +355,16 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         DateTime startDateTime = appointment.dateTime;
         // print("data e hora inicial: $startDateTime");
 
+        appointments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
         // Obtenção do ID do serviço associado ao agendamento
-        String offeringId = appointment.offeringId;
-        // print("id do serviço: $offeringId");
+        String offeringIdOfAppointment = appointment.offeringId;
+        // print("id do serviço: $offeringIdOfAppointment");
 
         // Consulta ao Firestore para obter os detalhes do serviço
         DocumentSnapshot offeringSnapshot = await FirebaseFirestore.instance
             .collection('offering')
-            .doc(offeringId)
+            .doc(offeringIdOfAppointment)
             .get();
         // print("consulta do serviço: $offeringSnapshot");
 
@@ -461,18 +463,35 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         int startTime = data['startTime'];
         int endTime = data['endTime'];
 
+        // pegando o horário de intervalo do dia
+        int startTimeInterval = data['startTimeInterval'];
+        int endTimeInterval = data['endTimeInterval'];
+
         TimeOfDay startTimeOfDay = minutesToTimeOfDay(startTime);
         TimeOfDay endTimeOfDay = minutesToTimeOfDay(endTime);
 
+        TimeOfDay startIntervalTimeOfDay = minutesToTimeOfDay(startTimeInterval);
+        TimeOfDay endIntervalTimeOfDay = minutesToTimeOfDay(endTimeInterval);
+
         List<TimeOfDay> timeList = [];
         TimeOfDay currentTime = startTimeOfDay;
+
         while (currentTime != endTimeOfDay) {
           timeList.add(currentTime);
           int minutes = currentTime.hour * 60 + currentTime.minute + 15;
           currentTime = minutesToTimeOfDay(minutes);
         }
         timeList.add(endTimeOfDay);
-        return timeList;
+
+        // Filtrar os horários para remover os intervalos ocupados
+        List<TimeOfDay> filteredTimes = [];
+        for (var time in timeList) {
+          if (!_isTimeInInterval(time, startIntervalTimeOfDay, endIntervalTimeOfDay)) {
+            filteredTimes.add(time);
+          }
+        }
+
+        return filteredTimes;
       } else {
         // se for um dia que não trabalha
         return [];
