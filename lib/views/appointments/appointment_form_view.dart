@@ -165,7 +165,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
             child: _selectedTime != null
                 ? Text(
                     "${_selectedTime!.hour.toString()}:${_selectedTime!.minute.toString()}")
-                : const Text("Data"),
+                : const Text("Hora"),
           ),
         ),
       ],
@@ -251,8 +251,10 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     }
 
     try {
-      List<Appointment> appointments = await _getAppointmentsByCoworkerAndDate();
-      List<Map<String, TimeOfDay>> busyTimes = await _calculateBusyTimes(appointments);
+      List<Appointment> appointments =
+          await _getAppointmentsByCoworkerAndDate();
+      List<Map<String, TimeOfDay>> busyTimes =
+          await _calculateBusyTimes(appointments);
 
       // if (busyTimes.isEmpty) {
       //   ScaffoldMessenger.of(context).showSnackBar(
@@ -274,7 +276,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
       );
     }
   }
-
 
   Future<List<Appointment>> _getAppointmentsByCoworkerAndDate() async {
     try {
@@ -355,8 +356,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         DateTime startDateTime = appointment.dateTime;
         // print("data e hora inicial: $startDateTime");
 
-        appointments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
         // Obtenção do ID do serviço associado ao agendamento
         String offeringIdOfAppointment = appointment.offeringId;
         // print("id do serviço: $offeringIdOfAppointment");
@@ -373,10 +372,24 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           int serviceDuration = offeringSnapshot['duration'];
           // print("duração do serviço: $serviceDuration");
 
+          // Consulta ao Firestore para obter os detalhes do serviço selecionado
+          DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
+              .instance
+              .collection('offering')
+              .doc(_selectedOfferingId!.id)
+              .get();
+
+          // Extrair a duração do serviço selecionado (em minutos)
+          int selectedServiceDuration = selectedOfferingSnapshot['duration'];
+
           // Cálculo do horário final (horário inicial + duração do serviço)
           DateTime endDateTime =
-          startDateTime.add(Duration(minutes: serviceDuration));
+              startDateTime.add(Duration(minutes: serviceDuration));
           // print("data e hora final: $endDateTime");
+
+          // redefinindo horário inicial do agendamento
+          startDateTime = startDateTime
+              .subtract(Duration(minutes: selectedServiceDuration - 1));
 
           // Criar mapa com os horários ocupados (start e end)
           Map<String, TimeOfDay> busyTime = {
@@ -388,6 +401,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           // Adicionar o mapa à lista de horários ocupados
           busyTimes.add(busyTime);
           // print("o retorno busyTimes: $busyTimes");
+        } else {
+          // não existe mais o serviço que foi agendado
         }
       }
     } catch (error) {
@@ -399,9 +414,11 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     return busyTimes;
   }
 
-  Future<List<TimeOfDay>> _getAvailableTimes(List<Map<String, TimeOfDay>> busyTimes) async {
+  Future<List<TimeOfDay>> _getAvailableTimes(
+      List<Map<String, TimeOfDay>> busyTimes) async {
     // 1. Obter a lista completa de horários disponíveis para o dia selecionado
-    List<TimeOfDay> availableTimes = await _startTimeToEndTimeList(_selectedDate!);
+    List<TimeOfDay> availableTimes =
+        await _startTimeToEndTimeList(_selectedDate!);
 
     // 2. Criar uma lista de intervalos ocupados com início e fim
     List<TimeOfDay> busyStartTimes = [];
@@ -467,11 +484,36 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         int startTimeInterval = data['startTimeInterval'];
         int endTimeInterval = data['endTimeInterval'];
 
+        // Consulta ao Firestore para obter os detalhes do serviço selecionado
+        DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
+            .instance
+            .collection('offering')
+            .doc(_selectedOfferingId!.id)
+            .get();
+
+        // Extrair a duração do serviço selecionado (em minutos)
+        int selectedServiceDuration = selectedOfferingSnapshot['duration'];
+
         TimeOfDay startTimeOfDay = minutesToTimeOfDay(startTime);
         TimeOfDay endTimeOfDay = minutesToTimeOfDay(endTime);
 
-        TimeOfDay startIntervalTimeOfDay = minutesToTimeOfDay(startTimeInterval);
+        TimeOfDay startIntervalTimeOfDay =
+            minutesToTimeOfDay(startTimeInterval);
         TimeOfDay endIntervalTimeOfDay = minutesToTimeOfDay(endTimeInterval);
+
+        DateTime now = DateTime.now();
+        DateTime dateTimeWithTimeOfDay = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          startIntervalTimeOfDay.hour,
+          startIntervalTimeOfDay.minute,
+        );
+
+        dateTimeWithTimeOfDay = dateTimeWithTimeOfDay
+            .subtract(Duration(minutes: selectedServiceDuration - 1));
+
+        startIntervalTimeOfDay = TimeOfDay.fromDateTime(dateTimeWithTimeOfDay);
 
         List<TimeOfDay> timeList = [];
         TimeOfDay currentTime = startTimeOfDay;
@@ -486,7 +528,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         // Filtrar os horários para remover os intervalos ocupados
         List<TimeOfDay> filteredTimes = [];
         for (var time in timeList) {
-          if (!_isTimeInInterval(time, startIntervalTimeOfDay, endIntervalTimeOfDay)) {
+          if (!_isTimeInInterval(
+              time, startIntervalTimeOfDay, endIntervalTimeOfDay)) {
             filteredTimes.add(time);
           }
         }
@@ -548,7 +591,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   }
 
   void _addAppointment() async {
-
     // if (_selectedTime != null && _selectedDate != null) {
     //   print("data selecionada: $_selectedDate");
     //   print("horário selecionado: $_selectedTime");
@@ -563,7 +605,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     //   print("a data e o horário são nulos");
     // }
     if (_formKey.currentState!.validate()) {
-
       if (_selectedTime != null && _selectedDate != null) {
         print("data selecionada: $_selectedDate");
         print("horário selecionado: $_selectedTime");
