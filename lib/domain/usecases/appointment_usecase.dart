@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/domain/entities/offering.dart';
 import '../../domain/entities/appointment.dart';
 
@@ -12,7 +11,9 @@ abstract class AppointmentUseCase {
 
   Future<void> removeAppointment(String appointment);
 
-  Future<List<Appointment>> getAppointmentsByCoworkerAndDate(Coworker coworker, DateTime date);
-
-  // Future<List<TimeOfDay>> getAvailableTimes(List<Appointment> appointments, Offering selectedOffering);
+Future<List<TimeOfDay>> getAvailableTimes(
+    List<Map<String, TimeOfDay>> busyTimes,
+    DateTime? selectedDate,
+    Offering? selectedOffering,
+  );
 }

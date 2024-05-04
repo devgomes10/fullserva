@@ -14,8 +14,8 @@ class OfferingPageView extends StatefulWidget {
 }
 
 class _OfferingPageViewState extends State<OfferingPageView> {
-  BusinessController _businessController = BusinessController();
-  OfferingController _serviceController = OfferingController();
+  final BusinessController _businessController = BusinessController();
+  final OfferingController _serviceController = OfferingController();
   final NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
 
   String _formatDuration(int duration) {

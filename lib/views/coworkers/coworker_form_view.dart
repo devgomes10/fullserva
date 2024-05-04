@@ -66,9 +66,12 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
             ? [
                 // excluding coworker when editing
                 IconButton(
-                  onPressed: () async {
-                    await _coworkerController.removeCoworker(coworkerModel.id);
-                    Navigator.pop(context);
+                  onPressed: () {
+                    _coworkerController
+                        .removeCoworker(coworkerModel.id)
+                        .then((value) {
+                      Navigator.pop(context);
+                    });
                   },
                   icon: const Icon(Icons.delete),
                 ),

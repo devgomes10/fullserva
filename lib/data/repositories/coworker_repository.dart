@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 
 class CoworkerRepository {
+  late String uidCoworker;
   late CollectionReference coworkerCollection;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   CoworkerRepository() {
-    coworkerCollection = db.collection("coworker");
+    uidCoworker = FirebaseAuth.instance.currentUser!.uid;
+    coworkerCollection = db.collection("coworker_$uidCoworker");
   }
 
   Future<void> addCoworker(Coworker coworker) async {

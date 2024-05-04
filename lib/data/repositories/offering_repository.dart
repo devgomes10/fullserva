@@ -3,13 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/offering.dart';
 
 class OfferingRepository {
-  // late String uidService;
+  late String uidOffering;
   late CollectionReference offeringCollection;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   OfferingRepository() {
-    // uidService = FirebaseAuth.instance.currentUser!.uid;
-    offeringCollection = FirebaseFirestore.instance.collection("offering");
+    uidOffering = FirebaseAuth.instance.currentUser!.uid;
+    offeringCollection = FirebaseFirestore.instance.collection("offering_$uidOffering");
   }
 
   Future<void> addOffering(Offering offering) async {

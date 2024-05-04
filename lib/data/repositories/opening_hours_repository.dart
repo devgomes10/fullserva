@@ -3,13 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fullserva/domain/entities/opening_hours.dart';
 
 class OpeningHoursRepository {
-  // late String uidWorkingDay;
+  late String uidOpeningHours;
   late CollectionReference openingHoursCollection;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   OpeningHoursRepository() {
-    // uidWorkingDay = FirebaseAuth.instance.currentUser!.uid;
-    openingHoursCollection = db.collection("opening_hours");
+    uidOpeningHours = FirebaseAuth.instance.currentUser!.uid;
+    openingHoursCollection = db.collection("opening_hours_$uidOpeningHours");
   }
 
   Future<void> updateOpeningHours(OpeningHours openingHours) async {

@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
+import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
-import 'package:fullserva/utils/formatting/minutes_to_time_of_day.dart';
 import 'package:fullserva/views/components/modals/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
@@ -20,6 +19,8 @@ class AppointmentFormView extends StatefulWidget {
 
 class _AppointmentFormViewState extends State<AppointmentFormView> {
   final AppointmentController _appointmentController = AppointmentController();
+  final AppointmentRepository _appointmentRepository = AppointmentRepository();
+
   final _formKey = GlobalKey<FormState>();
   final String _uniqueId = const Uuid().v4();
 
@@ -223,14 +224,21 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         lastDate: DateTime.now().add(const Duration(days: 365)),
         selectableDayPredicate: (DateTime date) {
           // checking vacation coworker
-          // if (_selectedCoworkerId!.startUnavailable != null &&
-          //     _selectedCoworkerId!.endUnavailable != null) {
-          //   return !date.isAfter(_selectedCoworkerId!.endUnavailable!) &&
-          //       !date.isBefore(_selectedCoworkerId!.startUnavailable!);
-          // }
+          if (_selectedCoworkerId!.startUnavailable != null &&
+              _selectedCoworkerId!.endUnavailable != null) {
+            // Verifica se a data está dentro do intervalo de indisponibilidade
+            if (date.isAfter(_selectedCoworkerId!.startUnavailable!.subtract(const Duration(days: 1))) &&
+                date.isBefore(_selectedCoworkerId!.endUnavailable!)) {
+              return false; // Dia indisponível
+            } else {
+              return true; // Dia disponível
+            }
+          }
+          // Se não houver intervalo de indisponibilidade definido, todos os dias são selecionáveis
           return true;
         },
       );
+
 
       if (selectedDate != null) {
         setState(() {
@@ -252,20 +260,24 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
     try {
       List<Appointment> appointments =
-          await _getAppointmentsByCoworkerAndDate();
+          await _appointmentRepository.getAppointmentsByCoworkerAndDate(
+        _selectedCoworkerId,
+        _selectedDate,
+      );
+
       List<Map<String, TimeOfDay>> busyTimes =
-          await _calculateBusyTimes(appointments);
+          await _appointmentRepository.calculateBusyTimes(
+        appointments,
+        _selectedOfferingId,
+      );
 
-      // if (busyTimes.isEmpty) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(
-      //       content: Text("Não há horários ocupados para esta data"),
-      //     ),
-      //   );
-      //   return;
-      // }
+      List<TimeOfDay> availableTimes =
+          await _appointmentRepository.getAvailableTimes(
+        busyTimes,
+        _selectedDate,
+        _selectedOfferingId,
+      );
 
-      List<TimeOfDay> availableTimes = await _getAvailableTimes(busyTimes);
       _displayAvailableTimesModal(availableTimes);
     } catch (error) {
       print("Erro ao mostrar os horários disponíveis: $error");
@@ -274,273 +286,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           content: Text("Erro ao carregar os horários disponíveis"),
         ),
       );
-    }
-  }
-
-  Future<List<Appointment>> _getAppointmentsByCoworkerAndDate() async {
-    try {
-      // print(_selectedCoworkerId!.id);
-      // print(
-      //     "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}");
-
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("appointment")
-          .where("coworkerId", isEqualTo: _selectedCoworkerId!.id)
-          .where("dateTime",
-              isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
-                  _selectedDate!.year,
-                  _selectedDate!.month,
-                  _selectedDate!.day,
-                  0,
-                  0,
-                  0)))
-          .where("dateTime",
-              isLessThanOrEqualTo: Timestamp.fromDate(DateTime(
-                  _selectedDate!.year,
-                  _selectedDate!.month,
-                  _selectedDate!.day,
-                  23,
-                  59,
-                  59)))
-          .get();
-
-      // if (querySnapshot.docs.isNotEmpty) {
-      //   for (var doc in querySnapshot.docs) {
-      //     print("Data e hora: ${doc.exists}");
-      //     print("Agendamento ID: ${doc.id}");
-      //     print("Nome do cliente: ${doc.data()}");
-      //     print("Data e hora: ${doc.get("dateTime")}");
-      //   }
-      // } else {
-      //   print("nenhum resultado do filtro");
-      // }
-
-      List<Appointment> appointments = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Appointment(
-          id: data['id'],
-          clientName: data['clientName'],
-          coworkerId: data['coworkerId'],
-          clientPhone: data['clientPhone'],
-          offeringId: data['offeringId'],
-          dateTime: (data['dateTime'] as Timestamp).toDate(),
-          observations: data['observations'],
-        );
-      }).toList();
-
-      // if (appointments.isNotEmpty) {
-      //   for (var appointment in appointments) {
-      //     print("Agendamento ID: ${appointment.id}");
-      //     print("Nome do cliente: ${appointment.clientName}");
-      //     print("Data e hora: ${appointment.dateTime}");
-      //   }
-      // } else {
-      //   print(
-      //       "Nenhum agendamento encontrado para o colaborador e data selecionados.");
-      // }
-
-      return appointments;
-    } catch (error) {
-      print("Erro ao buscar os agendamentos: $error");
-      rethrow;
-    }
-  }
-
-  Future<List<Map<String, TimeOfDay>>> _calculateBusyTimes(
-      List<Appointment> appointments) async {
-    List<Map<String, TimeOfDay>> busyTimes = [];
-
-    try {
-      for (var appointment in appointments) {
-        // Obtenção do horário inicial do agendamento
-        DateTime startDateTime = appointment.dateTime;
-        // print("data e hora inicial: $startDateTime");
-
-        // Obtenção do ID do serviço associado ao agendamento
-        String offeringIdOfAppointment = appointment.offeringId;
-        // print("id do serviço: $offeringIdOfAppointment");
-
-        // Consulta ao Firestore para obter os detalhes do serviço
-        DocumentSnapshot offeringSnapshot = await FirebaseFirestore.instance
-            .collection('offering')
-            .doc(offeringIdOfAppointment)
-            .get();
-        // print("consulta do serviço: $offeringSnapshot");
-
-        if (offeringSnapshot.exists) {
-          // Extrair a duração do serviço (em minutos) do documento obtido
-          int serviceDuration = offeringSnapshot['duration'];
-          // print("duração do serviço: $serviceDuration");
-
-          // Consulta ao Firestore para obter os detalhes do serviço selecionado
-          DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
-              .instance
-              .collection('offering')
-              .doc(_selectedOfferingId!.id)
-              .get();
-
-          // Extrair a duração do serviço selecionado (em minutos)
-          int selectedServiceDuration = selectedOfferingSnapshot['duration'];
-
-          // Cálculo do horário final (horário inicial + duração do serviço)
-          DateTime endDateTime =
-              startDateTime.add(Duration(minutes: serviceDuration));
-          // print("data e hora final: $endDateTime");
-
-          // redefinindo horário inicial do agendamento
-          startDateTime = startDateTime
-              .subtract(Duration(minutes: selectedServiceDuration - 1));
-
-          // Criar mapa com os horários ocupados (start e end)
-          Map<String, TimeOfDay> busyTime = {
-            'start': TimeOfDay.fromDateTime(startDateTime),
-            'end': TimeOfDay.fromDateTime(endDateTime),
-          };
-          // print("busyTime: $endDateTime");
-
-          // Adicionar o mapa à lista de horários ocupados
-          busyTimes.add(busyTime);
-          // print("o retorno busyTimes: $busyTimes");
-        } else {
-          // não existe mais o serviço que foi agendado
-        }
-      }
-    } catch (error) {
-      print("Erro ao calcular horários ocupados: $error");
-      return [];
-    }
-
-    // Retornar a lista de horários ocupados calculados
-    return busyTimes;
-  }
-
-  Future<List<TimeOfDay>> _getAvailableTimes(
-      List<Map<String, TimeOfDay>> busyTimes) async {
-    // 1. Obter a lista completa de horários disponíveis para o dia selecionado
-    List<TimeOfDay> availableTimes =
-        await _startTimeToEndTimeList(_selectedDate!);
-
-    // 2. Criar uma lista de intervalos ocupados com início e fim
-    List<TimeOfDay> busyStartTimes = [];
-    List<TimeOfDay> busyEndTimes = [];
-
-    for (var busyTime in busyTimes) {
-      busyStartTimes.add(busyTime['start']!);
-      busyEndTimes.add(busyTime['end']!);
-    }
-
-    // 3. Filtrar os horários disponíveis removendo os intervalos ocupados
-    List<TimeOfDay> filteredTimes = [];
-
-    for (var time in availableTimes) {
-      bool isAvailable = true;
-
-      // Verificar se o horário atual está dentro de qualquer intervalo ocupado
-      for (int i = 0; i < busyStartTimes.length; i++) {
-        if (_isTimeInInterval(time, busyStartTimes[i], busyEndTimes[i])) {
-          isAvailable = false;
-          break;
-        }
-      }
-
-      // Se o horário estiver disponível, adicionar à lista filtrada
-      if (isAvailable) {
-        filteredTimes.add(time);
-      }
-    }
-
-    // 4. Retornar a lista de horários disponíveis após a filtragem
-    return filteredTimes;
-  }
-
-  bool _isTimeInInterval(TimeOfDay time, TimeOfDay start, TimeOfDay end) {
-    if (time.hour > start.hour && time.hour < end.hour) {
-      return true; // O horário está dentro do intervalo
-    } else if (time.hour == start.hour && time.minute >= start.minute) {
-      return true; // O horário é igual ou depois do horário de início
-    } else if (time.hour == end.hour && time.minute < end.minute) {
-      return true; // O horário é igual ou antes do horário de término
-    }
-    return false; // O horário está fora do intervalo ocupado
-  }
-
-  Future<List<TimeOfDay>> _startTimeToEndTimeList(DateTime dateTime) async {
-    final int weekday = dateTime.weekday;
-    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-        .instance
-        .collection("opening_hours")
-        .doc("$weekday")
-        .get();
-
-    if (snapshot.exists) {
-      Map<String, dynamic> data = snapshot.data()!;
-      bool isWorking = data['working'] ?? false;
-
-      if (isWorking) {
-        int startTime = data['startTime'];
-        int endTime = data['endTime'];
-
-        // pegando o horário de intervalo do dia
-        int startTimeInterval = data['startTimeInterval'];
-        int endTimeInterval = data['endTimeInterval'];
-
-        // Consulta ao Firestore para obter os detalhes do serviço selecionado
-        DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
-            .instance
-            .collection('offering')
-            .doc(_selectedOfferingId!.id)
-            .get();
-
-        // Extrair a duração do serviço selecionado (em minutos)
-        int selectedServiceDuration = selectedOfferingSnapshot['duration'];
-
-        TimeOfDay startTimeOfDay = minutesToTimeOfDay(startTime);
-        TimeOfDay endTimeOfDay = minutesToTimeOfDay(endTime);
-
-        TimeOfDay startIntervalTimeOfDay =
-            minutesToTimeOfDay(startTimeInterval);
-        TimeOfDay endIntervalTimeOfDay = minutesToTimeOfDay(endTimeInterval);
-
-        DateTime now = DateTime.now();
-        DateTime dateTimeWithTimeOfDay = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          startIntervalTimeOfDay.hour,
-          startIntervalTimeOfDay.minute,
-        );
-
-        dateTimeWithTimeOfDay = dateTimeWithTimeOfDay
-            .subtract(Duration(minutes: selectedServiceDuration - 1));
-
-        startIntervalTimeOfDay = TimeOfDay.fromDateTime(dateTimeWithTimeOfDay);
-
-        List<TimeOfDay> timeList = [];
-        TimeOfDay currentTime = startTimeOfDay;
-
-        while (currentTime != endTimeOfDay) {
-          timeList.add(currentTime);
-          int minutes = currentTime.hour * 60 + currentTime.minute + 15;
-          currentTime = minutesToTimeOfDay(minutes);
-        }
-        timeList.add(endTimeOfDay);
-
-        // Filtrar os horários para remover os intervalos ocupados
-        List<TimeOfDay> filteredTimes = [];
-        for (var time in timeList) {
-          if (!_isTimeInInterval(
-              time, startIntervalTimeOfDay, endIntervalTimeOfDay)) {
-            filteredTimes.add(time);
-          }
-        }
-
-        return filteredTimes;
-      } else {
-        // se for um dia que não trabalha
-        return [];
-      }
-    } else {
-      return [];
     }
   }
 
@@ -591,19 +336,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
   }
 
   void _addAppointment() async {
-    // if (_selectedTime != null && _selectedDate != null) {
-    //   print("data selecionada: $_selectedDate");
-    //   print("horário selecionado: $_selectedTime");
-    //   print("${DateTime(
-    //     _selectedDate!.day,
-    //     _selectedDate!.month,
-    //     _selectedDate!.year,
-    //     _selectedTime!.hour,
-    //     _selectedTime!.minute,
-    //   )}");
-    // } else {
-    //   print("a data e o horário são nulos");
-    // }
     if (_formKey.currentState!.validate()) {
       if (_selectedTime != null && _selectedDate != null) {
         print("data selecionada: $_selectedDate");

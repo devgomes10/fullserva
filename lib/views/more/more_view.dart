@@ -1,11 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fullserva/views/components/show_confirmation_password.dart';
+import '../../data/authentication/auth_service.dart';
 import 'account/account_view.dart';
 import 'business/business_form_view.dart';
 import 'opening_hours/opening_hours_view.dart';
 
 class MoreView extends StatefulWidget {
-  const MoreView({super.key});
+  final User user;
+
+  const MoreView({super.key, required this.user});
 
   @override
   State<MoreView> createState() => _MoreViewState();
@@ -21,6 +25,10 @@ class _MoreViewState extends State<MoreView> {
         ),
         body: Column(
           children: [
+            Text(widget.user.email!),
+            Text((widget.user.displayName != null)
+                ? widget.user.displayName!
+                : ""),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -61,8 +69,16 @@ class _MoreViewState extends State<MoreView> {
               child: const Text("Premium"),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                AuthService().logOut();
+              },
               child: const Text("Sair"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showConfirmationPassword(context: context, email: "");
+              },
+              child: const Text("Remover conta"),
             ),
           ],
         ),

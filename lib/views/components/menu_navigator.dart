@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/views/appointments/appointment_view.dart';
 import 'package:fullserva/views/coworkers/coworker_view.dart';
@@ -5,14 +6,16 @@ import 'package:fullserva/views/dash/dashboard_view.dart';
 import 'package:fullserva/views/more/more_view.dart';
 import 'package:fullserva/views/offerings/offering_view.dart';
 
-class MenuNavigator extends StatefulWidget {
-  const MenuNavigator({super.key});
+class MenuNavigation extends StatefulWidget {
+  final User user;
+
+  const MenuNavigation({super.key, required this.user});
 
   @override
-  State<MenuNavigator> createState() => _MenuNavigatorState();
+  State<MenuNavigation> createState() => _MenuNavigationState();
 }
 
-class _MenuNavigatorState extends State<MenuNavigator> {
+class _MenuNavigationState extends State<MenuNavigation> {
   int currentPageIndex = 0;
 
   @override
@@ -49,12 +52,12 @@ class _MenuNavigatorState extends State<MenuNavigator> {
           });
         },
       ),
-      body: const [
+      body: [
         AppointmentView(),
         OfferingView(),
         CoworkerView(),
         DashboardView(),
-        MoreView(),
+        MoreView(user: widget.user,),
       ] [currentPageIndex],
     );
   }
