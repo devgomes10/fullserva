@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fullserva/data/repositories/offering_repository.dart';
+import 'package:fullserva/data/repositories/opening_hours_repository.dart';
 import '../../domain/entities/appointment.dart';
 import '../../domain/entities/coworker.dart';
 import '../../domain/entities/offering.dart';
@@ -120,7 +122,7 @@ class AppointmentRepository {
 
         // Consulta ao Firestore para obter os detalhes do serviço
         DocumentSnapshot offeringSnapshot = await FirebaseFirestore.instance
-            .collection('offering')
+            .collection('offering_${OfferingRepository().uidOffering}')
             .doc(offeringIdOfAppointment)
             .get();
         // print("consulta do serviço: $offeringSnapshot");
@@ -133,7 +135,7 @@ class AppointmentRepository {
           // Consulta ao Firestore para obter os detalhes do serviço selecionado
           DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
               .instance
-              .collection('offering')
+              .collection('offering_${OfferingRepository().uidOffering}')
               .doc(selectedOffering!.id)
               .get();
 
@@ -179,7 +181,7 @@ class AppointmentRepository {
     final int weekday = dateTime.weekday;
     DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
         .instance
-        .collection("opening_hours")
+        .collection("opening_hours_${OpeningHoursRepository().uidOpeningHours}")
         .doc("$weekday")
         .get();
 
@@ -198,7 +200,7 @@ class AppointmentRepository {
         // Consulta ao Firestore para obter os detalhes do serviço selecionado
         DocumentSnapshot selectedOfferingSnapshot = await FirebaseFirestore
             .instance
-            .collection('offering')
+            .collection('offering_${OfferingRepository().uidOffering}')
             .doc(selectedOffering!.id)
             .get();
 

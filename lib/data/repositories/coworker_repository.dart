@@ -61,4 +61,31 @@ class CoworkerRepository {
       // tratar em caso de erro
     }
   }
+
+  Stream<List<Coworker>> getCoworkerByOfferingId(String offeringId) {
+    return coworkerCollection
+        .where('offeringIds', arrayContains: offeringId)
+        .snapshots()
+        .map(
+          (snapshot) {
+        return snapshot.docs.map(
+              (doc) {
+            List<String> offeringIds =
+            List<String>.from(doc["offeringIds"] ?? []);
+            return Coworker(
+              id: doc["id"],
+              name: doc["name"],
+              email: doc["email"],
+              password: doc["password"],
+              phone: doc["phone"],
+              startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
+              endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
+              role: doc["role"],
+              offeringIds: offeringIds,
+            );
+          },
+        ).toList();
+      },
+    );
+  }
 }

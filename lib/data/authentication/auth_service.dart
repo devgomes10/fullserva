@@ -38,6 +38,7 @@ class AuthService {
       );
 
       await userCredential.user!.updateDisplayName(name);
+
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "email-already-in-use":

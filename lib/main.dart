@@ -20,9 +20,9 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool daysInitialized = prefs.getBool('days_initialized') ?? false;
   if (!daysInitialized) {
-    // Se os dias ainda não foram inicializados, então inicialize-os
+  //   // Se os dias ainda não foram inicializados, então inicialize-os
     await OpeningHoursController().setupInitialOpeningHours();
-    // Marca a flag indicando que os dias já foram inicializados
+  //   // Marca a flag indicando que os dias já foram inicializados
     await prefs.setBool('days_initialized', true);
   }
 

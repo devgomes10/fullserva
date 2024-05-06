@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
+import 'package:fullserva/data/repositories/offering_repository.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/views/appointments/appointment_form_view.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +24,7 @@ class _AppointmentViewState extends State<AppointmentView> {
   late DateTime today;
   CalendarFormat calendarFormat = CalendarFormat.month;
   String locale = 'pt-BR';
-  Coworker? _coworker;
+  Coworker? _selectedCoworker;
   late StreamSubscription<List<Appointment>> _subscription;
 
   String capitalizeFirstLetter(String text) {
@@ -122,59 +123,61 @@ class _AppointmentViewState extends State<AppointmentView> {
                   ),
                 );
                 if (coworker != null) {
-                  _coworker = coworker as Coworker;
+                  setState(() {
+                    _selectedCoworker = coworker as Coworker;
+                  });
                 }
               },
               style: ElevatedButton.styleFrom(),
-              child: Text(_coworker?.name ?? "Filtre por um colaborador"),
+              child: Text(_selectedCoworker?.name ?? "Filtre por um colaborador"),
             ),
             const SizedBox(
               height: 14,
             ),
+            // Dentro do método build()
             Expanded(
-              child: // Em AppointmentView
-                  StreamBuilder<List<Appointment>>(
+              child: StreamBuilder<List<Appointment>>(
                 stream: _appointmentController.getAppointments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Erro ao carregar os dados'),
-                    );
+                    return Center(child: Text('Erro ao carregar os dados'));
                   }
                   final appointments = snapshot.data;
                   if (appointments == null || appointments.isEmpty) {
-                    return const Center(
-                      child: Text("Nenhum dado disponível"),
-                    );
+                    return Center(child: Text("Nenhum dado disponível"));
                   }
 
-                  final appointmentsForDay = appointments
-                      .where((appointment) =>
-                          appointment.dateTime.year == today.year &&
-                          appointment.dateTime.month == today.month &&
-                          appointment.dateTime.day == today.day)
-                      .toList();
+                  // Filtrar os agendamentos para o dia selecionado
+                  var appointmentsForDay = appointments.where((appointment) =>
+                  appointment.dateTime.year == today.year &&
+                      appointment.dateTime.month == today.month &&
+                      appointment.dateTime.day == today.day).toList();
+
+                  // Aplicar filtro por colaborador selecionado, se houver
+                  if (_selectedCoworker != null) {
+                    appointmentsForDay = appointmentsForDay.where((appointment) =>
+                    appointment.coworkerId == _selectedCoworker!.id).toList();
+                  }
 
                   return ListView.separated(
-                    separatorBuilder: (_, __) => const Divider(),
+                    separatorBuilder: (_, __) => Divider(),
                     itemCount: appointmentsForDay.length,
                     itemBuilder: (context, index) {
                       final appointment = appointmentsForDay[index];
                       return FutureBuilder(
                         future: FirebaseFirestore.instance
-                            .collection("offering")
+                            .collection("offering_${OfferingRepository().uidOffering}")
                             .doc(appointment.offeringId)
                             .get(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
                           }
                           if (snapshot.hasError) {
-                            return const Text('Erro ao carregar o serviço');
+                            return Text('Erro ao carregar o serviço');
                           }
                           final serviceName = snapshot.data?['name'];
                           return ListTile(
@@ -182,11 +185,11 @@ class _AppointmentViewState extends State<AppointmentView> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text(serviceName),
+                                  title: Text(serviceName ?? 'Serviço não encontrado'),
                                   content: Text(
                                     "Cliente: ${appointment.clientName}\n"
-                                        "data: ${appointment.dateTime.day}/${appointment.dateTime.month}/${appointment.dateTime.year}\n"
-                                        "horário: ${appointment.dateTime.hour}:${appointment.dateTime.minute}",
+                                        "Data: ${appointment.dateTime.day}/${appointment.dateTime.month}/${appointment.dateTime.year}\n"
+                                        "Horário: ${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                                   ),
                                   actions: [
                                     TextButton(
@@ -197,8 +200,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        _appointmentController
-                                            .removeAppointment(appointment.id);
+                                        _appointmentController.removeAppointment(appointment.id);
                                         Navigator.pop(context);
                                       },
                                       child: const Text("Desmarcar"),
@@ -210,8 +212,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                             leading: Text(
                               "${appointment.dateTime.hour}:${appointment.dateTime.minute}",
                             ),
-                            title:
-                                Text(serviceName ?? 'Serviço não encontrado'),
+                            title: Text(serviceName ?? 'Serviço não encontrado'),
                             subtitle: Text(appointment.clientName),
                             trailing: const Icon(Icons.arrow_forward_ios),
                           );
@@ -222,6 +223,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                 },
               ),
             ),
+
           ],
         ),
       ),

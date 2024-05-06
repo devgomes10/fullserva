@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:fullserva/controllers/coworker_controller.dart';
+import 'package:fullserva/data/repositories/coworker_repository.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 
-CoworkerController _coworkerController = CoworkerController();
+CoworkerRepository _coworkerRepository = CoworkerRepository();
 
 Widget modalCoworkers({
   required BuildContext context,
   String? offeringId,
 }) {
   return StreamBuilder<List<Coworker>>(
-    stream: _coworkerController.getCoworkerByOfferingId(offeringId!),
+    stream: offeringId != null
+        ? _coworkerRepository.getCoworkerByOfferingId(offeringId)
+        : _coworkerRepository.getCoworkers(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator());
       }
       if (snapshot.hasError) {
-        return  Center(
+        return Center(
           // Adicionar uma imagem
           child: Text('Erro ao carregar os dados: ${snapshot.error}'),
         );
       }
       final coworkers = (snapshot.data as List<dynamic>).cast<Coworker>();
-      if (coworkers == null || coworkers.isEmpty) {
+      if (coworkers.isEmpty) {
         // Adicionar uma imagem
-        return const Center(
-          child: Text('Nenhum dado disponível'),
+        return Center(
+          child: Text('Nenhum dado disponível: ${snapshot.hasData}'),
         );
       }
       return ListView.separated(

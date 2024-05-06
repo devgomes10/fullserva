@@ -4,6 +4,7 @@ import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
+import 'package:fullserva/utils/formatting/format_time_of_day.dart';
 import 'package:fullserva/views/components/modals/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
@@ -323,7 +324,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                          "${availableTimes[index].hour}:${availableTimes[index].minute}"),
+                          formatTimeOfDay(availableTimes[index])),
                     );
                   },
                 ),
