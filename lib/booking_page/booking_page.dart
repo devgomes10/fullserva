@@ -9,16 +9,16 @@ import 'package:fullserva/views/components/modals/modal_offerings.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/offering.dart';
-import '../components/modals/modal_coworkers.dart';
+import '../views/components/modals/modal_coworkers.dart';
 
-class AppointmentFormView extends StatefulWidget {
-  const AppointmentFormView({Key? key}) : super(key: key);
+class BookingPage extends StatefulWidget {
+  const BookingPage({Key? key}) : super(key: key);
 
   @override
-  State<AppointmentFormView> createState() => _AppointmentFormViewState();
+  State<BookingPage> createState() => _BookingPageState();
 }
 
-class _AppointmentFormViewState extends State<AppointmentFormView> {
+class _BookingPageState extends State<BookingPage> {
   final AppointmentController _appointmentController = AppointmentController();
   final AppointmentRepository _appointmentRepository = AppointmentRepository();
 
@@ -30,7 +30,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
   final _clientNameController = TextEditingController();
   final _clientPhoneController = TextEditingController();
-  final _observationsController = TextEditingController();
 
   Offering? _selectedOfferingId;
   Coworker? _selectedCoworkerId;
@@ -94,13 +93,6 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
                   ),
                   const SizedBox(height: 26),
                   _buildDateAndTimeButtons(),
-                  const SizedBox(height: 26),
-                  _buildTextFormField(
-                    label: 'Observações',
-                    controller: _observationsController,
-                    keyboardType: TextInputType.multiline,
-                    maxLength: 100,
-                  ),
                   const SizedBox(height: 42),
                   _buildElevatedButton(
                     label: 'ADICIONAR',
@@ -370,7 +362,7 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
           _selectedTime!.hour,
           _selectedTime!.minute,
         ),
-        observations: _observationsController.text,
+        observations: null,
       );
       await _appointmentController.addAppointment(appointment);
       Navigator.pop(context, true);
