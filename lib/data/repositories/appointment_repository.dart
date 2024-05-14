@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fullserva/data/repositories/offering_repository.dart';
 import 'package:fullserva/data/repositories/opening_hours_repository.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import '../../domain/entities/appointment.dart';
 import '../../domain/entities/coworker.dart';
 import '../../domain/entities/offering.dart';
@@ -297,5 +299,25 @@ class AppointmentRepository {
 
     // 4. Retornar a lista de horários disponíveis após a filtragem
     return filteredTimes;
+  }
+
+  Future<void> sendEmail() async {
+    final email = "viniciusgomesccc10@gmail.com";
+
+    final smtpServer = gmailSaslXoauth2(email, accessToken);
+    final message = Message()
+    ..from = Address(email, "Vinicius")
+    .. recipients = ["geoovanarodriguess224@gmail.com"]
+    ..subject = "Hello Gi"
+    ..text = "This is a test emial";
+
+    try {
+      await send(message, smtpServer);
+
+      SnackBar(content: Text("Email enviado com sucesso"));
+    } on MailerException catch (e) {
+      print(e);
+    }
+
   }
 }

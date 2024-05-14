@@ -41,7 +41,7 @@ class Fullserva extends StatelessWidget {
       title: 'Flutter Demo',
       themeMode: ThemeMode.light,
       theme: themeLight,
-      home: BookingPage(),
+      home: const RouterViews(),
     );
   }
 }

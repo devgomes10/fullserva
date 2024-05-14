@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "appointment_kPWyI9v4njVvE0fsv6m7eNFH7Zi1",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "coworkerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateTime",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
