@@ -80,7 +80,6 @@ class _OfferingPageViewState extends State<OfferingPageView> {
             }
             return ListView.separated(
               itemBuilder: (BuildContext context, int i) {
-                Offering model = services[i];
                 return ListTile(
                   onTap: () {},
                   title: Text(

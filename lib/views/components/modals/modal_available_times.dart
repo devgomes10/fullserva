@@ -48,5 +48,5 @@ Future modalAvailableTimes ({
         ),
       );
     },
-  );;
+  );
 }

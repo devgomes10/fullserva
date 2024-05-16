@@ -180,7 +180,7 @@ class _CoworkerFormViewState extends State<CoworkerFormView> {
                       });
                     }
                   },
-                  child: Text("${selectedDates ?? "Selecione os dias"}"),
+                  child: Text("$selectedDates"),
                 ),
                 const SizedBox(height: 26),
                 const Text(

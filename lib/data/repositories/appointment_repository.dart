@@ -301,23 +301,22 @@ class AppointmentRepository {
     return filteredTimes;
   }
 
-  Future<void> sendEmail() async {
-    final email = "viniciusgomesccc10@gmail.com";
-
-    final smtpServer = gmailSaslXoauth2(email, accessToken);
-    final message = Message()
-    ..from = Address(email, "Vinicius")
-    .. recipients = ["geoovanarodriguess224@gmail.com"]
-    ..subject = "Hello Gi"
-    ..text = "This is a test emial";
-
-    try {
-      await send(message, smtpServer);
-
-      SnackBar(content: Text("Email enviado com sucesso"));
-    } on MailerException catch (e) {
-      print(e);
-    }
-
-  }
+  // Future<void> sendEmail() async {
+  //   final email = "viniciusgomesccc10@gmail.com";
+  //
+  //   final smtpServer = gmailSaslXoauth2(email, accessToken);
+  //   final message = Message()
+  //   ..from = Address(email, "Vinicius")
+  //   .. recipients = ["geoovanarodriguess224@gmail.com"]
+  //   ..subject = "Hello Gi"
+  //   ..text = "This is a test emial";
+  //
+  //   try {
+  //     await send(message, smtpServer);
+  //
+  //     SnackBar(content: Text("Email enviado com sucesso"));
+  //   } on MailerException catch (e) {
+  //     print(e);
+  //   }
+  // }
 }

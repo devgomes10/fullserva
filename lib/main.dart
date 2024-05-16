@@ -1,12 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:fullserva/booking_page/booking_page.dart';
 import 'package:fullserva/utils/themes/theme_light.dart';
 import 'package:fullserva/views/authentication/auth_view.dart';
 import 'package:fullserva/views/components/menu_navigator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'controllers/opening_hours_controller.dart';
 import 'data/firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
