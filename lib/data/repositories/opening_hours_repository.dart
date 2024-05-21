@@ -23,27 +23,100 @@ class OpeningHoursRepository {
         "endTimeInterval": openingHours.endTimeInterval,
       });
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
   Stream<List<OpeningHours>> getOpeningHours() {
-    return openingHoursCollection.snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map(
-          (doc) {
-            return OpeningHours(
-              id: doc["id"],
-              working: doc["working"],
-              startTime: doc["startTime"],
-              endTime: doc["endTime"],
-              startTimeInterval: doc["startTimeInterval"],
-              endTimeInterval: doc["endTimeInterval"],
-            );
-          },
-        ).toList();
-      },
-    );
+    try {
+      return openingHoursCollection.snapshots().map(
+        (snapshot) {
+          return snapshot.docs.map(
+            (doc) {
+              return OpeningHours(
+                id: doc["id"],
+                working: doc["working"],
+                startTime: doc["startTime"],
+                endTime: doc["endTime"],
+                startTimeInterval: doc["startTimeInterval"],
+                endTimeInterval: doc["endTimeInterval"],
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> setupInitialOpeningHours() async {
+    // Cria uma lista de dias da semana
+    final openingHours = [
+      OpeningHours(
+        id: DateTime.monday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.tuesday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.wednesday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.thursday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.friday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.saturday,
+        working: false,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+      OpeningHours(
+        id: DateTime.sunday,
+        working: true,
+        startTime: 480,
+        endTime: 960,
+        startTimeInterval: 720,
+        endTimeInterval: 780,
+      ),
+    ];
+
+    try {
+      for (var day in openingHours) {
+        await openingHoursCollection.doc(day.id.toString()).set(day.toMap());
+      }
+    } catch (error) {
+      rethrow;
+    }
   }
 }

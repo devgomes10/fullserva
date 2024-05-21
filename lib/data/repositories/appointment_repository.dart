@@ -25,29 +25,32 @@ class AppointmentRepository {
     try {
       await appointmentCollection.doc(appointment.id).set(appointment.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
   Stream<List<Appointment>> getAppointments() {
-    return appointmentCollection.snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map(
-          (doc) {
-            return Appointment(
-              id: doc["id"],
-              clientName: doc["clientName"],
-              coworkerId: doc["coworkerId"],
-              clientPhone: doc["clientPhone"],
-              offeringId: doc["offeringId"],
-              dateTime: (doc["dateTime"] as Timestamp).toDate(),
-              observations: doc["observations"],
-            );
-          },
-        ).toList();
-      },
-    );
+    try {
+      return appointmentCollection.snapshots().map(
+            (snapshot) {
+          return snapshot.docs.map(
+                (doc) {
+              return Appointment(
+                id: doc["id"],
+                clientName: doc["clientName"],
+                coworkerId: doc["coworkerId"],
+                clientPhone: doc["clientPhone"],
+                offeringId: doc["offeringId"],
+                dateTime: (doc["dateTime"] as Timestamp).toDate(),
+                observations: doc["observations"],
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
   }
 
   Future<void> updateAppointment(Appointment appointment) async {
@@ -56,8 +59,7 @@ class AppointmentRepository {
           .doc(appointment.id)
           .update(appointment.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
@@ -65,8 +67,7 @@ class AppointmentRepository {
     try {
       await appointmentCollection.doc(appointment).delete();
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
@@ -101,7 +102,6 @@ class AppointmentRepository {
 
       return appointments;
     } catch (error) {
-      print("Erro ao buscar os agendamentos: $error");
       rethrow;
     }
   }
@@ -168,7 +168,6 @@ class AppointmentRepository {
         }
       }
     } catch (error) {
-      print("Erro ao calcular horários ocupados: $error");
       return [];
     }
 

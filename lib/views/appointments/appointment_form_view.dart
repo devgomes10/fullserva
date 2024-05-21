@@ -287,10 +287,12 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
 
       _displayAvailableTimesModal(availableTimes);
     } catch (error) {
-      print("Erro ao mostrar os horários disponíveis: $error");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Erro ao carregar os horários disponíveis"),
+      Center(
+        child: Column(
+          children: [
+            Image.asset("assets/error.jpeg"),
+            const Text("Erro ao mostrar horários disponíveis")
+          ],
         ),
       );
     }

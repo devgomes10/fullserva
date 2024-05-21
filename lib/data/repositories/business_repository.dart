@@ -5,7 +5,7 @@ import '../../domain/entities/business.dart';
 class BusinessRepository {
   // late String uidBusiness;
   late CollectionReference businessCollection;
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   BusinessRepository() {
     // uidBusiness = FirebaseAuth.instance.currentUser!.uid;
@@ -16,16 +16,15 @@ class BusinessRepository {
     try {
       await businessCollection.doc(business.id).update(business.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // Tratar em caso de erro
+      rethrow;
     }
   }
 
   Stream<List<Business>> getBusiness() {
     return businessCollection.snapshots().map(
-      (snapshot) {
+          (snapshot) {
         return snapshot.docs.map(
-          (doc) {
+              (doc) {
             return Business(
               id: doc["id"],
               name: doc["name"],

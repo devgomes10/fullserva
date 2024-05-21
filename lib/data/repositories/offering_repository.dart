@@ -9,41 +9,44 @@ class OfferingRepository {
 
   OfferingRepository() {
     uidOffering = FirebaseAuth.instance.currentUser!.uid;
-    offeringCollection = FirebaseFirestore.instance.collection("offering_$uidOffering");
+    offeringCollection =
+        FirebaseFirestore.instance.collection("offering_$uidOffering");
   }
 
   Future<void> addOffering(Offering offering) async {
     try {
       await offeringCollection.doc(offering.id).set(offering.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // Tratar em caso de erro
+      rethrow;
     }
   }
 
   Stream<List<Offering>> getOffering() {
-    return offeringCollection.snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map(
-          (doc) {
-            return Offering(
-              id: doc["id"],
-              name: doc["name"],
-              duration: doc["duration"],
-              price: doc["price"],
-            );
-          },
-        ).toList();
-      },
-    );
+    try {
+      return offeringCollection.snapshots().map(
+        (snapshot) {
+          return snapshot.docs.map(
+            (doc) {
+              return Offering(
+                id: doc["id"],
+                name: doc["name"],
+                duration: doc["duration"],
+                price: doc["price"],
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
   }
 
   Future<void> updateOffering(Offering offering) async {
     try {
       await offeringCollection.doc(offering.id).update(offering.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // Tratar em caso de erro
+      rethrow;
     }
   }
 
@@ -51,8 +54,7 @@ class OfferingRepository {
     try {
       await offeringCollection.doc(offering).delete();
     } catch (error) {
-      print("Erro: $error");
-      // Tratar em caso de erro
+      rethrow;
     }
   }
 }

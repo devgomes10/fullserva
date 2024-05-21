@@ -28,6 +28,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   mailer: ^6.1.0
+  firebase_storage: ^11.7.5
+  image_picker: ^1.1.1
 
 dev_dependencies:
   flutter_test:

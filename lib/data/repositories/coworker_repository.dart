@@ -16,40 +16,43 @@ class CoworkerRepository {
     try {
       await coworkerCollection.doc(coworker.id).set(coworker.toMap());
     } catch (error) {
-      print("Erro: $error");
+      rethrow;
     }
   }
 
   Stream<List<Coworker>> getCoworkers() {
-    return coworkerCollection.snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map(
-          (doc) {
-            List<String> offeringIds =
-                List<String>.from(doc["offeringIds"] ?? []);
-            return Coworker(
-              id: doc["id"],
-              name: doc["name"],
-              email: doc["email"],
-              password: doc["password"],
-              phone: doc["phone"],
-              startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
-              endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
-              role: doc["role"],
-              offeringIds: offeringIds,
-            );
-          },
-        ).toList();
-      },
-    );
+    try {
+      return coworkerCollection.snapshots().map(
+            (snapshot) {
+          return snapshot.docs.map(
+                (doc) {
+              List<String> offeringIds =
+              List<String>.from(doc["offeringIds"] ?? []);
+              return Coworker(
+                id: doc["id"],
+                name: doc["name"],
+                email: doc["email"],
+                password: doc["password"],
+                phone: doc["phone"],
+                startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
+                endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
+                role: doc["role"],
+                offeringIds: offeringIds,
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
   }
 
   Future<void> updateCoworker(Coworker coworker) async {
     try {
       await coworkerCollection.doc(coworker.id).update(coworker.toMap());
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
@@ -57,35 +60,38 @@ class CoworkerRepository {
     try {
       await coworkerCollection.doc(coworker).delete();
     } catch (error) {
-      print("Erro: $error");
-      // tratar em caso de erro
+      rethrow;
     }
   }
 
   Stream<List<Coworker>> getCoworkerByOfferingId(String offeringId) {
-    return coworkerCollection
-        .where('offeringIds', arrayContains: offeringId)
-        .snapshots()
-        .map(
-          (snapshot) {
-        return snapshot.docs.map(
-              (doc) {
-            List<String> offeringIds =
-            List<String>.from(doc["offeringIds"] ?? []);
-            return Coworker(
-              id: doc["id"],
-              name: doc["name"],
-              email: doc["email"],
-              password: doc["password"],
-              phone: doc["phone"],
-              startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
-              endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
-              role: doc["role"],
-              offeringIds: offeringIds,
-            );
-          },
-        ).toList();
-      },
-    );
+    try {
+      return coworkerCollection
+          .where('offeringIds', arrayContains: offeringId)
+          .snapshots()
+          .map(
+            (snapshot) {
+          return snapshot.docs.map(
+                (doc) {
+              List<String> offeringIds =
+              List<String>.from(doc["offeringIds"] ?? []);
+              return Coworker(
+                id: doc["id"],
+                name: doc["name"],
+                email: doc["email"],
+                password: doc["password"],
+                phone: doc["phone"],
+                startUnavailable: (doc["startUnavailable"] as Timestamp).toDate(),
+                endUnavailable: (doc["endUnavailable"] as Timestamp).toDate(),
+                role: doc["role"],
+                offeringIds: offeringIds,
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
   }
 }
