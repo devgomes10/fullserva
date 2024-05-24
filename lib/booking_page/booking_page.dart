@@ -1,15 +1,20 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fullserva/booking_page/show_phone_appointments.dart';
 import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/utils/formatting/format_time_of_day.dart';
 import 'package:fullserva/views/components/modals/modal_offerings.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/offering.dart';
+import '../data/storage/storage_service.dart';
 import '../views/components/modals/modal_coworkers.dart';
+import 'customer_appointments.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -25,6 +30,8 @@ class _BookingPageState extends State<BookingPage> {
   final _formKey = GlobalKey<FormState>();
   final String _uniqueId = const Uuid().v4();
 
+  final searchByPhone = TextEditingController();
+
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
@@ -34,77 +41,164 @@ class _BookingPageState extends State<BookingPage> {
   Offering? _selectedOfferingId;
   Coworker? _selectedCoworkerId;
 
+  String? urlPhoto;
+  final StorageService _storageService = StorageService();
+
+  @override
+  void initState() {
+    reload();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("NOVO AGENDAMENTO"),
+          actions: [
+            IconButton(
+              onPressed: () {
+                uploadImage();
+              },
+              icon: const Icon(Icons.upload),
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const SizedBox(height: 26),
-                  _buildTextFormField(
-                    label: 'Nome do cliente',
-                    controller: _clientNameController,
-                    keyboardType: TextInputType.name,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira o nome do cliente';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 26),
-                  _buildTextFormField(
-                    label: 'Telefone do cliente',
-                    controller: _clientPhoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      MaskTextInputFormatter(
-                        mask: '(##) #####-####',
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        showPhoneAppointments(context: context);
+                      },
+                      child: Text("Meus agendamentos"),
+                    )
+                  ],
+                ),
+                (urlPhoto != null)
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(64),
+                        child: Image.network(
+                          urlPhoto!,
+                          height: 128,
+                          width: 128,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const CircleAvatar(
+                        radius: 64,
+                        child: Icon(Icons.person),
+                      ),
+                SizedBox(
+                  height: 16,
+                ),
+                Text("Nome da empresa"),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 26),
+                      _buildTextFormField(
+                        label: 'Nome do cliente',
+                        controller: _clientNameController,
+                        keyboardType: TextInputType.name,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o nome do cliente';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 26),
+                      _buildTextFormField(
+                        label: 'Telefone do cliente',
+                        controller: _clientPhoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          MaskTextInputFormatter(
+                            mask: '(##) #####-####',
+                          ),
+                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o telefone do cliente';
+                          }
+                          if (value.length < 15) {
+                            return 'Por favor, insira um número válido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 26),
+                      _buildElevatedButton(
+                        label:
+                            _selectedOfferingId?.name ?? "Selecione um serviço",
+                        onPressed: () => _selectOffering(),
+                      ),
+                      const SizedBox(height: 26),
+                      _buildElevatedButton(
+                        label: _selectedCoworkerId?.name ??
+                            "Selecione um colaborador",
+                        onPressed: () => _selectCoworker(),
+                      ),
+                      const SizedBox(height: 26),
+                      _buildDateAndTimeButtons(),
+                      const SizedBox(height: 42),
+                      _buildElevatedButton(
+                        label: 'ADICIONAR',
+                        onPressed: () => _addAppointment(),
                       ),
                     ],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira o telefone do cliente';
-                      }
-                      if (value.length < 15) {
-                        return 'Por favor, insira um número válido';
-                      }
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 26),
-                  _buildElevatedButton(
-                    label: _selectedOfferingId?.name ?? "Selecione um serviço",
-                    onPressed: () => _selectOffering(),
-                  ),
-                  const SizedBox(height: 26),
-                  _buildElevatedButton(
-                    label:
-                        _selectedCoworkerId?.name ?? "Selecione um colaborador",
-                    onPressed: () => _selectCoworker(),
-                  ),
-                  const SizedBox(height: 26),
-                  _buildDateAndTimeButtons(),
-                  const SizedBox(height: 42),
-                  _buildElevatedButton(
-                    label: 'ADICIONAR',
-                    onPressed: () => _addAppointment(),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  uploadImage() {
+    ImagePicker imagePicker = ImagePicker();
+    imagePicker
+        .pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      imageQuality: 50,
+    )
+        .then(
+      (XFile? image) {
+        if (image != null) {
+          _storageService
+              .upload(
+            file: File(image.path),
+            fileName: "user_photo",
+          )
+              .then((String urlDownload) {
+            setState(() {
+              urlPhoto = urlDownload;
+            });
+          });
+        } else {}
+      },
+    );
+  }
+
+  reload() {
+    _storageService
+        .getDownloadUrlByFileName(fileName: "user_photo")
+        .then((urlDownload) {
+      setState(() {
+        urlPhoto = urlDownload;
+      });
+    });
   }
 
   Widget _buildTextFormField({
@@ -365,7 +459,6 @@ class _BookingPageState extends State<BookingPage> {
         observations: null,
       );
       await _appointmentController.addAppointment(appointment);
-      Navigator.pop(context, true);
     }
   }
 }

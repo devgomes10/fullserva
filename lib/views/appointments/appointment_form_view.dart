@@ -343,22 +343,8 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
     );
   }
 
-  void _addAppointment() async {
+  void _addAppointment() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedTime != null && _selectedDate != null) {
-        print("data selecionada: $_selectedDate");
-        print("horário selecionado: $_selectedTime");
-        print("${DateTime(
-          _selectedDate!.day,
-          _selectedDate!.month,
-          _selectedDate!.year,
-          _selectedTime!.hour,
-          _selectedTime!.minute,
-        )}");
-      } else {
-        print("a data e o horário são nulos");
-      }
-
       Appointment appointment = Appointment(
         id: _uniqueId,
         clientName: _clientNameController.text,
@@ -374,8 +360,11 @@ class _AppointmentFormViewState extends State<AppointmentFormView> {
         ),
         observations: _observationsController.text,
       );
-      await _appointmentController.addAppointment(appointment);
-      Navigator.pop(context, true);
+      _appointmentController.addAppointment(appointment).then(
+        (_) {
+          Navigator.pop(context, true);
+        },
+      );
     }
   }
 }

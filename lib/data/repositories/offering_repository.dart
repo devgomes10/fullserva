@@ -57,4 +57,17 @@ class OfferingRepository {
       rethrow;
     }
   }
+
+  Future<String> getNameByOffering(String id) async {
+    try {
+      DocumentSnapshot doc = await offeringCollection.doc(id).get();
+      if (doc.exists) {
+        return doc.get('name');
+      } else {
+        throw Exception("Offering not found");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
 }

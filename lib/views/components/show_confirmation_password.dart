@@ -11,7 +11,6 @@ showConfirmationPassword({
       TextEditingController confirmationPasswordController =
       TextEditingController();
       return AlertDialog(
-        backgroundColor: Colors.black,
         scrollable: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
@@ -31,7 +30,6 @@ showConfirmationPassword({
                 obscureText: true,
                 decoration: const InputDecoration(
                   label: Text("Senha"),
-                  labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
             ],
@@ -50,11 +48,6 @@ showConfirmationPassword({
             },
             child: const Text(
               "EXCLUIR CONTA",
-              style: TextStyle(
-                color: Color(0xFF5CE1E6),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
             ),
           ),
         ],

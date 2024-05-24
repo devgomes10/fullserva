@@ -32,6 +32,33 @@ class AppointmentRepository {
   Stream<List<Appointment>> getAppointments() {
     try {
       return appointmentCollection.snapshots().map(
+        (snapshot) {
+          return snapshot.docs.map(
+            (doc) {
+              return Appointment(
+                id: doc["id"],
+                clientName: doc["clientName"],
+                coworkerId: doc["coworkerId"],
+                clientPhone: doc["clientPhone"],
+                offeringId: doc["offeringId"],
+                dateTime: (doc["dateTime"] as Timestamp).toDate(),
+                observations: doc["observations"],
+              );
+            },
+          ).toList();
+        },
+      );
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Stream<List<Appointment>> getAppointmentsByPhone(String phone) {
+    try {
+      return appointmentCollection
+          .where("clientPhone", isEqualTo: phone)
+          .snapshots()
+          .map(
             (snapshot) {
           return snapshot.docs.map(
                 (doc) {
@@ -79,11 +106,17 @@ class AppointmentRepository {
       QuerySnapshot querySnapshot = await appointmentCollection
           .where("coworkerId", isEqualTo: selectedCoworker!.id)
           .where("dateTime",
-              isGreaterThanOrEqualTo: Timestamp.fromDate(
-                  DateTime(selectedDate!.year, selectedDate.month, selectedDate.day, 0, 0, 0)))
+              isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
+                  selectedDate!.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  0,
+                  0,
+                  0)))
           .where("dateTime",
               isLessThanOrEqualTo: Timestamp.fromDate(
-                DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59),
+                DateTime(selectedDate.year, selectedDate.month,
+                    selectedDate.day, 23, 59, 59),
               ))
           .get();
 
@@ -259,7 +292,7 @@ class AppointmentRepository {
   }
 
   Future<List<TimeOfDay>> getAvailableTimes(
-      List<Map<String, TimeOfDay>> busyTimes,
+    List<Map<String, TimeOfDay>> busyTimes,
     DateTime? selectedDate,
     Offering? selectedOffering,
   ) async {
@@ -300,22 +333,24 @@ class AppointmentRepository {
     return filteredTimes;
   }
 
-  // Future<void> sendEmail() async {
-  //   final email = "viniciusgomesccc10@gmail.com";
-  //
-  //   final smtpServer = gmailSaslXoauth2(email, accessToken);
-  //   final message = Message()
-  //   ..from = Address(email, "Vinicius")
-  //   .. recipients = ["geoovanarodriguess224@gmail.com"]
-  //   ..subject = "Hello Gi"
-  //   ..text = "This is a test emial";
-  //
-  //   try {
-  //     await send(message, smtpServer);
-  //
-  //     SnackBar(content: Text("Email enviado com sucesso"));
-  //   } on MailerException catch (e) {
-  //     print(e);
-  //   }
-  // }
+
+
+// Future<void> sendEmail() async {
+//   final email = "viniciusgomesccc10@gmail.com";
+//
+//   final smtpServer = gmailSaslXoauth2(email, accessToken);
+//   final message = Message()
+//   ..from = Address(email, "Vinicius")
+//   .. recipients = ["geoovanarodriguess224@gmail.com"]
+//   ..subject = "Hello Gi"
+//   ..text = "This is a test emial";
+//
+//   try {
+//     await send(message, smtpServer);
+//
+//     SnackBar(content: Text("Email enviado com sucesso"));
+//   } on MailerException catch (e) {
+//     print(e);
+//   }
+// }
 }

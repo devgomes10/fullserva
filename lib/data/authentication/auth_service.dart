@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fullserva/controllers/opening_hours_controller.dart';
 import 'package:fullserva/data/repositories/opening_hours_repository.dart';
 
 class AuthService {
