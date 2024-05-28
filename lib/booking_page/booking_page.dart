@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fullserva/booking_page/show_phone_appointments.dart';
@@ -8,13 +7,10 @@ import 'package:fullserva/domain/entities/appointment.dart';
 import 'package:fullserva/domain/entities/coworker.dart';
 import 'package:fullserva/utils/formatting/format_time_of_day.dart';
 import 'package:fullserva/views/components/modals/modal_offerings.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/offering.dart';
-import '../data/storage/storage_service.dart';
 import '../views/components/modals/modal_coworkers.dart';
-import 'customer_appointments.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -42,11 +38,9 @@ class _BookingPageState extends State<BookingPage> {
   Coworker? _selectedCoworkerId;
 
   String? urlPhoto;
-  final StorageService _storageService = StorageService();
 
   @override
   void initState() {
-    reload();
     super.initState();
   }
 
@@ -54,16 +48,7 @@ class _BookingPageState extends State<BookingPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            IconButton(
-              onPressed: () {
-                uploadImage();
-              },
-              icon: const Icon(Icons.upload),
-            ),
-          ],
-        ),
+        appBar: AppBar(),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
@@ -76,10 +61,11 @@ class _BookingPageState extends State<BookingPage> {
                       onPressed: () {
                         showPhoneAppointments(context: context);
                       },
-                      child: Text("Meus agendamentos"),
+                      child: const Text("Meus agendamentos"),
                     )
                   ],
                 ),
+                const SizedBox(height: 16),
                 (urlPhoto != null)
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(64),
@@ -94,9 +80,7 @@ class _BookingPageState extends State<BookingPage> {
                         radius: 64,
                         child: Icon(Icons.person),
                       ),
-                SizedBox(
-                  height: 16,
-                ),
+                SizedBox(height: 16),
                 Text("Nome da empresa"),
                 Form(
                   key: _formKey,
@@ -162,43 +146,6 @@ class _BookingPageState extends State<BookingPage> {
         ),
       ),
     );
-  }
-
-  uploadImage() {
-    ImagePicker imagePicker = ImagePicker();
-    imagePicker
-        .pickImage(
-      source: ImageSource.gallery,
-      maxHeight: 2000,
-      maxWidth: 2000,
-      imageQuality: 50,
-    )
-        .then(
-      (XFile? image) {
-        if (image != null) {
-          _storageService
-              .upload(
-            file: File(image.path),
-            fileName: "user_photo",
-          )
-              .then((String urlDownload) {
-            setState(() {
-              urlPhoto = urlDownload;
-            });
-          });
-        } else {}
-      },
-    );
-  }
-
-  reload() {
-    _storageService
-        .getDownloadUrlByFileName(fileName: "user_photo")
-        .then((urlDownload) {
-      setState(() {
-        urlPhoto = urlDownload;
-      });
-    });
   }
 
   Widget _buildTextFormField({

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fullserva/controllers/appointment_controller.dart';
 import 'package:fullserva/data/repositories/appointment_repository.dart';
 import 'package:fullserva/data/repositories/offering_repository.dart';
 import 'package:fullserva/domain/entities/appointment.dart';
@@ -14,6 +15,8 @@ class CustomerAppointments extends StatefulWidget {
 class _CustomerAppointmentsState extends State<CustomerAppointments> {
   final AppointmentRepository _appointmentRepository = AppointmentRepository();
   final OfferingRepository _offeringRepository = OfferingRepository();
+
+  final AppointmentController _appointmentController = AppointmentController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +62,8 @@ class _CustomerAppointmentsState extends State<CustomerAppointments> {
                             "${DateFormat('dd/MM/yyyy').format(appointment.dateTime)} às ${DateFormat("HH:mm").format(appointment.dateTime)}"),
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () {
-                          _showSummaryAppointment(appointment, nameSnapshot.data);
+                          _showSummaryAppointment(
+                              appointment, nameSnapshot.data);
                         },
                       );
                     }
@@ -78,18 +82,15 @@ class _CustomerAppointmentsState extends State<CustomerAppointments> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(offeringName!),
-        content: Text(
-          "Cliente: ${appointment.clientName}\n"
-              "Data: ${appointment.dateTime.day}/${appointment.dateTime.month}/${appointment.dateTime.year}\n"
-              "Horário: ${appointment.dateTime.hour}:${appointment.dateTime.minute}",
-        ),
+        content: const Text("Você deseja desmarcar esse agendamento?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Legal"),
+            child: const Text("Fechar"),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              await _appointmentController.removeAppointment(appointment.id);
               Navigator.pop(context);
             },
             child: const Text("Desmarcar"),
@@ -99,5 +100,3 @@ class _CustomerAppointmentsState extends State<CustomerAppointments> {
     );
   }
 }
-
-

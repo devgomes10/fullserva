@@ -16,4 +16,8 @@ class StorageService {
         .ref("$pathService/$fileName.png")
         .getDownloadURL();
   }
+
+  Future<void> deleteByReference({required Reference ref}) async {
+    await ref.delete();
+  }
 }

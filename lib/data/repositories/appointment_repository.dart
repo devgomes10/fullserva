@@ -32,9 +32,9 @@ class AppointmentRepository {
   Stream<List<Appointment>> getAppointments() {
     try {
       return appointmentCollection.snapshots().map(
-        (snapshot) {
+            (snapshot) {
           return snapshot.docs.map(
-            (doc) {
+                (doc) {
               return Appointment(
                 id: doc["id"],
                 clientName: doc["clientName"],
@@ -99,25 +99,24 @@ class AppointmentRepository {
   }
 
   Future<List<Appointment>> getAppointmentsByCoworkerAndDate(
-    Coworker? selectedCoworker,
-    DateTime? selectedDate,
-  ) async {
+      Coworker? selectedCoworker,
+      DateTime? selectedDate,) async {
     try {
       QuerySnapshot querySnapshot = await appointmentCollection
           .where("coworkerId", isEqualTo: selectedCoworker!.id)
           .where("dateTime",
-              isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
-                  selectedDate!.year,
-                  selectedDate.month,
-                  selectedDate.day,
-                  0,
-                  0,
-                  0)))
+          isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(
+              selectedDate!.year,
+              selectedDate.month,
+              selectedDate.day,
+              0,
+              0,
+              0)))
           .where("dateTime",
-              isLessThanOrEqualTo: Timestamp.fromDate(
-                DateTime(selectedDate.year, selectedDate.month,
-                    selectedDate.day, 23, 59, 59),
-              ))
+          isLessThanOrEqualTo: Timestamp.fromDate(
+            DateTime(selectedDate.year, selectedDate.month,
+                selectedDate.day, 23, 59, 59),
+          ))
           .get();
 
       List<Appointment> appointments = querySnapshot.docs.map((doc) {
@@ -140,9 +139,8 @@ class AppointmentRepository {
   }
 
   Future<List<Map<String, TimeOfDay>>> calculateBusyTimes(
-    List<Appointment> appointments,
-    Offering? selectedOffering,
-  ) async {
+      List<Appointment> appointments,
+      Offering? selectedOffering,) async {
     List<Map<String, TimeOfDay>> busyTimes = [];
 
     try {
@@ -179,7 +177,7 @@ class AppointmentRepository {
 
           // Cálculo do horário final (horário inicial + duração do serviço)
           DateTime endDateTime =
-              startDateTime.add(Duration(minutes: serviceDuration));
+          startDateTime.add(Duration(minutes: serviceDuration));
           // print("data e hora final: $endDateTime");
 
           // redefinindo horário inicial do agendamento
@@ -208,10 +206,8 @@ class AppointmentRepository {
     return busyTimes;
   }
 
-  Future<List<TimeOfDay>> startTimeToEndTimeList(
-    DateTime dateTime,
-    Offering? selectedOffering,
-  ) async {
+  Future<List<TimeOfDay>> startTimeToEndTimeList(DateTime dateTime,
+      Offering? selectedOffering,) async {
     final int weekday = dateTime.weekday;
     DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
         .instance
@@ -245,7 +241,7 @@ class AppointmentRepository {
         TimeOfDay endTimeOfDay = minutesToTimeOfDay(endTime);
 
         TimeOfDay startIntervalTimeOfDay =
-            minutesToTimeOfDay(startTimeInterval);
+        minutesToTimeOfDay(startTimeInterval);
         TimeOfDay endIntervalTimeOfDay = minutesToTimeOfDay(endTimeInterval);
 
         DateTime now = DateTime.now();
@@ -292,13 +288,12 @@ class AppointmentRepository {
   }
 
   Future<List<TimeOfDay>> getAvailableTimes(
-    List<Map<String, TimeOfDay>> busyTimes,
-    DateTime? selectedDate,
-    Offering? selectedOffering,
-  ) async {
+      List<Map<String, TimeOfDay>> busyTimes,
+      DateTime? selectedDate,
+      Offering? selectedOffering,) async {
     // 1. Obter a lista completa de horários disponíveis para o dia selecionado
     List<TimeOfDay> availableTimes =
-        await startTimeToEndTimeList(selectedDate!, selectedOffering);
+    await startTimeToEndTimeList(selectedDate!, selectedOffering);
 
     // 2. Criar uma lista de intervalos ocupados com início e fim
     List<TimeOfDay> busyStartTimes = [];
@@ -334,23 +329,22 @@ class AppointmentRepository {
   }
 
 
-
-// Future<void> sendEmail() async {
-//   final email = "viniciusgomesccc10@gmail.com";
-//
-//   final smtpServer = gmailSaslXoauth2(email, accessToken);
-//   final message = Message()
-//   ..from = Address(email, "Vinicius")
-//   .. recipients = ["geoovanarodriguess224@gmail.com"]
-//   ..subject = "Hello Gi"
-//   ..text = "This is a test emial";
-//
-//   try {
-//     await send(message, smtpServer);
-//
-//     SnackBar(content: Text("Email enviado com sucesso"));
-//   } on MailerException catch (e) {
-//     print(e);
-//   }
-// }
+  // Future<void> sendEmail() async {
+  //   final email = "viniciusgomesccc10@gmail.com";
+  //
+  //   final smtpServer = gmailSaslXoauth2(email, accessToken);
+  //   final message = Message()
+  //     ..from = Address(email, "Vinicius")
+  //     .. recipients = ["geoovanarodriguess224@gmail.com"]
+  //     ..subject = "Hello Gi"
+  //     ..text = "This is a test emial";
+  //
+  //   try {
+  //     await send(message, smtpServer);
+  //
+  //     SnackBar(content: Text("Email enviado com sucesso"));
+  //   } on MailerException catch (e) {
+  //     print(e);
+  //   }
+  // }
 }
